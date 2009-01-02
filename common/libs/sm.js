@@ -6150,6 +6150,34 @@ Device/OS Detection
     $.detachInfiniteScroll = function(infiniteContent) {
         $.getScroller(infiniteContent).off('scroll', handleInfiniteScroll);
     };
+    $.locScroll = function(infiniteContent){
+        var scroller = $.getScroller(infiniteContent);
+        var scrollTop = scroller.scrollTop();
+        var scrollHeight = scroller.scrollHeight();
+        var height = infiniteContent[0].offsetHeight;
+        var distance = infiniteContent[0].getAttribute('data-distance');
+        var virtualListContainer = infiniteContent.find('.virtual-list');
+        var virtualList;
+        var onTop = infiniteContent.hasClass('infinite-scroll-top');
+        if (!distance) distance = 50;
+        if (typeof distance === 'string' && distance.indexOf('%') >= 0) {
+            distance = parseInt(distance, 10) / 100 * height;
+        }
+        if (distance > height) distance = height;
+        if (onTop) {
+            if (scrollTop < distance) {
+                infiniteContent.trigger('infinite');
+            }
+        } else {
+            if (scrollTop + height >= scrollHeight - distance) {
+                if (virtualListContainer.length > 0) {
+                    virtualList = virtualListContainer[0].f7VirtualList;
+                    if (virtualList && !virtualList.reachEnd) return;
+                }
+                infiniteContent.trigger('infinite');
+            }
+        }
+    };
 
     $.initInfiniteScroll = function(pageContainer) {
         pageContainer = $(pageContainer);
