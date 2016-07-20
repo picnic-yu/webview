@@ -67,6 +67,7 @@ var commonutils = require('../../../common/assets/js/commonutils');
 module.exports =  {
   route:{
    data:function(transition){
+     this.getData();
      transition.next({
        shopInfo:Constant.shopInfo
      });
@@ -78,6 +79,7 @@ module.exports =  {
         id:'',
         name:''
       },
+      id: null,
       saleTime:'',
       total:'',
       dealPersonNum:'',
@@ -114,6 +116,7 @@ module.exports =  {
       this.total = '';
       this.dealNum = '';
       this.dealPersonNum = '';
+      this.id = null;
     },
     clearData0: function () {
       this.doing = false;
@@ -121,6 +124,34 @@ module.exports =  {
       this.total = '';
       this.dealNum = '';
       this.dealPersonNum = '';
+    },
+    getData: function () {
+      var _this = this;
+      var today = commonutils.formatDateTime(new Date(), 1);
+      this.$http.post('/service/getSaleList.action?token=' + Constant.token, {
+        dep_id: Constant.shopInfo.id,
+        start_time: today + " 00:00:00",
+        end_time: today + " 23:59:59",
+        pageNumber: 1,
+        pageSize: 20
+      }).then(function (ret) {
+        if (ret.ok && ret.data && ret.data.result == 'ok') {
+          var data = ret.data.data.data;
+          if (data && data.length > 0) {
+            var item = data[0];
+            _this.total = item.total;
+            _this.dealNum = item.dealNum;
+            _this.dealPersonNum = item.dealPersonNum;
+            _this.id = item.id;
+          } else {
+            _this.total = '';
+            _this.dealNum = '';
+            _this.dealPersonNum = '';
+            _this.id = null;
+          }
+        }
+
+      });
     },
     submitData:function(){
       if(this.doing) return;
@@ -162,6 +193,7 @@ module.exports =  {
       //$.showPreloader('请稍后...');
       this.$http.post('/service/saveSaleData.action?token='+Constant.token,{
         sale:{
+          id: this.id,
           dep_id:Constant.shopInfo.id,
           dealPersonNum:this.dealPersonNum,
           total:this.total,
