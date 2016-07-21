@@ -4,6 +4,7 @@
             <header class="bar bar-nav">
                 <h1 class='title'>工程归档</h1>
                 <a class="right-menu" v-on:click="toggleEdit()" v-if="hasPrivilege" v-bind:class="editStatus?'red':''">{{optName}}</a>
+                <a class="right-menu export-btn" v-on:click="exportExcel()" v-if="hasExportBtn">导出</a>
             </header>
             <div class="content">
                 <form id="f1"  method="post"  target="tmpframe" enctype="multipart/form-data">
@@ -41,8 +42,11 @@
                                             <div class="fp-row row-des-input">
                                                 <div class="text-area-container">
                                                     <div  class="search-shop-tip search-shop-tip-{{childType.id}}">{{childType.descript?childType.descript:'添加描述'}}</div>
-                                                    <textarea class="text-area textarea-{{childType.id}}" v-on:click="showTextArea(childType)" maxlength="100"  v-model="childType.desCopy"  placeholder="添加描述"></textarea>
+                                                    <textarea class="text-area textarea-{{childType.id}}"
+                                                              v-on:click="showTextArea(childType)"
+                                                              v-model="childType.desCopy" placeholder="添加描述"></textarea>
                                                     <div class="btn-panel" v-show="childType.showTextArea">
+                                                        <span v-bind:class="childType.desCopy&&childType.desCopy.length>100?'red':''">{{childType.desCopy?childType.desCopy.length:0}}</span>/<span>100</span>
                                                         <p  class="submit-panel submit-panel-small pull-right"><a class="button button-fill  button-orange"  v-on:click="submitTextArea(childType)" v-bind:class="">提交</a></p>
                                                         <p  class="submit-panel submit-panel-small pull-right"><a class="button button-fill  button-light"  v-on:click="hideTextArea(childType)" v-bind:class="">取消</a></p>
                                                     </div>
@@ -67,6 +71,7 @@
                                                 <div class="item-inner">
                                                     <div class="item-title label">安装人员</div>
                                                     <div class="item-input"><input type="text" v-model="baseInfo.builder" placeholder="请输入现场施工人员的称呼" maxlength="30"/></div>
+                                                    *
                                                 </div>
                                             </div>
                                         </li>
@@ -75,6 +80,7 @@
                                                 <div class="item-inner">
                                                     <div class="item-title label">工人电话</div>
                                                     <div class="item-input"><input type="tel" placeholder="请输入施工人员的联系方式" v-model="baseInfo.builderPhone" maxlength="30"/></div>
+                                                    *
                                                 </div>
                                             </div>
                                         </li>
@@ -83,6 +89,7 @@
                                                 <div class="item-inner">
                                                     <div class="item-title label">安装日期</div>
                                                     <div class="item-input"><input type="text" id="buildTime" placeholder="请选择施工日期" v-model="baseInfo.builderTimeStr" readonly/></div>
+                                                    *
                                                 </div>
                                             </div>
                                         </li>
@@ -91,12 +98,15 @@
                                                 <div class="item-inner">
                                                     <div class="item-title label">门店电话</div>
                                                     <div class="item-input"><input type="tel" placeholder="请输入施工门店的联系方式" v-model="baseInfo.deptPhone" maxlength="30"/></div>
+                                                    *
                                                 </div>
                                             </div>
                                         </li>
                                     </ul></form>
                             </div>
-                            <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="submitBaseInfo()" v-bind:class="doing?'disabled':''">提交</a></p>
+                            <p class="submit-panel submit-baseinfo"><a class="button button-fill  button-orange"
+                                                                       v-on:click="submitBaseInfo()"
+                                                                       v-bind:class="doing?'disabled':''">提交</a></p>
                         </div>
                     </div>
                 </div>
@@ -104,6 +114,13 @@
             </form>
             </div>
         </div>
+        <form id="exportForm" v-if="hasExportBtn" method="post">
+            <input name="deptId" v-model="shopInfo.id" type="hidden"/>
+        </form>
+        <iframe id="exportFrame" name="exportFrame" v-if="hasExportBtn" src="about:blank" frameborder="0" width="0"
+                height="0">
+
+        </iframe>
         <iframe name="tmpframe"  width="400" height=40 frameborder=0 style="display: none"></iframe>
     </div>
 </template>
@@ -128,6 +145,7 @@
                 },
                 editStatus:false,
                 hasPrivilege:false,
+                hasExportBtn: false,
                 optName:'编辑',
                 curTypeId:-1,//当前上传的图片的类型
                 pics:[],
@@ -138,6 +156,28 @@
         },
         components:{
 
+        },
+        watch: {
+            'baseInfo.builder': function (newValue, oldValue) {
+                if (newValue != oldValue && oldValue) {
+                    $('.submit-baseinfo').show();
+                }
+            },
+            'baseInfo.builderPhone': function (newValue, oldValue) {
+                if (newValue != oldValue && oldValue) {
+                    $('.submit-baseinfo').show();
+                }
+            },
+            'baseInfo.builderTimeStr': function (newValue, oldValue) {
+                if (newValue != oldValue && oldValue) {
+                    $('.submit-baseinfo').show();
+                }
+            },
+            'baseInfo.deptPhone': function (newValue, oldValue) {
+                if (newValue != oldValue && oldValue) {
+                    $('.submit-baseinfo').show();
+                }
+            }
         },
         ready: function () {
             this.init();
@@ -223,7 +263,12 @@
                     if(ret.ok && ret.data){
                         if(ret.data.result == 'ok'){
                             var data = ret.data.data.data;
-                            _this.hasPrivilege = ret.data.data.privilege;
+                            _this.hasPrivilege = ret.data.data.privilege;//编辑权限
+                            if (!$.device.os && _this.hasPrivilege) {//导出权限
+                                _this.hasExportBtn = true;
+                            } else {
+                                _this.hasExportBtn = false;
+                            }
                             _this.formatData(data);
                             _this.types = Constant.types = data;
                             $.extend(true,Constant.originalTypes,Constant.types);//深度拷贝
@@ -253,6 +298,10 @@
             submitTextArea:function(childType){
                 if(childType.desCopy == childType.descript){
                     this.hideTextArea(childType);
+                    return;
+                }
+                if (childType.desCopy.length > 100) {
+                    $.toast('描述字数太多了');
                     return;
                 }
                 var _this = this;
@@ -298,7 +347,7 @@
                 }
                 this.$http.post('/service/saveOrUpdateDeptAttachInfo.action?token='+Constant.token,{
                     deptAttachId:this.baseInfo.id,
-                    deptId:this.baseInfo.deptId,
+                    deptId: this.shopInfo.id,
                     builder:this.baseInfo.builder,
                     builderTime:this.baseInfo.builderTimeStr+" 00:00:00",
                     builderPhone:this.baseInfo.builderPhone,
@@ -306,6 +355,7 @@
                 }).then(function(ret){
                     if(ret.data.result == 'ok'){
                         $.toast('提交成功');
+                        $('.submit-baseinfo').hide();
                     }else{
                         $.toast('提交失败');
                     }
@@ -338,6 +388,12 @@
                     oXHR.open('POST', '/service/pictureUpload.action?token='+Constant.token);
                     oXHR.send(vFD);
                 },1000);
+            },
+            exportExcel: function () {
+                var iframe = $('#exportFrame')[0], form = $('#exportForm')[0];
+                iframe.contentWindow.document.write("<body>" + form.outerHTML + "</body>");
+                form.action = '/service/exportAttachmentImageExcel.action?token=' + Constant.token;
+                form.submit();
             },
             deleteImg:function(childType,id,index){
                 var _this = this;
@@ -566,6 +622,10 @@
         color: #333;
         position: relative;
     }
+
+    .export-btn {
+        margin-right: 20px;
+    }
     .text-area-container{
         position: relative;
         width: 100%;
@@ -578,6 +638,18 @@
     }
     .item-form .list-block .item-title.label{
         font-size: 15px;
+    }
+
+    .list-block .item-inner {
+        color: red;
+    }
+
+    .list-block .item-inner .item-title.label {
+        color: #333;
+    }
+
+    .submit-baseinfo {
+        display: none;
     }
     @media all and (max-width:360px){
         .item-form .list-block input{
