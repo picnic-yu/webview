@@ -21,7 +21,20 @@ var paths = [{
   },
   {
     name: 'itemshopdetails', parent: 'itemshops'
-  }];
+  },
+  {
+    name: 'capacityusers', parent: 'default'
+  },
+  {
+    name: 'capacityproblems', parent: 'capacityusers'
+  },
+  {
+    name: 'capacitytasks', parent: 'capacityusers'
+  },
+  {
+    name: 'capacityitems', parent: 'capacityusers'
+  }
+];
 module.exports.getBackPath = function (name) {
   var res = {};
   for (var i = 0; i < paths.length; i++) {

@@ -176,7 +176,7 @@ header .title{
   float: right;
   line-height: 2.2rem;
   height:2.2rem;
-  color: #333;
+  color: #f90;
   position: relative;
 }
 html {

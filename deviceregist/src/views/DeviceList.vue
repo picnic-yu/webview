@@ -396,7 +396,7 @@
         }
       }
     }
-    if(index1 > 0){
+    if (index1 >= 0) {
       var tmpDevice = devices[index1];
       devices.splice(index1,1);
       devices.unshift(tmpDevice);

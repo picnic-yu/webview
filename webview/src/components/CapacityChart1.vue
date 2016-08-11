@@ -11,7 +11,10 @@
             <div class="board-cell">
               <span class="cell-tip"id="help12">合格人数<span class="moon-ico icon-info"></span></span>
               <span class="cell-value" v-on:click="okDetails()">{{report.okNum}}</span>
-              <div class="toast-tip help12 help2">当前时间范围内平均发现数超过{{report.levelMid}}个的高管人数</div>
+
+              <div class="toast-tip help12 help2">
+                计算方式：[(发现问题数/门店数)*50%+(门店问题解决数/门店所有问题数)*50%]超过{{report.levelMid*100}}%的高管人数
+              </div>
             </div>
           </div>
           <div class="chart-box">
@@ -296,7 +299,7 @@
         Constant.shopParam.shopsPage.key = data.key;
       }
     }
-  }
+  };;
 
   function bindTouchStart(id,targetSelector){
     document.getElementById(id).addEventListener('touchstart', function(){

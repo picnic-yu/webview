@@ -54,6 +54,7 @@
   require('../../../common/assets/css/sm-extend.min.css');
   require('../../../common/assets/font.css');
   require('../../../common/libs/sm-extend.js');
+  var myPhotoBrowserStandalone;
   var num = 20;//每页显示的条数
   module.exports =  {
     route:{
@@ -95,6 +96,9 @@
       deactivate:function(transition){
         this.reInitScroll();
         this.clearData();
+        if (myPhotoBrowserStandalone) {
+          myPhotoBrowserStandalone.close();
+        }
         transition.next();
       }
     },
@@ -215,7 +219,7 @@
           photos.push(url?url:'');
         }
         //获取当前点击的记录的图片信息
-        var myPhotoBrowserStandalone = $.photoBrowser({
+        myPhotoBrowserStandalone = $.photoBrowser({
           photos : photos,
           toolbar: false,
           theme: 'dark',

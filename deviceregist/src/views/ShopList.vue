@@ -218,5 +218,16 @@
 <style scoped>
  .content{
    background: #fff;
+   overflow-y: auto;
+ }
+
+ .items-list li {
+   padding: 15px 10px;
+ }
+
+ .item-name {
+   white-space: normal;
+   word-break: normal;
+   font-size: 14px;
  }
 </style>
