@@ -184,7 +184,6 @@
                             _this.items = _this.items.concat(ret.data.data.data);
                         }
                         _this.page.total = ret.data.data.total;
-                        ;
                         if (_this.page.total <= _this.items.length) {
                             _this.unbindInfinite();
                         } else {
@@ -206,7 +205,7 @@
             },
             refresh: function () {
                 this.page.index = 0;
-                this.items = [];
+                //this.items = [];
                 this.unbindInfinite();
                 this.getData(function () {
                     $.pullToRefreshDone('#userListContent');

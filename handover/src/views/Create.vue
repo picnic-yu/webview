@@ -26,6 +26,18 @@
                         <div class="clearboth"></div>
                     </div>
                 </div>
+                <div class="sheet-content who-content" v-on:click="whichDep()">
+                    <table>
+                        <tr>
+                            <td valign="top" class="wc-tip">门店</td>
+                            <td valign="top" class="wc-userlist">
+                                <div class="no-content" v-show="!bo.deptId">请选择一个门店</div>
+                                <div class="no-content input" v-show="bo.deptId">{{bo.deptName}}</div>
+                            </td>
+                            <td valign="top" class="wc-icon"><span class="icon-pre"></span></td>
+                        </tr>
+                    </table>
+                </div>
                 <div class="sheet-content who-content" v-on:click="whichTemplate()">
                     <table>
                         <tr>
@@ -113,12 +125,16 @@
     var commonutils = require('../../../common/assets/js/commonutils');
     var Vue = require('vue');
     var num = 20;//每页显示的条数
+    var maxImgNum = 12;//最多可以上传的图片数目
     var myPhotoBrowserStandalone;
     module.exports = {
         route: {
             data: function (transition) {
                 if (!this.bo) {
                     this.getData();
+                } else {
+                    Constant.bo.deptId = Constant.shopInfo.id;
+                    Constant.bo.deptName = Constant.shopInfo.name;
                 }
                 if (transition.from.name == 'templates') {
                     //根据模板获取具体交接表内容
@@ -164,7 +180,7 @@
                         transition.next();
                     });
                 } else {
-                    this.transitionName = 'right';
+                    this.transitionName = 'left';
                     transition.next();
                 }
             }
@@ -236,6 +252,10 @@
             bindItemEvent: function () {
                 var _this = this;
                 $(document).off('change', '.add-file0').on('change', '.add-file0', function () {
+                    if ($('.handover-create .pb-standalone').length > maxImgNum) {
+                        $.toast('上传的图片最多不能超过' + maxImgNum + '张');
+                        return;
+                    }
                     var $addImg = $(this).prev();
                     var _file = this;
                     var successNum = 0, fileNum = this.files.length;
@@ -245,18 +265,69 @@
                             $.toast('图片大小不能超过10M');
                             break;
                         }
+
+                        var size = file.size / (1024 * 1024);//M
+                        (function (i) {
+                            new html5ImgCompress(_file.files[i], {
+                                quality: size <= 0.5 ? null : 0.4,
+                                before: function (file) {
+                                    //console.log('多张: ' + i + ' 压缩前...');
+                                },
+                                done: function (file, base64) { // 这里是异步回调，done中i的顺序不能保证
+                                    //console.log('多张: ' + i + ' 压缩成功...'+file.length+","+base64.length);
+                                    successNum++;
+                                    if (!_this.bo.showPicPaths) _this.bo.showPicPaths = [];
+                                    _this.bo.showPicPaths.push(base64);
+                                    if (successNum == fileNum) {
+                                        $(_file).remove();
+                                        //上传成功之后重置input
+                                        $($addImg).parent().append('<input class="add-file0" name="upload0" type="file" multiple accept="image/*"/>');
+                                    }
+                                },
+                                fail: function () {
+                                    console.log('多张: ' + i + ' 压缩失败...');
+                                },
+                                complate: function () {
+                                    console.log('多张: ' + i + ' 压缩完成...');
+                                },
+                                notSupport: function (file) {
+                                    notSupport = true;
+                                    alert('浏览器不支持！');
+                                }
+                            });
+                        })(i);
+
+                        /*var size = file.size/(1024 * 1024);//M
                         var reader = new FileReader();
                         reader.readAsDataURL(file);
                         reader.onload = function () {
-                            successNum++;
-                            if (!_this.bo.showPicPaths) _this.bo.showPicPaths = [];
-                            _this.bo.showPicPaths.push(this.result);
-                            if (successNum == fileNum) {
-                                $(_file).remove();
-                                //上传成功之后重置input
-                                $($addImg).parent().append('<input class="add-file0" name="upload0" type="file" multiple accept="image/*"/>');
+                         if(size <= 0.005){//小于500K的图片不需要压缩处理
+                         successNum++;
+                         if (!_this.bo.showPicPaths) _this.bo.showPicPaths = [];
+                         _this.bo.showPicPaths.push(this.result);
+                         if (successNum == fileNum) {
+                         $(_file).remove();
+                         //上传成功之后重置input
+                         $($addImg).parent().append('<input class="add-file0" name="upload0" type="file" multiple accept="image/!*"/>');
+                         }
+                         }else{
+                         var img  = new Image();
+                         img.src = this.result;
+                         img.onload = function(){
+                         console.log(size);
+                         var newUrl = commonutils.compressImg(img,0.5);
+                         console.log(newUrl.length/(1024*1024));
+                         successNum++;
+                         if (!_this.bo.showPicPaths) _this.bo.showPicPaths = [];
+                         _this.bo.showPicPaths.push(newUrl);
+                         if (successNum == fileNum) {
+                         $(_file).remove();
+                         //上传成功之后重置input
+                         $($addImg).parent().append('<input class="add-file0" name="upload0" type="file" multiple accept="image/!*"/>');
+                         }
+                         };
                             }
-                        };
+                         };*/
                     }
                 });
                 //点击时打开图片浏览器
@@ -310,6 +381,10 @@
                     myPhotoBrowserStandalone.open();
                 });
                 $(document).off('change', '.add-file').on('change', '.add-file', function () {
+                    if ($('.handover-create .pb-standalone').length > maxImgNum) {
+                        $.toast('上传的图片最多不能超过' + maxImgNum + '张');
+                        return;
+                    }
                     var $addImg = $(this).prev();
                     var _file = this;
                     var successNum = 0, fileNum = this.files.length;
@@ -321,7 +396,40 @@
                             $.toast('图片大小不能超过10M');
                             break;
                         }
-                        var reader = new FileReader();
+
+                        var size = file.size / (1024 * 1024);//M
+                        (function (i) {
+                            new html5ImgCompress(_file.files[i], {
+                                quality: size <= 0.5 ? null : 0.4,
+                                before: function (file) {
+                                    //console.log('多张: ' + i + ' 压缩前...');
+                                },
+                                done: function (file, base64) { // 这里是异步回调，done中i的顺序不能保证
+                                    //console.log('多张: ' + i + ' 压缩成功...'+file.length+","+base64.length);
+                                    successNum++;
+                                    if (!subItem.filePaths) subItem.filePaths = [];
+                                    subItem.filePaths.push(base64);
+                                    if (successNum == fileNum) {
+                                        $(_file).remove();
+                                        //上传成功之后重置input
+                                        $($addImg).parent().append('<input class="add-file add-' + typeId + '" typeId="' + typeId + '" name="upload" type="file" multiple accept="image/!*"/>');
+                                        _this.showPicPanel(subItem);
+                                    }
+                                },
+                                fail: function () {
+                                    console.log('多张: ' + i + ' 压缩失败...');
+                                },
+                                complate: function () {
+                                    console.log('多张: ' + i + ' 压缩完成...');
+                                },
+                                notSupport: function (file) {
+                                    notSupport = true;
+                                    alert('浏览器不支持！');
+                                }
+                            });
+                        })(i);
+
+                        /* var reader = new FileReader();
                         reader.readAsDataURL(file);
                         reader.onload = function () {
                             successNum++;
@@ -330,10 +438,10 @@
                             if (successNum == fileNum) {
                                 $(_file).remove();
                                 //上传成功之后重置input
-                                $($addImg).parent().append('<input class="add-file add-' + typeId + '" typeId="' + typeId + '" name="upload" type="file" multiple accept="image/*"/>');
+                         $($addImg).parent().append('<input class="add-file add-' + typeId + '" typeId="' + typeId + '" name="upload" type="file" multiple accept="image/!*"/>');
                                 _this.showPicPanel(subItem);
                             }
-                        };
+                         };*/
                     }
 
 
@@ -347,6 +455,8 @@
                     if (ret.ok && ret.data && ret.data.result == 'ok') {
                         var data = ret.data.data.data;
                         Constant.bo = _this.bo = data;
+                        Constant.bo.deptId = Constant.shopInfo.id;
+                        Constant.bo.deptName = Constant.shopInfo.name;
                         setTimeout(_this.bindItemEvent, 1000);
                     }
                 });
@@ -376,6 +486,9 @@
             goToUserlist: function () {
                 router.go({path: '/userlist'});
             },
+            whichDep: function () {
+                router.go({name: 'shoplist', params: {dowhich: 1}});
+            },
             showPicPanel: function (sitem) {
                 if (sitem.showPicPanel) return;
                 Vue.set(sitem, 'showPicPanel', true);
@@ -404,11 +517,19 @@
                     $.toast('说点什么吧');
                     return;
                 }
+                if ($('.handover-create .pb-standalone').length > maxImgNum) {
+                    $.toast('上传的图片最多不能超过' + maxImgNum + '张');
+                    return;
+                }
+                if (!this.bo.deptId) {
+                    $.toast('请选择一个门店');
+                    return;
+                }
                 var _this = this;
                 Vue.http.options.emulateJSON = false;
                 this.bo.deptId = Constant.shopInfo.id;
                 this.bo.reminders = getUserIds(this.userlist);
-                $.showPreloader('正在处理...');
+                $.showPreloader('正在处理');
                 this.$http.post('/service/saveHandoverBookBo.action?token=' + Constant.token, {
                     handoverBookBo: this.bo,
                     token: Constant.token
@@ -688,6 +809,7 @@
 
     .handover-create .item-li ul {
         border-bottom: 1px solid #ddd;
+
     }
 
     .handover-create .item-li:last-child ul {

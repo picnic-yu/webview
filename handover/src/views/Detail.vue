@@ -4,36 +4,75 @@
             <header class="bar bar-nav">
                 <h1 class='title'>详情</h1>
             </header>
-            <div class="content">
+            <div class="content" v-show="!display.loading">
                 <div class="item-container item-container-top">
-                    <div class="item-left">
-                        <div>
-                            <div class="default-header header-{{getWhichHeader(bo.userId)}}" v-if="!bo.userPicture">
-                                <span class="user-icon"></span></div>
-                            <img class="not-view" v-if="bo.userPicture" v-bind:src="bo.userPicture" width="42px"
-                                 height="42px"/>
+                    <div class="item-container">
+                        <div class="item-left">
+                            <div v-on:click="searchByUser(bo.userId,bo.userName)">
+                                <div class="default-header header-{{getWhichHeader(bo.userId)}}" v-if="!bo.userPicture">
+                                    <span class="user-icon"></span></div>
+                                <img class="not-view user-header-img" v-if="bo.userPicture" v-bind:src="bo.userPicture"
+                                     width="42px" height="42px"/>
+                            </div>
                         </div>
-                    </div>
-                    <div class="bo-right">
-                        <span class="user-name not-view">{{bo.userName}}</span>
-                        <span class="time-name">{{bo.createTime && bo.createTime.replace('T',' ')}}</span>
-                    </div>
-                    <div class="item-content">
-                        <div class="bo-text">
-                            {{bo.content}}
+                        <div class="item-right">
+                            <label class="user-name not-view" v-on:click="searchByUser(bo.userId,bo.userName)">{{bo.userName}}</label>
+                            <span class="time-name">{{bo.createTime && bo.createTime.replace('T',' ')}}</span>
                         </div>
-                        <div class="item-images" index="{{$index}}">
-                            <ul>
-                                <li v-for="path in bo.showPicPaths">
-                                    <a class="pb-standalone ditem-pic" index="{{$index}}"> <img class="not-view"
-                                                                                                v-bind:src="path+'_'"
-                                                                                                width="60px"
-                                                                                                height="60px"/></a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="item-footer">
-                            <span class="dept-name">{{bo.moudleName}}</span>
+                        <div class="item-content">
+                            <div class="item-text">
+                                {{bo.content}}
+                            </div>
+                            <div class="item-images" index="{{$index}}">
+                                <ul>
+                                    <li v-for="path in bo.showPicPaths">
+                                        <a class="pb-standalone ditem-pic" index="{{$index}}">
+                                            <img class="not-view" v-bind:src="path+'_'"
+                                                 width="{{whichItemImgWidth(bo)}}px"
+                                                 height="{{whichItemImgWidth(bo)}}px"/></a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="item-type">
+                                <span class="type-name">{{bo.moudleName}}</span>
+                            </div>
+                            <div class="item-footer">
+                                <span class="dept-name">{{bo.deptName}}</span>
+                            </div>
+                            <div class="item-footer at-footer">
+                                <label class="atme-name" v-show="bo.isAtMe==1">提到了我</label>
+
+                                <div class="af-at" v-on:click="whoRead(bo)">
+                                    <progress v-on:click="whoRead(bo)" class="not-view"
+                                              v-bind:percent="bo.reminderList && bo.reminderList.length>0 && bo.remindersReadCount/bo.reminderList.length"
+                                              v-if="bo.reminderList && bo.reminderList.length>0"></progress>
+                                    <label v-on:click="whoRead(bo)" class="reminder-name not-view"
+                                           v-show="bo.reminderList && bo.reminderList.length>0">
+                                        <span class="not-view"
+                                              v-show="bo.reminderList && bo.reminderList.length>bo.remindersReadCount">{{(bo.reminderList && bo.reminderList.length ? bo.reminderList.length:0)-(bo.reminderList && bo.remindersReadCount ? bo.remindersReadCount:0)}}人未读</span>
+                                        <span class="not-view"
+                                              v-show="bo.reminderList && bo.reminderList.length==bo.remindersReadCount">全部已读</span>
+                                    </label>
+                                </div>
+                                <div class="cmt-label not-view" @click="doCmt(bo)">
+                                    <span class="icon-comment not-view"></span>
+                                    <span class="cmt-num not-view">{{bo.comment && bo.comment.length || 0}}</span>
+                                </div>
+                            </div>
+                            <div class="item-footer footer-cmt" v-if="bo.comment && bo.comment.length>0">
+                                <div class="cmt-panel">
+                                    <div class="cmt-item not-view" v-for="cmt in bo.comment">
+                                        <div class="cmt-content not-view" @click="doCmt(bo,cmt)">
+                                            <span class="cmt-user not-view">{{cmt.userName}}</span>
+                                            <span class="not-view" v-show="cmt.replyUserId">回复</span>
+                                            <span v-show="cmt.replyUserId" class="cmt-user not-view">{{cmt.replyUserName}}</span>
+                                            ：{{cmt.content}}
+                                            <span v-if="cmt.showDelete" @click.stop="deleteCmt(bo.comment,cmt.id)"
+                                                  class="delete-text-cmt">删除</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -70,53 +109,26 @@
                         </li>
                     </ul>
                 </div>
-                <div class="item-container item-container-bottom">
-                    <div class="item-footer">
-                        <span class="dept-name">{{bo.deptName}}</span>
-                    </div>
-                    <div class="item-footer at-footer">
-                        <span class="atme-name" v-show="bo.isAtMe==1">提到了我</span>
-                        <progress v-on:click="whoRead(bo)" class="not-view"
-                                  v-bind:percent="bo.reminderList && bo.reminderList.length>0 && bo.remindersReadCount/bo.reminderList.length"
-                                  v-if="bo.reminderList && bo.reminderList.length>0"></progress>
-                        <label v-on:click="whoRead(bo)" class="reminder-name not-view"
-                               v-show="bo.reminderList && bo.reminderList.length>0"><span class="not-view">{{bo.reminderList && bo.remindersReadCount}}/{{bo.reminderList&&bo.reminderList.length}}人看过</span></label>
-                        <label class="cmt-label not-view" @click="doCmt(bo)">
-                            <span class="cmt-icon not-view"></span>
-                            <span class="cmt-num not-view">{{bo.comment && bo.comment.length || 0}}</span>
-                        </label>
-                    </div>
-                    <div class="item-footer footer-cmt" v-if="bo.comment && bo.comment.length>0">
-                        <div class="cmt-panel">
-                            <div class="cmt-item not-view" v-for="cmt in bo.comment">
-                                <div class="cmt-content not-view" @click="doCmt(bo,cmt)">
-                                    <span class="cmt-user not-view">{{cmt.userName}}</span>
-                                    <span class="not-view" v-show="cmt.replyUserId">回复</span>
-                                    <span v-show="cmt.replyUserId"
-                                          class="cmt-user not-view">{{cmt.replyUserName}}</span>
-                                    ：{{cmt.content}}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div class="blank"></div>
             </div>
             <div class="cmt-bottom cmt-bottom0">
-                <textarea class="cmt-textarea" placeholder="回复" autofocus id="cmtInput2"
-                          v-model="cmtContent"></textarea>
-                <button class="button button-link button-nav button-fill button-orange btn-send"
-                        v-on:click="submitCmt()">
-                    发送
-                </button>
+                <div class="cb-container">
+                    <textarea class="cmt-textarea" placeholder="回复" id="cmtInput2"
+                              v-model="cmtContent"></textarea>
+                    <button class="button button-link button-nav button-fill button-orange btn-send"
+                            v-on:click="submitCmt()">
+                        发送
+                    </button>
+                    <div class="clearboth"></div>
+                </div>
             </div>
             <modal-dialog v-bind:show-modal.sync="showModal">
                 <header class="dialog-header" slot="header">
                     <div class="buttons-tab head-tab">
                         <a href="#readtab1" class="button  tab-link active" v-on:click="selectTabIndex(0)"
-                           v-bind:class="currentTabIndex==0?'active':''">未看过的人({{unreadUsers.length}})</a>
+                           v-bind:class="currentTabIndex==0?'active':''">未读的({{unreadUsers.length}})</a>
                         <a href="#readtab2" class="button  tab-link" v-on:click="selectTabIndex(1)"
-                           v-bind:class="currentTabIndex==1?'active':''">已经看过的人({{readUsers.length}})</a>
+                           v-bind:class="currentTabIndex==1?'active':''">谁看过了({{readUsers.length}})</a>
                     </div>
                 </header>
                 <div class="dialog-body" slot="body">
@@ -142,6 +154,7 @@
                                          width="42px" height="42px"/>
 
                                     <div class="dlg-username">{{user.userName}}</div>
+                                    <div class="dlg-time">{{user.readTime | whichreadtime}}</div>
                                 </li>
                             </ul>
                         </div>
@@ -151,7 +164,7 @@
             <div class="dlgs-cmt">
                 <div class="dlg-cmt" v-show="showCommentModal" v-bind:class="{ 'active': showCommentModal}">
                     <div class="cmt-bottom">
-                        <textarea class="cmt-textarea" placeholder="回复" autofocus id="cmtInput1"
+                        <textarea class="cmt-textarea" placeholder="回复" id="cmtInput1"
                                   v-model="cmtContent"></textarea>
                         <button class="button button-link button-nav button-fill button-orange btn-send"
                                 v-on:click="submitCmt()">
@@ -176,7 +189,7 @@
         route: {
             data: function (transition) {
                 this.getData();
-                if (Constant.needReadMessage) {
+                if (Constant.needReadMessage || Constant.source == 1) {
                     this.hasReadCertainBook();
                 }
                 transition.next({
@@ -192,6 +205,7 @@
                 transition.next();
             },
             canDeactivate: function (transition) {
+                this.clearData();
                 transition.next();
             }
         },
@@ -211,7 +225,8 @@
                 },
                 display: {
                     nodata: false,
-                    searchOther: false
+                    searchOther: false,
+                    loading: true
                 },
                 pics: [],
                 bo: Constant.bo,
@@ -240,6 +255,10 @@
             'getdate': function (date) {
                 if (!date) return '';
                 return date.substring(5);
+            },
+            'whichreadtime': function (time) {
+                time = time.replace('T', ' ');
+                return time.substring(5, 16);
             }
         },
         ready: function () {
@@ -253,8 +272,31 @@
                 id = id + '';
                 return id.substr(id.length - 1, 1);
             },
+            /**
+             * 计算每张图片的大小
+             * */
+            whichItemImgWidth: function (item) {
+                if (!item.showPicPaths) {
+                    return 0;
+                } else if (item.showPicPaths.length == 1) {
+                    return (this.layout.width - 70) / 2;
+                } else {
+                    return (this.layout.width - 80) / 3 - 10;
+                }
+            },
             init: function () {
-
+                $(document).off('input', '.handover-detail .cmt-textarea').on('input', '.handover-detail .cmt-textarea', function () {
+                    if (this.scrollHeight > 30) {
+                        this.style.height = this.scrollHeight + 'px';
+                        $(this).parent().parent().height(this.scrollHeight + 6);
+                    }
+                });
+                $(document).off('propertychange', '.handover-detail .cmt-textarea').on('propertychange', '.handover .cmt-textarea', function () {
+                    if (this.scrollHeight > 30) {
+                        this.style.height = this.scrollHeight + 'px';
+                        $(this).parent().parent().height(this.scrollHeight + 6);
+                    }
+                })
             },
             bind: function () {
                 this.bindPicEvent();
@@ -284,9 +326,13 @@
             },
             getData: function () {
                 var _this = this;
+                $.showPreloader('正在加载');
+                this.display.loading = true;
                 this.$http.post('/service/constructHandoverBookBo.action?token=' + Constant.token, {
                     handoverBookId: this.$route.params.id
                 }).then(function (ret) {
+                    $.hidePreloader();
+                    _this.display.loading = false;
                     if (ret.ok && ret.data && ret.data.result == 'ok') {
                         var data = ret.data.data.data;
                         Constant.bo = _this.bo = data;
@@ -376,7 +422,11 @@
              * 评论
              */
             doCmt: function (item, cmt) {
-                if (cmt && this.curUser && this.curUser.id == cmt.userId) return;
+                if (cmt && this.curUser && this.curUser.id == cmt.userId) {
+                    Vue.set(cmt, 'showDelete', !cmt.showDelete);
+                    return;
+                    return;
+                }
                 //this.showCommentModal = true;
                 this.selectItem = item;
                 var placeholderStr = '';
@@ -388,6 +438,7 @@
                     this.cmtPid = null;
                 }
                 $('#cmtInput2').attr('placeholder', placeholderStr);
+                $('#cmtInput2').height(30);
                 /*window.webview &&　window.webview.input("cmtInput2");*/
                 setTimeout(function () {
                     $('#cmtInput2')[0].focus();
@@ -399,7 +450,7 @@
                     return;
                 }
                 var _this = this;
-                $.showPreloader('正在处理...');
+                $.showPreloader('正在处理');
                 this.$http.post('/service/saveHandoverBookComment.action', {
                     'handoverBookComment.content': this.cmtContent,
                     'handoverBookComment.pid': this.bo.id,
@@ -409,6 +460,7 @@
                     $.hidePreloader();
                     if (ret.ok && ret.data && ret.data.result == 'ok') {
                         $.toast('发表成功');
+                        $('.cmt-bottom0').height('auto');
                         if (!_this.bo.comment) _this.bo.comment = [];
                         _this.bo.comment.push(ret.data.data.data);
                         _this.cmtContent = '';
@@ -417,6 +469,23 @@
                     } else {
                         $.toast('发表失败');
                     }
+                });
+            },
+            deleteCmt: function (cmts, id) {
+                var _this = this;
+                $.confirm('确定要删除这条评论吗？', function () {
+                    _this.$http.post('/service/deleteHandoverBookCommentById.action', {
+                        'handoverBookCommentId': id,
+                        token: Constant.token
+                    }).then(function (ret) {
+                        if (ret.ok && ret.data && ret.data.result == 'ok') {
+                            removeCmt(cmts, id);
+                        } else {
+                            $.toast('删除失败');
+                        }
+                    });
+                }, function () {
+
                 });
             },
             closeCmtDialog: function () {
@@ -440,6 +509,19 @@
         };
     }
 
+    /**
+     * 删除一条评论
+     * @param cmts
+     * @param id
+     */
+    function removeCmt(cmts, id) {
+        for (var i = 0; i < cmts.length; i++) {
+            if (cmts[i].id == id) {
+                break;
+            }
+        }
+        cmts.splice(i, 1);
+    }
 </script>
 
 <style>
@@ -604,12 +686,12 @@
 
     .handover-detail .item-container {
         width: 100%;
-        padding: 15px;
+        padding: 0px;
         background: #fff;
     }
 
     .handover-detail .item-container-top {
-        padding-bottom: 0px;
+        padding: 10px 10px 0px 0px;
     }
 
     .handover-detail .item-container-bottom {
@@ -626,7 +708,8 @@
     }
 
     .handover-detail .c-item-content {
-        background: #f5f5f5;
+        background: #fff;
+        margin-top: 10px;
     }
 
     .handover-detail .user-name {
@@ -643,6 +726,9 @@
         color: #fa0;
         font-size: 12px;
         margin-right: 10px;
+        height: 30px;
+        line-height: 30px;
+        float: left;
     }
 
     .handover-detail .reminder-name {
@@ -698,6 +784,118 @@
         padding: 0px 10px 0px 0px;
     }
 
+    .handover-detail .item-left {
+        width: 60px;
+        float: left;
+    }
+
+    .handover-detail .item-right {
+        width: 100%;
+    }
+
+    .handover-detail .item-content {
+        clear: both;
+        margin-left: 60px;
+        margin-right: 10px;
+    }
+
+    .handover-detail .user-name {
+        font-size: 14px;
+    }
+
+    .time-name {
+        color: #999;
+        font-size: 12px;
+        display: block;
+    }
+
+    .all-content {
+        color: #67b7d0;
+        font-size: 14px;
+    }
+
+    .handover-detail .item-type {
+        width: 100%;
+        clear: both;
+    }
+
+    .handover-detail .type-name {
+        color: #999;
+        font-size: 12px;
+    }
+
+    .handover-detail .atme-name {
+        color: #fa0;
+        font-size: 12px;
+        margin-right: 10px;
+        height: 30px;
+        line-height: 30px;
+        float: left;
+    }
+
+    .handover-detail .af-at {
+        height: 30px;
+        line-height: 30px;
+        float: left;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .handover-detail .reminder-name {
+        color: #999;
+        font-size: 12px;
+    }
+
+    .handover-detail .cmt-label {
+        float: right;
+        min-width: 50px;
+        text-align: center;
+        height: 30px;
+        line-height: 30px;
+    }
+
+    .handover-detail .cmt-label .cmt-num {
+        color: #444;
+        font-size: 16px;
+        height: 30px;
+        line-height: 30px;
+        display: inline-block;
+    }
+
+    .handover-detail .icon-comment {
+        font-size: 18px;
+        color: #666;
+        vertical-align: middle;
+        height: 30px;
+        line-height: 30px;
+    }
+
+    .handover-detail .at-footer {
+        height: 30px;
+        line-height: 30px;
+    }
+
+    .handover-detail .footer-cmt {
+        padding: 5px 0px;
+        clear: both;
+    }
+
+    .handover-detail .dept-name {
+        font-size: 12px;
+        color: #999;
+    }
+
+    .handover-detail .delete-text-cmt {
+        color: #aaa;
+        font-size: 12px;
+        width: 60px;
+        text-align: right;
+        display: inline-block;
+        float: right;
+    }
+
+
     .modal-ul {
         text-align: left;
     }
@@ -717,6 +915,11 @@
         margin-top: 3px;
     }
 
+    .dlg-time {
+        color: #ccc;
+        font-size: 12px;
+        text-align: center;
+    }
     .modal-ul li {
         display: inline-block;
         text-align: center;
@@ -786,8 +989,14 @@
         position: absolute;
         bottom: 0px;
         border-top: 1px solid #ddd;
+        background: #fff;
     }
 
+    .handover-detail .cb-container {
+        position: relative;
+        width: 100%;
+        height: auto;
+    }
     .dlg-cmt.active ~ .overlay-cmt {
         opacity: 1;
         visibility: visible;
@@ -806,7 +1015,7 @@
         background: rgba(0, 0, 0, 0.5);
     }
 
-    .cmt-textarea {
+    .handover-detail .cmt-textarea {
         width: calc(100% - 80px);
         float: left;
         height: 30px;
@@ -817,15 +1026,16 @@
         font-size: 14px;
         padding-top: 6px;
         line-height: 16px;
+        overflow: hidden;
     }
 
-    .button.button-fill.btn-send {
+    .handover-detail .button.button-fill.btn-send {
         width: 60px;
         height: 30px;
         line-height: 30px;
-        float: right;
-        margin-right: 3px;
-        margin-top: 3px;
+        position: absolute;
+        right: 3px;
+        bottom: 0px;
     }
 
     .cmt-item {
@@ -833,7 +1043,8 @@
     }
 
     .cmt-content {
-        font-size: 12px;
+        font-size: 14px;
+        word-wrap: break-word;
     }
 
     .cmt-content:active {
@@ -842,6 +1053,10 @@
 
     .cmt-user {
         color: #04bafe;
+    }
+
+    .handover-detail .sub-title span {
+        word-wrap: break-word;
     }
 
     @media all and (max-width: 360px) {

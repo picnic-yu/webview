@@ -63,7 +63,7 @@
             detail: function (id, name) {
                 Constant.bo.moudleId = id;
                 Constant.bo.moudleName = name;
-                router.go({name: 'create', params: {deptId: Constant.shopInfo.id}});
+                router.go({name: 'create', params: {deptId: Constant.shopInfo.id ? Constant.shopInfo.id : 0}});
             }
         }
     };

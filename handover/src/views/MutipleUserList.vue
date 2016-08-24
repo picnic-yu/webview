@@ -41,10 +41,13 @@
                 <div class="items-list">
                     <ul>
                         <li v-for="item in items" v-on:click="detail(item)">
+                            <span class="item-icon"
+                                  v-bind:class="!!item.checked?'icon-square-check':'icon-square'"></span>
                             <div class="item-left">
                                 <div class="default-header header-{{getWhichHeader(item.id)}}" v-if="!item.thumbUrl">
                                     <span class="user-icon"></span></div>
-                                <img class="not-view" v-if="item.thumbUrl" v-bind:src="item.thumbUrl" width="42px"
+                                <img class="not-view user-header-img" v-if="item.thumbUrl" v-bind:src="item.thumbUrl"
+                                     width="42px"
                                      height="42px"/>
                             </div>
                             <div class="item-right">
@@ -52,8 +55,6 @@
                                 <span class="item-sub">{{item.userName}}</span><span
                                     class="item-sub">{{item.tel}}</span>
                             </div>
-                            <span class="item-icon"
-                                  v-bind:class="!!item.checked?'icon-square-check':'icon-square'"></span>
                         </li>
                     </ul>
                 </div>
@@ -74,7 +75,8 @@
                         <li v-for="user in users" @click="deleteUser(user)">
                             <div class="default-header header-{{getWhichHeader(user.id)}}" v-if="!user.thumbUrl"><span
                                     class="user-icon"></span></div>
-                            <img class="not-view" v-if="user.thumbUrl" v-bind:src="user.thumbUrl" width="42px"
+                            <img class="not-view user-header-img" v-if="user.thumbUrl" v-bind:src="user.thumbUrl"
+                                 width="42px"
                                  height="42px"/>
 
                             <div class="dlg-username">{{user.showName}}</div>
@@ -241,7 +243,6 @@
                             _this.items = _this.items.concat(data);
                         }
                         _this.page.total = ret.data.data.total;
-                        ;
                         if (_this.page.total <= _this.items.length) {
                             _this.unbindInfinite();
                         } else {
@@ -263,7 +264,7 @@
             },
             refresh: function () {
                 this.page.index = 0;
-                this.items = [];
+                //this.items = [];
                 this.unbindInfinite();
                 this.getData(function () {
                     $.pullToRefreshDone('#userListContent');
@@ -296,8 +297,9 @@
                 }
             },
             ok: function () {
+                if (this.users.length == 0) return;
                 Constant.selectedUsers = this.users;
-                router.go({name: 'create', params: {deptId: Constant.shopInfo.id}});
+                router.go({name: 'create', params: {deptId: Constant.shopInfo.id ? Constant.shopInfo.id : 0}});
             },
             deleteUser: function (user) {
                 Vue.set(user, 'checked', !user.checked);
@@ -355,8 +357,8 @@
 
     .mutiple-users .item-icon {
         font-size: 20px;
-        float: right;
-        margin-right: 20px;
+        margin-right: 3px;
+        margin-left: 3px;
     }
 
     .user-list {
