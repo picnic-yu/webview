@@ -26,24 +26,12 @@
                         <div class="clearboth"></div>
                     </div>
                 </div>
-                <div class="sheet-content who-content" v-on:click="whichDep()">
-                    <table>
-                        <tr>
-                            <td valign="top" class="wc-tip">门店</td>
-                            <td valign="top" class="wc-userlist">
-                                <div class="no-content" v-show="!bo.deptId">请选择一个门店</div>
-                                <div class="no-content input" v-show="bo.deptId">{{bo.deptName}}</div>
-                            </td>
-                            <td valign="top" class="wc-icon"><span class="icon-pre"></span></td>
-                        </tr>
-                    </table>
-                </div>
                 <div class="sheet-content who-content" v-on:click="whichTemplate()">
                     <table>
                         <tr>
-                            <td valign="top" class="wc-tip">交接表</td>
+                            <td valign="top" class="wc-tip">模板</td>
                             <td valign="top" class="wc-userlist">
-                                <div class="no-content" v-show="!bo.moudleId">未选择交接表</div>
+                                <div class="no-content" v-show="!bo.moudleId">未选择模板</div>
                                 <div class="no-content input" v-show="bo.moudleId">{{bo.moudleName}}</div>
                             </td>
                             <td valign="top" class="wc-icon"><span class="icon-pre"></span></td>
@@ -98,15 +86,29 @@
                         </li>
                     </ul>
                 </div>
-                <div class="who-content" v-on:click="atWho()">
+                <div class="dep-content who-content" v-on:click="whichDep()">
+                    <table>
+                        <tr>
+                            <td valign="top" class="wc-tip">门店</td>
+                            <td valign="top" class="wc-userlist">
+                                <!--<div class="no-content" v-show="!bo.deptId">请选择一个门店</div>-->
+                                <div class="no-content input" v-show="bo.deptId">{{bo.deptName}}</div>
+                                <div class="no-content input public" v-show="!bo.deptId">公开</div>
+                            </td>
+                            <td valign="top" class="wc-icon"><span class="icon-pre"></span></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="who-content bottom-content" v-on:click="atWho()">
                     <table>
                         <tr>
                             <td valign="top" class="wc-tip">提醒谁看</td>
                             <td valign="top" class="wc-userlist">
-                                <div class="no-content" v-show="userlist.length==0">无</div>
-                                <div v-for="user in userlist" class="user-item">
+                                <div class="no-content" v-show="userlist.length==0 && isAtAll == 0">无</div>
+                                <div v-for="user in userlist" class="user-item" v-show="isAtAll != 1">
                                     {{user.showName}}<span class="splitor-f" v-if="$index!=userlist.length-1">,</span>
                                 </div>
+                                <div class="" v-show="isAtAll==1">所有人</div>
                             </td>
                             <td valign="top" class="wc-icon"><span class="icon-pre"></span></td>
                         </tr>
@@ -135,9 +137,10 @@
                 } else {
                     Constant.bo.deptId = Constant.shopInfo.id;
                     Constant.bo.deptName = Constant.shopInfo.name;
+                    this.bo.isOpen = Constant.create.isOpen;
                 }
                 if (transition.from.name == 'templates') {
-                    //根据模板获取具体交接表内容
+                    //根据模板获取具体模板内容
                     if (this.bo.moudleId) {
                         this.getTemplateItems(this.bo.moudleId);
                     }
@@ -149,6 +152,7 @@
                     done: false,
                     userlist: Constant.selectedUsers,
                     bo: Constant.bo,
+                    isAtAll: Constant.bo ? Constant.bo.isAtAll : 0,
                     items: (Constant.bo && Constant.bo.subItems) ? Constant.bo.subItems : [],
                     shopInfo: Constant.shopInfo
                 });
@@ -156,6 +160,9 @@
             deactivate: function (transition) {
                 if (myPhotoBrowserStandalone) {
                     myPhotoBrowserStandalone.close();
+                }
+                if (transition.to.name == 'default') {
+                    this.initAllSearch();
                 }
                 transition.next();
             },
@@ -173,11 +180,17 @@
                 } else if (transition.to.name == 'default') {//返回上一级，清空数据
                     var _this = this;
                     this.transitionName = 'right';
-                    $.confirm('当前数据尚未保存，是否需要继续编辑？', function () {
-                        transition.abort();
-                    }, function () {
+                    $.modal.prototype.defaults.modalButtonOk = '退出';
+                    $.modal.prototype.defaults.modalButtonCancel = '继续';
+                    $.confirm('退出此次编辑？', function () {
+                        $.modal.prototype.defaults.modalButtonOk = '确定';
+                        $.modal.prototype.defaults.modalButtonCancel = '取消';
                         _this.clearData();
                         transition.next();
+                    }, function () {
+                        transition.abort();
+                        $.modal.prototype.defaults.modalButtonOk = '确定';
+                        $.modal.prototype.defaults.modalButtonCancel = '取消';
                     });
                 } else {
                     this.transitionName = 'left';
@@ -213,6 +226,7 @@
                     nodata: false,
                     searchOther: false
                 },
+                isAtAll: 0,
                 done: false,//是否完成创建
                 bo: Constant.bo,
                 userlist: Constant.selectedUsers,
@@ -247,6 +261,26 @@
                 if (!this.refreshInit) {
                     this.refreshInit = true;
                 }
+                $(document).off('input', '.handover-create .sub-textarea .textarea').on('input', '.handover-create .sub-textarea .textarea', function (val) {
+                    if (this.scrollHeight > 45) {
+                        this.style.height = this.scrollHeight + 'px';
+                    }
+                });
+                $(document).off('propertychange', '.handover-create .sub-textarea .textarea').on('propertychange', '.handover-create .sub-textarea .textarea', function (val) {
+                    if (this.scrollHeight > 45) {
+                        this.style.height = this.scrollHeight + 'px';
+                    }
+                });
+                $(document).off('input', '.handover-create .top-textarea').on('input', '.handover-create .top-textarea', function (val) {
+                    if (this.scrollHeight > 80) {
+                        this.style.height = this.scrollHeight + 'px';
+                    }
+                });
+                $(document).off('propertychange', '.handover-create .top-textarea').on('propertychange', '.handover-create .top-textarea', function (val) {
+                    if (this.scrollHeight > 80) {
+                        this.style.height = this.scrollHeight + 'px';
+                    }
+                });
                 this.getData('', opt);
             },
             bindItemEvent: function () {
@@ -267,9 +301,11 @@
                         }
 
                         var size = file.size / (1024 * 1024);//M
+                        console.log("size:" + size);
+                        console.log("qua:" + size <= 0.2 ? 1 : 0.2 / size);
                         (function (i) {
                             new html5ImgCompress(_file.files[i], {
-                                quality: size <= 0.5 ? null : 0.4,
+                                quality: size <= 0.2 ? 1 : 0.2 / size,
                                 before: function (file) {
                                     //console.log('多张: ' + i + ' 压缩前...');
                                 },
@@ -351,6 +387,9 @@
                         '</header>'
                     });
                     myPhotoBrowserStandalone.open();
+                    $('.photo-browser .content').off('click').on('click', function () {
+                        myPhotoBrowserStandalone.close();
+                    });
                 });
 
 
@@ -379,6 +418,9 @@
                         '</header>'
                     });
                     myPhotoBrowserStandalone.open();
+                    $('.photo-browser .content').off('click').on('click', function () {
+                        myPhotoBrowserStandalone.close();
+                    });
                 });
                 $(document).off('change', '.add-file').on('change', '.add-file', function () {
                     if ($('.handover-create .pb-standalone').length > maxImgNum) {
@@ -400,7 +442,7 @@
                         var size = file.size / (1024 * 1024);//M
                         (function (i) {
                             new html5ImgCompress(_file.files[i], {
-                                quality: size <= 0.5 ? null : 0.4,
+                                quality: size <= 0.2 ? 1 : 0.2 / size,
                                 before: function (file) {
                                     //console.log('多张: ' + i + ' 压缩前...');
                                 },
@@ -455,6 +497,8 @@
                     if (ret.ok && ret.data && ret.data.result == 'ok') {
                         var data = ret.data.data.data;
                         Constant.bo = _this.bo = data;
+                        Constant.shopInfo.id = _this.bo.deptId;
+                        Constant.shopInfo.name = _this.bo.deptName;
                         Constant.bo.deptId = Constant.shopInfo.id;
                         Constant.bo.deptName = Constant.shopInfo.name;
                         setTimeout(_this.bindItemEvent, 1000);
@@ -521,7 +565,7 @@
                     $.toast('上传的图片最多不能超过' + maxImgNum + '张');
                     return;
                 }
-                if (!this.bo.deptId) {
+                if (!this.bo.deptId && this.bo.isOpen == 0) {
                     $.toast('请选择一个门店');
                     return;
                 }
@@ -529,6 +573,13 @@
                 Vue.http.options.emulateJSON = false;
                 this.bo.deptId = Constant.shopInfo.id;
                 this.bo.reminders = getUserIds(this.userlist);
+                this.bo.isAtAll = Constant.bo.isAtAll;
+                if (!this.bo.deptId) {
+                    this.bo.deptId = 0;
+                    this.bo.isOpen = 1;
+                } else {
+                    this.bo.isOpen = 0;
+                }
                 $.showPreloader('正在处理');
                 this.$http.post('/service/saveHandoverBookBo.action?token=' + Constant.token, {
                     handoverBookBo: this.bo,
@@ -539,11 +590,27 @@
                     if (ret.data.result == 'ok') {
                         $.toast('提交成功');
                         _this.done = true;
+                        Constant.needRefresh = true;
                         router.go({name: 'default'});
                     } else {
                         $.toast('提交失败');
                     }
                 });
+            },
+            initAllSearch: function () {
+                Constant.shopInfo.id = '';
+                Constant.shopInfo.name = '';
+                Constant.search = {
+                    startTime: '',
+                    endTime: '',
+                    dateTime: ''
+                };
+                Constant.userInfo = {
+                    id: '',
+                    name: ''
+                };
+                Constant.atMe = 0;
+                Constant.isMe = 0;
             }
         }
     };
@@ -627,15 +694,27 @@
         padding: 10px;
         background: #fff;
         clear: both;
+    }
+
+    .who-content table td {
+        font-size: 14px;
+    }
+
+    .who-content.bottom-content {
         border-top: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .dep-content {
+        border-top: 1px solid #ddd;
+        margin-top: 20px;
     }
 
     .sheet-content {
-        border-top: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
     }
-
     .c-item-content {
-        background: #f5f5f5;
+        background: #fff;
     }
 
     .who-content table {
@@ -647,12 +726,17 @@
     .no-content {
         color: #999;
         font-size: 14px;
+        vertical-align: middle;
     }
 
     .no-content.input {
         border: none;
         color: #333;
         width: 100%;
+    }
+
+    .no-content.public {
+        color: #fa0;
     }
 
     .wc-tip {
@@ -692,10 +776,9 @@
 
     .sub-textarea .textarea {
         width: 100%;
-        height: 40px;
+        height: 45px;
         border: 1px solid #ddd;
-        font-size: 12px;
-        background: #fcfcfc;
+        font-size: 14px;
     }
 
     .sub-content {

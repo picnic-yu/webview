@@ -103,6 +103,7 @@
             },
             toIndex: function () {
                 this.$dispatch('search-data');
+                Constant.needRefresh = true;
                 router.go({name: 'default'});
             }
         }

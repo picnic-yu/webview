@@ -9,10 +9,7 @@
                     <div class="item-container">
                         <div class="item-left">
                             <div v-on:click="searchByUser(bo.userId,bo.userName)">
-                                <div class="default-header header-{{getWhichHeader(bo.userId)}}" v-if="!bo.userPicture">
-                                    <span class="user-icon"></span></div>
-                                <img class="not-view user-header-img" v-if="bo.userPicture" v-bind:src="bo.userPicture"
-                                     width="42px" height="42px"/>
+                                <userhead v-bind:user="user"></userhead>
                             </div>
                         </div>
                         <div class="item-right">
@@ -37,10 +34,11 @@
                                 <span class="type-name">{{bo.moudleName}}</span>
                             </div>
                             <div class="item-footer">
-                                <span class="dept-name">{{bo.deptName}}</span>
+                                <span class="dept-name" v-show="bo.isOpen==0">{{bo.deptName}}</span>
+                                <span class="dept-name" v-show="bo.isOpen==1">公开</span>
                             </div>
                             <div class="item-footer at-footer">
-                                <label class="atme-name" v-show="bo.isAtMe==1">提到了我</label>
+                                <label class="atme-name" v-show="bo.isAtMe==1 && bo.isRead==1">已读</label>
 
                                 <div class="af-at" v-on:click="whoRead(bo)">
                                     <progress v-on:click="whoRead(bo)" class="not-view"
@@ -136,11 +134,7 @@
                         <div class="tab active" id="readtab1">
                             <ul class="modal-ul">
                                 <li v-for="user in unreadUsers">
-                                    <div class="default-header header-{{getWhichHeader(user.userId)}}"
-                                         v-if="!user.userPicture"><span class="user-icon"></span></div>
-                                    <img class="not-view" v-if="user.userPicture" v-bind:src="user.userPicture"
-                                         width="42px" height="42px"/>
-
+                                    <userhead v-bind:user="user"></userhead>
                                     <div class="dlg-username">{{user.userName}}</div>
                                 </li>
                             </ul>
@@ -148,10 +142,7 @@
                         <div class="tab" id="readtab2">
                             <ul class="modal-ul">
                                 <li v-for="user in readUsers">
-                                    <div class="default-header header-{{getWhichHeader(user.userId)}}"
-                                         v-if="!user.userPicture"><span class="user-icon"></span></div>
-                                    <img class="not-view" v-if="user.userPicture" v-bind:src="user.userPicture"
-                                         width="42px" height="42px"/>
+                                    <userhead v-bind:user="user"></userhead>
 
                                     <div class="dlg-username">{{user.userName}}</div>
                                     <div class="dlg-time">{{user.readTime | whichreadtime}}</div>
@@ -232,6 +223,7 @@
                 bo: Constant.bo,
                 items: (Constant.bo && Constant.bo.subItems) ? Constant.bo.subItems : [],
                 curUser: {},//当前用户
+                user: {},//当前查看的目标用户
                 readUsers: [],
                 unreadUsers: [],
                 showModal: false,//是否打开对话框
@@ -246,7 +238,8 @@
         },
         components: {
             'progress': require('../components/Progress.vue'),
-            'modal-dialog': require('../components/ReadUserDialog.vue')
+            'modal-dialog': require('../components/ReadUserDialog.vue'),
+            'userhead': require('../components/UserHead.vue')
         },
         created: function () {
 
@@ -265,13 +258,6 @@
             this.init();
         },
         methods: {
-            /**
-             * 获取用户头像简单算法，末位数
-             * */
-            getWhichHeader: function (id) {
-                id = id + '';
-                return id.substr(id.length - 1, 1);
-            },
             /**
              * 计算每张图片的大小
              * */
@@ -322,6 +308,9 @@
                         '</header>'
                     });
                     myPhotoBrowserStandalone.open();
+                    $('.photo-browser .content').off('click').on('click', function () {
+                        myPhotoBrowserStandalone.close();
+                    });
                 });
             },
             getData: function () {
@@ -336,6 +325,11 @@
                     if (ret.ok && ret.data && ret.data.result == 'ok') {
                         var data = ret.data.data.data;
                         Constant.bo = _this.bo = data;
+                        _this.user = {
+                            id: _this.bo.userId,
+                            thumbUrl: _this.bo.userPicture,
+                            shortName: _this.bo.userShortName
+                        };
                         if (data && data.subItems && data.subItems.length > 0) {
                             _this.items = data.subItems;
                         } else {
@@ -423,8 +417,8 @@
              */
             doCmt: function (item, cmt) {
                 if (cmt && this.curUser && this.curUser.id == cmt.userId) {
-                    Vue.set(cmt, 'showDelete', !cmt.showDelete);
-                    return;
+                    //Vue.set(cmt, 'showDelete', !cmt.showDelete);
+                    this.popActions(cmt.id, item.comment);
                     return;
                 }
                 //this.showCommentModal = true;
@@ -488,6 +482,20 @@
 
                 });
             },
+            popActions: function (id, cmts) {
+                var _this = this;
+                var btns = [{
+                    text: '删除',
+                    onClick: function () {
+                        _this.deleteCmt(cmts, id);
+                    }
+                }];
+                $.actions([btns]);
+                $('.modal-overlay.modal-overlay-visible').on('click', function () {
+                    $.closeModal('.actions-modal');
+                    $('.modal-overlay.modal-overlay-visible').off('click');
+                });
+            },
             closeCmtDialog: function () {
                 this.showCommentModal = false;
             }
@@ -532,6 +540,7 @@
     .handover-detail .content {
         background: #eee;
         bottom: 40px;
+        border: none;
     }
 
     .handover-detail .who-content ul li {
@@ -1039,7 +1048,7 @@
     }
 
     .cmt-item {
-        padding: 2px 0px;
+        padding: 2px 2px;
     }
 
     .cmt-content {
@@ -1052,7 +1061,7 @@
     }
 
     .cmt-user {
-        color: #04bafe;
+        color: #1e8bc3;
     }
 
     .handover-detail .sub-title span {

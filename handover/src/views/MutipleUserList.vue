@@ -40,15 +40,25 @@
                 </div>
                 <div class="items-list">
                     <ul>
-                        <li v-for="item in items" v-on:click="detail(item)">
-                            <span class="item-icon"
-                                  v-bind:class="!!item.checked?'icon-square-check':'icon-square'"></span>
+                        <li v-on:click="atall()">
+                            <span class="item-icon icon-square"></span>
+
                             <div class="item-left">
-                                <div class="default-header header-{{getWhichHeader(item.id)}}" v-if="!item.thumbUrl">
+                                <div class="default-header">
                                     <span class="user-icon"></span></div>
-                                <img class="not-view user-header-img" v-if="item.thumbUrl" v-bind:src="item.thumbUrl"
-                                     width="42px"
-                                     height="42px"/>
+                            </div>
+                            <div class="item-right">
+                                <div class="item-name">全部</div>
+                                <span class="item-sub">@all</span>
+                                <span class="item-sub"></span>
+                            </div>
+                        </li>
+                        <li v-for="item in items" v-on:click="detail(item)">
+                            <span class="item-icon" v-bind:class="!!item.checked?'icon-square-checked':'icon-square'">
+                                <span class="path1"></span><span class="path2"></span>
+                            </span>
+                            <div class="item-left">
+                                <userhead v-bind:user="item"></userhead>
                             </div>
                             <div class="item-right">
                                 <div class="item-name">{{item.showName}}</div>
@@ -73,12 +83,7 @@
                 <div class="tab active">
                     <ul class="modal-ul">
                         <li v-for="user in users" @click="deleteUser(user)">
-                            <div class="default-header header-{{getWhichHeader(user.id)}}" v-if="!user.thumbUrl"><span
-                                    class="user-icon"></span></div>
-                            <img class="not-view user-header-img" v-if="user.thumbUrl" v-bind:src="user.thumbUrl"
-                                 width="42px"
-                                 height="42px"/>
-
+                            <userhead v-bind:user="user"></userhead>
                             <div class="dlg-username">{{user.showName}}</div>
                         </li>
                     </ul>
@@ -143,7 +148,8 @@
             };
         },
         components: {
-            'modal-dialog': require('../components/ReadUserDialog.vue')
+            'modal-dialog': require('../components/ReadUserDialog.vue'),
+            'userhead': require('../components/UserHead.vue')
         },
         watch: {
             /**
@@ -170,13 +176,6 @@
             this.init();
         },
         methods: {
-            /**
-             * 获取用户头像简单算法，末位数
-             * */
-            getWhichHeader: function (id) {
-                id = id + '';
-                return id.substr(id.length - 1, 1);
-            },
             init: function (opt) {
                 var _this = this;
                 if (!this.refreshInit) {
@@ -296,8 +295,13 @@
                     }
                 }
             },
+            atall: function () {
+                Constant.bo.isAtAll = 1;
+                router.go({name: 'create', params: {deptId: Constant.shopInfo.id ? Constant.shopInfo.id : 0}});
+            },
             ok: function () {
                 if (this.users.length == 0) return;
+                Constant.bo.isAtAll = 0;
                 Constant.selectedUsers = this.users;
                 router.go({name: 'create', params: {deptId: Constant.shopInfo.id ? Constant.shopInfo.id : 0}});
             },

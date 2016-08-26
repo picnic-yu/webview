@@ -3,10 +3,6 @@
         <div class="page page-current container">
             <header class="bar bar-nav">
                 <h1 class='title'>选择用户</h1>
-                <button class="button button-link button-nav button-fill  pull-right  button-orange btn-submit"
-                        v-on:click="detail('','')">
-                    全部
-                </button>
             </header>
             <div class="bar bar-header-secondary">
                 <div class="searchbar">
@@ -26,17 +22,18 @@
                 </div>
                 <div class="items-list">
                     <ul>
-                        <!--<li v-on:click="detail('','')">
-                          <div class="">
+                        <li v-on:click="detail('','')">
+                            <div class="item-left">
+                                <div class="default-header">
+                                    <span class="user-icon"></span></div>
+                            </div>
+                            <div class="item-right">
                             <div class="item-name">全部</div>
                           </div>
-                        </li>-->
+                        </li>
                         <li v-for="item in items" v-on:click="detail(item.id,item.showName)">
                             <div class="item-left">
-                                <div class="default-header header-{{getWhichHeader(item.id)}}" v-if="!item.thumbUrl">
-                                    <span class="user-icon"></span></div>
-                                <img class="not-view" v-if="item.thumbUrl" v-bind:src="item.thumbUrl" width="42px"
-                                     height="42px"/>
+                                <userhead v-bind:user="item"></userhead>
                             </div>
                             <div class="item-right">
                                 <div class="item-name">{{item.showName}}</div>
@@ -97,6 +94,9 @@
                 refreshInit: false
             };
         },
+        components: {
+            'userhead': require('../components/UserHead.vue')
+        },
         watch: {
             /**
              * 监听搜索框的变化
@@ -122,13 +122,6 @@
             this.init();
         },
         methods: {
-            /**
-             * 获取用户头像简单算法，末位数
-             * */
-            getWhichHeader: function (id) {
-                id = id + '';
-                return id.substr(id.length - 1, 1);
-            },
             init: function (opt) {
                 var _this = this;
                 if (!this.refreshInit) {
@@ -216,6 +209,7 @@
                     id: id,
                     name: name
                 };
+                Constant.needRefresh = true;
                 router.go({name: 'default'});
             }
         }
