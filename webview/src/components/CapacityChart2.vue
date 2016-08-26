@@ -2,7 +2,7 @@
   <div class="report-content swiper-container mutiple-panel">
     <div class="swiper-pagination"></div>
     <div class="report-content-inner swiper-wrapper">
-      <div class="swiper-slide">
+      <!--<div class="swiper-slide">
         <div class="swiper-inner">
           <h2 class="pie-title" id="help210">点检任务完成指标<span class="moon-ico icon-info"></span></h2>
           <div class="toast-tip help210 help">已完成点检任务数/总点检任务数</div>
@@ -16,7 +16,7 @@
             <div class="board-cell">
               <span class="cell-tip"id="help22">合格人数<span class="moon-ico icon-info"></span></span>
               <span class="cell-value" v-on:click="okDetails(report.okNum,report.reportType)">{{report.okNum}}</span>
-              <div class="toast-tip help22 help2">当前时间范围内点检任务的完成率超过{{report.levelMid*100}}%的督导人数</div>
+              <div class="toast-tip help22 help2">当前时间范围内点检任务完成率超过{{report.levelMid*100}}%的督导人数</div>
             </div>
           </div>
           <div class="chart-box">
@@ -36,10 +36,10 @@
             </ul>
           </div>
         </div>
-      </div>
+      </div>-->
       <div class="swiper-slide">
         <div class="swiper-inner">
-          <h2 class="pie-title" id="help211">点检项覆盖指标<span class="moon-ico icon-info"></span></h2>
+          <!--<h2 class="pie-title" id="help211">点检项覆盖指标<span class="moon-ico icon-info"></span></h2>-->
           <div class="toast-tip help211 help">已点检点检项数/总点检项数</div>
           <div class="board-box">
             <div class="board-cell">
@@ -51,7 +51,10 @@
             <div class="board-cell">
               <span class="cell-tip"id="help24">合格人数<span class="moon-ico icon-info"></span></span>
               <span class="cell-value" v-on:click="okDetails(report2.okNum,report2.reportType)">{{report2.okNum}}</span>
-              <div class="toast-tip help24 help2">当前时间范围内点检覆盖率超过{{report2.levelMid*100}}%的督导人数</div>
+
+              <div class="toast-tip help24 help2">
+                计算方式：[(检查门店点检项数/(门店数*点检项数))*50%+(自己发现的问题数/门店数)*50%]超过{{report.levelMid*100}}%的督导人数
+              </div>
             </div>
           </div>
           <div class="chart-box">
@@ -160,28 +163,28 @@
     },
     methods:{
       init:function(){
-        bindTouchStart('help21','.help21');
+        /*bindTouchStart('help21','.help21');
         bindTouchEnd('help21','.help21');
         bindTouchStart('help22','.help22');
-        bindTouchEnd('help22','.help22');
+         bindTouchEnd('help22','.help22');*/
 
         bindTouchStart('help23','.help23');
         bindTouchEnd('help23','.help23');
         bindTouchStart('help24','.help24');
         bindTouchEnd('help24','.help24');
 
-        bindTouchStart('help210','.help210');
-        bindTouchEnd('help210','.help210');
-        bindTouchStart('help211','.help211');
-        bindTouchEnd('help211','.help211');
+        /* bindTouchStart('help210','.help210');
+         bindTouchEnd('help210','.help210');*/
+        /*bindTouchStart('help211','.help211');
+         bindTouchEnd('help211','.help211');*/
 
-        $('.swiper-container').swiper({
+        /*$('.swiper-container').swiper({
 
-        });
+         });*/
       },
       initChart:function(){
         var _this = this;
-        var myChart = echarts.init(document.getElementById('capacityChart21'));
+        /*var myChart = echarts.init(document.getElementById('capacityChart21'));
         myChart.showLoading();
         var option = chartutils.getPieChartOption().option;
         myChart.setOption(option);
@@ -191,7 +194,7 @@
           }
           _this.selectValueType(param.dataIndex);
         });
-        this.chart.chartObject = myChart;
+         this.chart.chartObject = myChart;*/
 
         var myChart2 = echarts.init(document.getElementById('capacityChart22'));
         myChart2.showLoading();
@@ -310,7 +313,7 @@
         },100);
       },
       getData:function(){
-        this.getCheckerData1();
+        //this.getCheckerData1();
         this.getCheckerData2();
       },
       /**
@@ -434,12 +437,12 @@
        * 查看指定类型的详情
        */
       details:function(index,data,type){
-        this.chart.chartObject.dispatchAction({
+        this.chart.chartObject2.dispatchAction({
           type:'downplay',
           seriesIndex:0,
           dataIndex:this.selectType
         });
-        this.chart.chartObject.dispatchAction({
+        this.chart.chartObject2.dispatchAction({
           type:'highlight',
           seriesIndex:0,
           dataIndex:index
@@ -448,7 +451,8 @@
         if(type == 1){
           data.name = '点检项完成率'+data.name+'的督导列表';
         }else if(type == 2){
-          data.name = '点检项覆盖率'+data.name+'的督导列表';
+          //data.name = '点检项覆盖率'+data.name+'的督导列表';
+          data.name = data.name + '的督导列表';
         }
         this.setConstantValue(data);
         router.go({name:'capacityusers',params:{type:type}});
@@ -459,7 +463,8 @@
       allDetails:function(total,type){
         if(total>0){
           this.setConstantValue({
-            name:type==2?'督导列表（点检项覆盖率指标）':'督导列表（点检任务完成率指标）',
+            //name:type==2?'督导列表（点检项覆盖率指标）':'督导列表（点检任务完成率指标）',
+            name: '督导列表',
             key:'best,good,bad'
           });
           router.go({name:'capacityusers',params:{type:type}});
@@ -471,7 +476,8 @@
       okDetails:function(okNum,type){
         if(okNum>0){
           this.setConstantValue({
-            name:type==2?'合格的督导列表（点检项覆盖率指标）':'合格的督导列表（点检任务完成率指标）',
+            //name:type==2?'合格的督导列表（点检项覆盖率指标）':'合格的督导列表（点检任务完成率指标）',
+            name: '合格的督导列表',
             key:'best,good'
           });
           router.go({name:'capacityusers',params:{type:type}});
@@ -482,7 +488,8 @@
         Constant.shopParam.shopsPage.key = data.key;
       }
     }
-  }
+  };
+  ;
 
   function bindTouchStart(id,targetSelector){
     document.getElementById(id).addEventListener('touchstart', function(){
@@ -511,17 +518,18 @@
     width: 100%;
     padding-bottom: 0px;
   }
-  .swiper-slide{
-    background: #eee;
-    padding:10px;
-  }
-  .swiper-inner{
-    background: #fff;
-    padding-top: 10px;
-  }
-  .data-list.mutiple-panel{
-    padding:0px 10px 10px 10px;
-  }
+
+  /* .swiper-slide{
+     background: #eee;
+     padding:10px;
+   }
+   .swiper-inner{
+     background: #fff;
+     padding-top: 10px;
+   }
+   .data-list.mutiple-panel{
+     padding:0px 10px 10px 10px;
+   }*/
   .swiper-pagination{
     width: 100%;
     top:40px;

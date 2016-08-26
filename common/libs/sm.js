@@ -293,7 +293,7 @@
 /*===========================
 Device/OS Detection
 ===========================*/
-;(function ($) {
+(function ($) {
     "use strict";
     var device = {};
     var ua = navigator.userAgent;
@@ -397,7 +397,7 @@ Device/OS Detection
     $.device = device;
 })(Zepto);
 
-;(function () {
+(function () {
     'use strict';
 
     /**
@@ -1717,6 +1717,7 @@ Device/OS Detection
             firstDay: 1, // First day of the week, Monday
             weekendDays: [0, 6], // Sunday and Saturday
             multiple: false,
+            canselected: false,//已经选择的日期能否再次选择
             dateFormat: 'yyyy-mm-dd',
             direction: 'horizontal', // or 'vertical'
             minDate: null,
@@ -1956,7 +1957,7 @@ Device/OS Detection
                     day = $(e.target);
                 }
                 if (day.length === 0) return;
-                if (day.hasClass('picker-calendar-day-selected') && !p.params.multiple) return;
+                if (!p.params.canselected && day.hasClass('picker-calendar-day-selected') && !p.params.multiple) return;
                 if (day.hasClass('picker-calendar-day-disabled')) return;
                 if (day.hasClass('picker-calendar-day-next')) p.nextMonth();
                 if (day.hasClass('picker-calendar-day-prev')) p.prevMonth();
@@ -2485,7 +2486,7 @@ Device/OS Detection
         p.close = function () {
             if (!p.opened || p.inline) return;
             $.closeModal(p.container);
-            return;
+
         };
 
         // Destroy
@@ -3067,7 +3068,7 @@ Device/OS Detection
         p.close = function () {
             if (!p.opened || p.inline) return;
             $.closeModal(p.container);
-            return;
+
         };
 
         // Destroy
@@ -5982,7 +5983,7 @@ Device/OS Detection
 
                 container.removeClass('pull-up pull-down');
                 refresh = false;
-                return;
+
             }
         }
 

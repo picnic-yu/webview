@@ -28,7 +28,9 @@
                                             </div>
                                             <div class="fp-add">
                                                 <img width="60" height="60" src="../../../common/assets/imgs/add.png" />
-                                                <input class="add-file add-{{childType.id}}" index0="{{$parent.$index}}" index1="{{$index}}" typeId="{{childType.id}}" type="file" name="data" accept="image/*"/>
+                                                <input class="add-file add-{{childType.id}}" index0="{{$parent.$index}}"
+                                                       index1="{{$index}}" typeId="{{childType.id}}" type="file"
+                                                       name="image" multiple accept="image/*"/>
                                             </div>
                                             <!--<div class="fp-row fp-row-img cc-{{$parent.$parent.$index}}-{{$parent.$index}}-{{$index}}" >
 
@@ -60,7 +62,7 @@
                     </li>
                 </ul>
                 <div>
-                    <div class="item-step2 item-form" >
+                    <div class="item-step2 item-form" v-show="types.length>0">
                         <h2 class="content-title">联系方式</h2>
                         <div class="content-panel">
                             <div class="list-block">
@@ -129,6 +131,7 @@
     require('../../../common/assets/font.css');
     require('../../../common/libs/sm-extend.js');
     var commonutils = require('../../../common/assets/js/commonutils');
+    //var EXIF = require('../../../common/libs/exif');
     module.exports = {
         route:{
             data:function(transition){
@@ -146,7 +149,7 @@
                 editStatus:false,
                 hasPrivilege:false,
                 hasExportBtn: false,
-                optName:'编辑',
+                optName: '删除',
                 curTypeId:-1,//当前上传的图片的类型
                 pics:[],
                 types:[],
@@ -207,7 +210,7 @@
                 $(document).off('change','.add-file').on('change','.add-file',function(){
                     var _file = this;
                     var $addImg = $(this).prev();
-                    var file = this.files[0];
+                    /*var file = this.files[0];
                     if(file.size > 1024*1024*10){
                         $.toast('图片大小不能超过10M');
                         return;
@@ -223,8 +226,34 @@
                     reader.onload = function(){
                         _this.submit(_file,item);
                         //上传成功之后重置input
-                        $($addImg).parent().append('<input class="add-file add-'+typeId+'" index1="'+index1+'" index1="'+(index2+1)+'"  typeId="'+typeId+'" name="data" type="file" accept="image/*"/>');
-                    };
+                     $($addImg).parent().append('<input class="add-file add-'+typeId+'" index1="'+index1+'" index1="'+(index2+1)+'"  typeId="'+typeId+'" name="image" type="file" accept="image/!*"/>');
+                     };*/
+                    var successNum = 0, fileNum = this.files.length;
+                    var typeId = $(this).attr('typeId');
+                    _this.curTypeId = typeId;
+                    var index1 = $(this).attr('index1');//大类的index
+                    var index2 = $(this).attr('index2');//小类的Index
+                    var item = getChildType(_this.types, typeId);
+                    for (var i = 0; i < fileNum; i++) {
+                        var file = this.files[i];
+                        if (file.size > 1024 * 1024 * 10) {
+                            $.toast('图片大小不能超过10M');
+                            break;
+                        }
+                        var reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        $.showPreloader('正在上传...');
+                        reader.onload = function () {
+                            successNum++;
+                            if (successNum == fileNum) {
+                                _this.submit(_file, item);
+                                //上传成功之后重置input
+                                $($addImg).parent().append('<input class="add-file add-' + typeId + '" index1="' + index1 + '" index1="' + (index2 + 1) + '"  typeId="' + typeId + '" name="image" type="file" multiple accept="image/*"/>');
+                            }
+                        };
+                    }
+
+
                 });
             },
             bindPicEvent:function(){
@@ -372,7 +401,9 @@
                         var res = JSON.parse(oXHR.response);
                         if(res.result == "ok"){
                             $.toast('上传成功');
-                            item.attachments.push(res.data.attachment);
+                            for (var i = 0; i < res.data.data.length; i++) {
+                                item.attachments.push(res.data.data[i]);
+                            }
                             _this.resetSeq();
                             $(_fileinput).remove();
                         }
@@ -385,7 +416,7 @@
                         $.hidePreloader();
                         $.toast('abort');
                     }, false);
-                    oXHR.open('POST', '/service/pictureUpload.action?token='+Constant.token);
+                    oXHR.open('POST', '/service/picturesUpload.action?token=' + Constant.token);
                     oXHR.send(vFD);
                 },1000);
             },
@@ -414,7 +445,7 @@
                 if(this.editStatus){
                     this.optName = '完成';
                 }else{
-                    this.optName = '编辑';
+                    this.optName = '删除';
                 }
             },
             /**

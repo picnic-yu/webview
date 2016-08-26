@@ -17,35 +17,82 @@
         <div class="items-list">
           <ul>
             <li v-for="item in items">
-              <div class="item-container" v-if="reportType==0" v-on:click="detailProblem(item)">
+              <div class="item-container item-container1" v-if="reportType==0">
                 <div class="item-left">
                   <div class="item-name">{{item.name}}</div>
-                  <div class="item-des">
+                  <!--<div class="item-des">
+                  v-on:click="detailProblem(item)"--------------------------------------原来的click事件
                     <label class="item-label">门店总数</label><span class="item-num">{{item.authDeptNum}}</span><span class="item-splitor"></span>
                     <label class="item-label">发现问题总数</label><span class="item-num">{{item.findProblemNum}}</span>
                   </div>
+                  <div class="item-des">
+                    <label class="item-label">问题总数</label><span class="item-num">{{item.findProblemNumInAuthShop}}</span><span class="item-splitor"></span>
+                    <label class="item-label">解决问题总数</label><span class="item-num">{{item.solveProblemNumInAuthShop}}</span>
+                  </div>-->
+                  <table>
+                    <tr>
+                      <td class="item-label">门店总数</td>
+                      <td class="item-num">{{item.authDeptNum}}</td>
+                      <td><span class="item-splitor"></span></td>
+                      <td class="item-label">发现问题总数</td>
+                      <td class="item-num">{{item.findProblemNum}}</td>
+                    </tr>
+                    <tr>
+                      <td class="item-label">问题总数</td>
+                      <td class="item-num">{{item.findProblemNumInAuthShop}}</td>
+                      <td><span class="item-splitor"></span></td>
+                      <td class="item-label">解决问题总数</td>
+                      <td class="item-num">{{item.solveProblemNumInAuthShop}}</td>
+                    </tr>
+                  </table>
                 </div>
-                <div class="item-rate" v-bind:class="'state-'+item.belongRegion">{{item.findingsRate==0?item.findingsRate:item.findingsRate.toFixed(2)}}</div>
+                <div class="item-rate" v-bind:class="'state-'+item.belongRegion">
+                  {{item.quota==0?item.quota:(item.quota*100).toFixed(1)}}%
+                </div>
               </div>
-              <div class="item-container" v-if="reportType==1" v-on:click="detailTask(item)">
-                <div class="item-left">
-                  <div class="item-name">{{item.name}}</div>
+              <div class="item-container item-container1" v-if="reportType==1" v-on:click="detailTask(item)">
+                <!--
                   <div class="item-des">
                     <label class="item-label">点检任务总数</label><span class="item-num">{{item.allTaskNum}}</span><span class="item-splitor"></span>
                     <label class="item-label">已完成任务数</label><span class="item-num">{{item.completTaskNum}}</span>
                   </div>
-                </div>
-                <div class="item-rate" v-bind:class="'state-'+item.belongRegion">{{item.completionRate | ratefilter}}</div>
-              </div>
-              <div class="item-container" v-if="reportType==2" v-on:click="detailItem(item)">
+                </div>-->
                 <div class="item-left">
                   <div class="item-name">{{item.name}}</div>
-                  <div class="item-des">
+                </div>
+                <div class="item-rate" v-bind:class="'state-'+item.belongRegion">
+                  {{item.quota==0?item.quota:(item.quota*100).toFixed(1)}}%
+                </div>
+                <!--<div class="item-rate" v-bind:class="'state-'+item.belongRegion">{{item.completionRate | ratefilter}}</div>-->
+              </div>
+              <div class="item-container item-container1" v-if="reportType==2">
+                <div class="item-left">
+                  <div class="item-name">{{item.name}}</div>
+                  <!--<div class="item-des">v-on:click="detailItem(item)"
                     <label class="item-label">点检项总数</label><span class="item-num">{{item.allCheckItemNum}}</span><span class="item-splitor"></span>
                     <label class="item-label">已点检项数</label><span class="item-num">{{item.checkedItemNum}}</span>
-                  </div>
+                  </div>-->
+                  <table>
+                    <tr>
+                      <td class="item-label">已点检项数</td>
+                      <td class="item-num">{{item.checkedItemNum}}</td>
+                      <td><span class="item-splitor"></span></td>
+                      <td class="item-label">发现问题数</td>
+                      <td class="item-num">{{item.findProblemNum}}</td>
+                    </tr>
+                    <tr>
+                      <td class="item-label">门店总数</td>
+                      <td class="item-num">{{item.authDeptNum}}</td>
+                      <td><span class="item-splitor"></span></td>
+                      <td class="item-label">点检项总数</td>
+                      <td class="item-num">{{item.groupItemNum}}</td>
+                    </tr>
+                  </table>
                 </div>
-                <div class="item-rate" v-bind:class="'state-'+item.belongRegion">{{item.coverageRate | ratefilter}}</div>
+                <!--<div class="item-rate" v-bind:class="'state-'+item.belongRegion">{{item.coverageRate | ratefilter}}</div>-->
+                <div class="item-rate" v-bind:class="'state-'+item.belongRegion">
+                  {{item.quota==0?item.quota:(item.quota*100).toFixed(1)}}%
+                </div>
               </div>
               <div class="item-container" v-if="reportType==3" v-on:click="detailProblem(item)">
                 <div class="item-left">
@@ -289,5 +336,14 @@
   .item-des{
     height: auto;
     line-height: normal;
+  }
+
+  .item-container1 table td.item-num {
+    max-width: 50px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-left: 4px;
   }
 </style>

@@ -1,7 +1,7 @@
-var path = require('path')
-var config = require('../config')
-var utils = require('./utils')
-var projectRoot = path.resolve(__dirname, '../')
+var path = require('path');
+var config = require('../config');
+var utils = require('./utils');
+var projectRoot = path.resolve(__dirname, '../');
 var webpack = require('webpack');
 module.exports = {
   entry: {
@@ -19,7 +19,8 @@ module.exports = {
     alias: {
       'src': path.resolve(__dirname, '../src'),
       'assets': path.resolve(__dirname, '../src/assets'),
-      'components': path.resolve(__dirname, '../src/components')
+      'components': path.resolve(__dirname, '../src/components'),
+      'exif': path.resolve(__dirname, '../../common/libs/exif.js')
     }
   },
   resolveLoader: {
@@ -92,4 +93,4 @@ module.exports = {
   vue: {
     loaders: utils.cssLoaders()
   }
-}
+};

@@ -39,10 +39,13 @@
                         <div class="swiper-slide" v-for="device in devices">
                             <div v-show="display.showareas" class="canvas" id="canvas-{{$index}}" v-bind:style="{width:layout.width-10+'px',height:(layout.width-10)*3/4+'px'}"></div>
                             <h2 class="device-name">{{device.deviceName}}</h2>
-                            <div class="hs-container">
+
+                            <div class="hs-container" v-bind:style="{minHeight:(layout.width-10)*3/4+'px'}">
                                 <img v-bind:src="device.thumb" width="{{layout.width-10}}px"/>
-                                <div class="hotspot-overlay" v-show="display.showareas">
-                                    <img v-bind:src="device.hotmap" width="{{layout.width-10}}px"/>
+
+                                <div class="hotspot-overlay">
+                                    <img v-bind:src="device.hotmap" width="{{layout.width-10}}px"
+                                         height="{{(layout.width-10)*3/4}}px"/>
                                 </div>
                             </div>
                             <div class="opt-container">
@@ -329,13 +332,13 @@
 </script>
 
 <style>
-    *{
+    /**{
       -webkit-touch-callout:none;
       -webkit-user-select: none;
       -moz-user-select: none;
       -ms-user-select: none;
       user-select: none;
-    }
+    }*/
     html {
         height: 100%;
     }
