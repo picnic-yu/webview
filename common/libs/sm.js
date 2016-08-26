@@ -1834,11 +1834,18 @@ Device/OS Detection
             p.updateValue();
         };
         p.updateValue = function () {
-            p.wrapper.find('.picker-calendar-day-selected').removeClass('picker-calendar-day-selected');
+            if(p.wrapper) {
+                var oo = p.wrapper.find('.picker-calendar-day-selected');
+                if (oo) {
+                    oo.removeClass('picker-calendar-day-selected');
+                }
+            }
             var i, inputValue;
             for (i = 0; i < p.value.length; i++) {
                 var valueDate = new Date(p.value[i]);
-                p.wrapper.find('.picker-calendar-day[data-date="' + valueDate.getFullYear() + '-' + valueDate.getMonth() + '-' + valueDate.getDate() + '"]').addClass('picker-calendar-day-selected');
+                if(p.wrapper) {
+                    p.wrapper.find('.picker-calendar-day[data-date="' + valueDate.getFullYear() + '-' + valueDate.getMonth() + '-' + valueDate.getDate() + '"]').addClass('picker-calendar-day-selected');
+                }
             }
             if (p.params.onChange) {
                 p.params.onChange(p, p.value, p.value.map(formatDate));
@@ -2514,8 +2521,12 @@ Device/OS Detection
             } else {
                 p.container = $this;
             }
-
-            new Calendar($.extend(p, params));
+            var calendar = $this.data("calendar");
+            if(!calendar) {
+                calendar = new Calendar($.extend(p, params));
+                $this.data("calendar", calendar);
+            }
+            //new Calendar($.extend(p, params));
         });
     };
 
