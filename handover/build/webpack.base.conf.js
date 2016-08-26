@@ -1,7 +1,7 @@
-var path = require('path');;
-var config = require('../config');;
-var utils = require('./utils');;
-var projectRoot = path.resolve(__dirname, '../');;
+var path = require('path');
+var config = require('../config');
+var utils = require('./utils');
+var projectRoot = path.resolve(__dirname, '../');
 var webpack = require('webpack');
 module.exports = {
     entry: {
@@ -92,4 +92,5 @@ module.exports = {
     vue: {
         loaders: utils.cssLoaders()
     }
-};;
+};
+
