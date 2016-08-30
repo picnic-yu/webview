@@ -80,6 +80,26 @@ module.exports.getPageUrlParam = function(param){
     return query.substring(iStart, iEnd);//获取第二个参数的值
 };
 
+/**
+ * 压缩图片
+ * @param source_img_obj 图片
+ * @param quality        压缩率0-1之间
+ * @param output_format  格式
+ * @returns {*}
+ */
+module.exports.compressImg = function (source_img_obj, quality, output_format) {
+    var mime_type = "image/jpeg";
+    if (output_format != undefined && output_format == "png") {
+        mime_type = "image/png";
+    }
+    var cvs = document.createElement('canvas');
+    //naturalWidth真实图片的宽度
+    cvs.width = source_img_obj.naturalWidth / 2;
+    cvs.height = source_img_obj.naturalHeight / 2;
+    cvs.getContext("2d").drawImage(source_img_obj, 0, 0);
+    var newImageData = cvs.toDataURL(mime_type, quality);
+    return newImageData;
+};
 
 
 

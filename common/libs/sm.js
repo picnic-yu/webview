@@ -5600,6 +5600,7 @@ Device/OS Detection
     };
     //获取scroller对象
     $.getScroller = function(content) {
+        content = $(content);
         //以前默认只能有一个无限滚动，因此infinitescroll都是加在content上，现在允许里面有多个，因此要判断父元素是否有content
         content = content.hasClass('content') ? content : content.parents('.content');
         if (content) {
