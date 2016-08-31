@@ -74,6 +74,7 @@
                         </div>
                     </div>
                 </div>
+                <div class="c-split-content" v-show="items&&items.length>0"></div>
                 <div class="c-item-content">
                     <ul>
                         <li v-for="item in items" class="item-li">
@@ -107,7 +108,6 @@
                         </li>
                     </ul>
                 </div>
-                <div class="blank"></div>
             </div>
             <div class="cmt-bottom cmt-bottom0">
                 <div class="cb-container">
@@ -537,8 +537,13 @@
         display: block;
     }
 
+    .c-split-content{
+        height:10px;
+        background:#eee;
+        width:100%;
+    }
+
     .handover-detail .content {
-        background: #eee;
         bottom: 40px;
         border: none;
     }
@@ -696,7 +701,6 @@
     .handover-detail .item-container {
         width: 100%;
         padding: 0px;
-        background: #fff;
     }
 
     .handover-detail .item-container-top {
