@@ -242,6 +242,10 @@
                          userInfo:Constant.userInfo
                          });*/
                     } else {
+                        setTimeout(function(){
+                            $('#dataContent')[0].scrollTop=Constant.layout.srcollTop;
+                            $.locScroll($('#dataContent'));
+                        },300);
                         /*this.$nextTick(function () {
                          setTimeout(function(){
                          document.getElementById('dataContent').scrollTo(0,Constant.layout.srcollTop);
@@ -695,9 +699,6 @@
                 $('.cmt-textarea-' + item.id).attr('placeholder', placeholderStr);
                 if (item.showCmtArea) {
                     $('.cmt-textarea-' + item.id).height(30);
-                    /*setTimeout(function(){
-                     $('.cmt-textarea-'+item.id)[0].focus();
-                     },500);*/
                 }
                 /* window.webview &&　window.webview.input("cmtInput");*/
                 /*setTimeout(function(){
