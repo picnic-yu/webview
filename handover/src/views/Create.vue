@@ -10,16 +10,18 @@
             <div class="content create-content">
                 <div class="top-content">
                     <textarea class="top-textarea require-text" placeholder="说点什么..." v-model="bo.content"
-                              maxlength="320"></textarea>
+                              maxlength="1000"></textarea>
 
                     <div class="img-content">
-                        <div class="fp-left" v-for="path in bo.showPicPaths" track-by="$index">
-                            <a class="item-pic pb-standalone" index="{{$index}}">
-                                <img width="60" height="60" v-bind:src="path"/>
-                            </a>
-                            <span class="delete-img icon-cross" v-on:click="deleteItemImg($index)"></span>
+                        <div class="uploadimg-container">
+                            <div class="fp-left" v-for="path in bo.showPicPaths" track-by="$index">
+                                <a class="item-pic pb-standalone" index="{{$index}}">
+                                    <img width="60" height="60" v-bind:src="path" class="p-img p-img-{{$index}}"/>
+                                </a>
+                                <span class="delete-img icon-cross" v-on:click="deleteItemImg($index)"></span>
+                            </div>
                         </div>
-                        <div class="fp-add">
+                        <div class="fp-add" @click="beforeUpload($event)">
                             <img width="60" height="60" src="../../../common/assets/imgs/add.png"/>
                             <input class="add-file0" type="file" name="upload0" multiple accept="image/*"/>
                         </div>
@@ -50,7 +52,7 @@
                                     <div class="sub-item">
                                         <div class="sub-title"><span>{{$index+1}}、{{subItem.confName}}</span></div>
                                         <div class="sub-content">
-                                            <div class="capture-img">
+                                            <div class="capture-img" @click="beforeUpload($event)">
                                                 <img src="../../../common/assets/imgs/capture.png" width="40px"
                                                      height="40px"/>
                                                 <input class="add-file capture-img-file add-{{subItem.confId}}"
@@ -59,20 +61,23 @@
                                             </div>
                                             <div class="sub-textarea">
                                                 <textarea class="textarea require-text" v-model="subItem.content"
-                                                          placeholder="描述..." maxlength="320"></textarea>
+                                                          placeholder="描述..." maxlength="1000"></textarea>
                                             </div>
                                         </div>
-                                        <div class="f-panel" v-show="subItem.showPicPanel">
-                                            <div class="fp-left" v-for="path in subItem.filePaths" track-by="$index">
-                                                <a class="subitem-pic pb-standalone" index="{{$index}}"
-                                                   subItemIndex="{{$parent.$index}}"
-                                                   itemIndex="{{$parent.$parent.$index}}">
-                                                    <img width="60" height="60" v-bind:src="path"/>
-                                                </a>
+                                        <div class="f-panel sub-panel" v-show="subItem.showPicPanel">
+                                            <div class="uploadimg-container uploadimg-container-{{$index}}">
+                                                <div class="fp-left" v-for="path in subItem.filePaths"
+                                                     track-by="$index">
+                                                    <a class="subitem-pic pb-standalone" index="{{$index}}"
+                                                       subItemIndex="{{$parent.$index}}"
+                                                       itemIndex="{{$parent.$parent.$index}}">
+                                                        <img width="60" height="60" v-bind:src="path"/>
+                                                    </a>
                                                 <span class="delete-img icon-cross"
                                                       v-on:click="deleteImg(subItem,subItem.confId,$index)"></span>
+                                                </div>
                                             </div>
-                                            <div class="fp-add">
+                                            <div class="fp-add" @click="beforeUpload($event)">
                                                 <img width="60" height="60" src="../../../common/assets/imgs/add.png"/>
                                                 <input class="add-file add-{{subItem.confId}}"
                                                        typeId="{{subItem.confId}}" type="file" name="upload" multiple
@@ -124,6 +129,8 @@
     require('../../../common/assets/css/sm-extend.min.css');
     require('../../../common/assets/font.css');
     require('../../../common/libs/sm-extend.js');
+    require('../../../common/libs/drag/dragula.css');
+    var dragula = require('dragula');
     var commonutils = require('../../../common/assets/js/commonutils');
     var Vue = require('vue');
     var num = 20;//每页显示的条数
@@ -228,6 +235,7 @@
                 },
                 isAtAll: 0,
                 done: false,//是否完成创建
+                submiting: false,//是否正在提交
                 bo: Constant.bo,
                 userlist: Constant.selectedUsers,
                 pics: [],
@@ -281,31 +289,26 @@
                         this.style.height = this.scrollHeight + 'px';
                     }
                 });
+                dragula([$('.img-content .uploadimg-container')[0]]);
                 this.getData('', opt);
             },
             bindItemEvent: function () {
                 var _this = this;
                 $(document).off('change', '.add-file0').on('change', '.add-file0', function () {
-                    if ($('.handover-create .pb-standalone').length > maxImgNum) {
-                        $.toast('上传的图片最多不能超过' + maxImgNum + '张');
-                        return;
-                    }
                     var $addImg = $(this).prev();
                     var _file = this;
                     var successNum = 0, fileNum = this.files.length;
+                    var hasToMorePic = false;
                     for (var i = 0; i < fileNum; i++) {
                         var file = this.files[i];
                         if (file.size > 1024 * 1024 * 10) {
                             $.toast('图片大小不能超过10M');
                             break;
                         }
-
-                        var size = file.size / (1024 * 1024);//M
-                        console.log("size:" + size);
-                        console.log("qua:" + size <= 0.2 ? 1 : 0.2 / size);
                         (function (i) {
                             new html5ImgCompress(_file.files[i], {
-                                quality: size <= 0.2 ? 1 : 0.2 / size,
+                                maxWidth: 1600,
+                                maxHeight: 1600,
                                 before: function (file) {
                                     //console.log('多张: ' + i + ' 压缩前...');
                                 },
@@ -319,6 +322,15 @@
                                         //上传成功之后重置input
                                         $($addImg).parent().append('<input class="add-file0" name="upload0" type="file" multiple accept="image/*"/>');
                                     }
+                                    //检测是否上传了太多的图片
+                                    setTimeout(function () {
+                                        if (!hasToMorePic) {
+                                            if ($('.handover-create .pb-standalone').length > maxImgNum) {
+                                                hasToMorePic = true;
+                                                $.toast('上传的图片最多不能超过' + maxImgNum + '张');
+                                            }
+                                        }
+                                    }, 500);
                                 },
                                 fail: function () {
                                     console.log('多张: ' + i + ' 压缩失败...');
@@ -332,38 +344,6 @@
                                 }
                             });
                         })(i);
-
-                        /*var size = file.size/(1024 * 1024);//M
-                        var reader = new FileReader();
-                        reader.readAsDataURL(file);
-                        reader.onload = function () {
-                         if(size <= 0.005){//小于500K的图片不需要压缩处理
-                         successNum++;
-                         if (!_this.bo.showPicPaths) _this.bo.showPicPaths = [];
-                         _this.bo.showPicPaths.push(this.result);
-                         if (successNum == fileNum) {
-                         $(_file).remove();
-                         //上传成功之后重置input
-                         $($addImg).parent().append('<input class="add-file0" name="upload0" type="file" multiple accept="image/!*"/>');
-                         }
-                         }else{
-                         var img  = new Image();
-                         img.src = this.result;
-                         img.onload = function(){
-                         console.log(size);
-                         var newUrl = commonutils.compressImg(img,0.5);
-                         console.log(newUrl.length/(1024*1024));
-                         successNum++;
-                         if (!_this.bo.showPicPaths) _this.bo.showPicPaths = [];
-                         _this.bo.showPicPaths.push(newUrl);
-                         if (successNum == fileNum) {
-                         $(_file).remove();
-                         //上传成功之后重置input
-                         $($addImg).parent().append('<input class="add-file0" name="upload0" type="file" multiple accept="image/!*"/>');
-                         }
-                         };
-                            }
-                         };*/
                     }
                 });
                 //点击时打开图片浏览器
@@ -381,20 +361,24 @@
                         loop: false,
                         lazyLoading: true,
                         lazyLoadingInPrevNext: true,
+                        onClick: function () {
+                            myPhotoBrowserStandalone.close();
+                        },
                         navbarTemplate: '<header class="bar bar-nav">' +
-                        '<a class="icon icon-right pull-right photo-browser-close-link icon-cross"></a>' +
                         '<h1 class="title" style="float: left;"><div class="center sliding"><span class="photo-browser-current"></span> <span class="photo-browser-of">/</span> <span class="photo-browser-total"></span></div></h1>' +
                         '</header>'
                     });
                     myPhotoBrowserStandalone.open();
-                    $('.photo-browser .content').off('click').on('click', function () {
-                        myPhotoBrowserStandalone.close();
-                    });
                 });
 
 
             },
             bindSubItemEvent: function () {
+                for (var i = 0; i < $('.sub-panel .uploadimg-container').length; i++) {
+                    dragula([$('.sub-panel .uploadimg-container')[i]], {
+                        mirrorContainer: $('.sub-panel')[0]
+                    });
+                }
                 //点击时打开图片浏览器
                 var photos = [];
                 var _this = this;
@@ -412,25 +396,21 @@
                         loop: false,
                         lazyLoading: true,
                         lazyLoadingInPrevNext: true,
+                        onClick: function () {
+                            myPhotoBrowserStandalone.close();
+                        },
                         navbarTemplate: '<header class="bar bar-nav">' +
-                        '<a class="icon icon-right pull-right photo-browser-close-link icon-cross"></a>' +
                         '<h1 class="title" style="float: left;"><div class="center sliding"><span class="photo-browser-current"></span> <span class="photo-browser-of">/</span> <span class="photo-browser-total"></span></div></h1>' +
                         '</header>'
                     });
                     myPhotoBrowserStandalone.open();
-                    $('.photo-browser .content').off('click').on('click', function () {
-                        myPhotoBrowserStandalone.close();
-                    });
                 });
                 $(document).off('change', '.add-file').on('change', '.add-file', function () {
-                    if ($('.handover-create .pb-standalone').length > maxImgNum) {
-                        $.toast('上传的图片最多不能超过' + maxImgNum + '张');
-                        return;
-                    }
                     var $addImg = $(this).prev();
                     var _file = this;
                     var successNum = 0, fileNum = this.files.length;
                     var typeId = $(this).attr('typeId');
+                    var hasToMorePic = false;
                     var subItem = getChildType(_this.items, typeId);
                     for (var i = 0; i < fileNum; i++) {
                         var file = this.files[i];
@@ -438,11 +418,10 @@
                             $.toast('图片大小不能超过10M');
                             break;
                         }
-
-                        var size = file.size / (1024 * 1024);//M
                         (function (i) {
                             new html5ImgCompress(_file.files[i], {
-                                quality: size <= 0.2 ? 1 : 0.2 / size,
+                                maxWidth: 1600,
+                                maxHeight: 1600,
                                 before: function (file) {
                                     //console.log('多张: ' + i + ' 压缩前...');
                                 },
@@ -457,6 +436,15 @@
                                         $($addImg).parent().append('<input class="add-file add-' + typeId + '" typeId="' + typeId + '" name="upload" type="file" multiple accept="image/!*"/>');
                                         _this.showPicPanel(subItem);
                                     }
+                                    //检测是否上传了太多的图片
+                                    setTimeout(function () {
+                                        if (!hasToMorePic) {
+                                            if ($('.handover-create .pb-standalone').length > maxImgNum) {
+                                                hasToMorePic = true;
+                                                $.toast('上传的图片最多不能超过' + maxImgNum + '张');
+                                            }
+                                        }
+                                    }, 500);
                                 },
                                 fail: function () {
                                     console.log('多张: ' + i + ' 压缩失败...');
@@ -501,6 +489,7 @@
                         Constant.shopInfo.name = _this.bo.deptName;
                         Constant.bo.deptId = Constant.shopInfo.id;
                         Constant.bo.deptName = Constant.shopInfo.name;
+                        Constant.create.isOpen = _this.bo.isOpen;
                         setTimeout(_this.bindItemEvent, 1000);
                     }
                 });
@@ -550,6 +539,9 @@
                 router.go({name: 'templates'});
             },
             submit: function () {
+                if (this.submiting) {
+                    return;
+                }
                 var hasTextSth = false;
                 $('.require-text').each(function () {
                     if (this.value) {
@@ -580,11 +572,14 @@
                 } else {
                     this.bo.isOpen = 0;
                 }
+                this.sortImgs();
                 $.showPreloader('正在处理');
+                this.submiting = true;
                 this.$http.post('/service/saveHandoverBookBo.action?token=' + Constant.token, {
                     handoverBookBo: this.bo,
                     token: Constant.token
                 }).then(function (ret) {
+                    _this.submiting = false;
                     Vue.http.options.emulateJSON = true;
                     $.hidePreloader();
                     if (ret.data.result == 'ok') {
@@ -596,6 +591,40 @@
                         $.toast('提交失败');
                     }
                 });
+            },
+            /**
+             * 给所有图片排序
+             */
+            sortImgs: function () {
+                var _this = this;
+                if (this.bo.showPicPaths && this.bo.showPicPaths.length > 0) {
+                    this.bo.showPicPaths = [];
+                    $('.img-content .uploadimg-container').find('.fp-left img').each(function () {
+                        _this.bo.showPicPaths.push(this.src);
+                    });
+                }
+                if (this.bo.subItems && this.bo.subItems.length > 0) {
+                    for (var i = 0; i < this.bo.subItems.length; i++) {
+                        var item = this.bo.subItems[i];
+                        for (var j = 0; j < item.childs.length; j++) {
+                            var subItem = item.childs[j];
+                            if (subItem.filePaths && subItem.filePaths.length > 0) {
+                                subItem.filePaths = [];
+                                $('.sub-panel .uploadimg-container-' + j).find('.fp-left img').each(function () {
+                                    subItem.filePaths.push(this.src);
+                                });
+                            }
+                        }
+                    }
+                }
+            },
+            beforeUpload: function (event) {
+                if ($('.handover-create .pb-standalone').length >= maxImgNum) {
+                    $.toast('上传的图片最多不能超过' + maxImgNum + '张');
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                }
             },
             initAllSearch: function () {
                 Constant.shopInfo.id = '';
@@ -797,6 +826,10 @@
 
     }
 
+    .uploadimg-container {
+        float: left;
+        display: inline-block;
+    }
     .fp-left {
         width: 70px;
         float: left;
@@ -898,7 +931,6 @@
     .handover-create .item-li:last-child ul {
         border-bottom: none;
     }
-
     @media all and (max-width: 360px) {
         .timebox .date-time {
             font-size: 12px;

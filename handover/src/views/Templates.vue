@@ -2,7 +2,7 @@
     <div class="page-group" :transition="transitionName">
         <div class="page page-current container" id="index">
             <header class="bar bar-nav">
-                <h1 class='title'>请选择一个交接表</h1>
+                <h1 class='title'>请选择一个模板</h1>
             </header>
             <div id="templatesContent" class="content">
                 <div class="items-list">

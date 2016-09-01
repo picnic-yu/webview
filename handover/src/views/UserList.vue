@@ -2,7 +2,7 @@
     <div class="page-group" :transition="transitionName">
         <div class="page page-current container">
             <header class="bar bar-nav">
-                <h1 class='title'>选择用户</h1>
+                <h1 class='title'>选择用户{{tt}}</h1>
             </header>
             <div class="bar bar-header-secondary">
                 <div class="searchbar">
@@ -180,7 +180,10 @@
                         if (_this.page.total <= _this.items.length) {
                             _this.unbindInfinite();
                         } else {
-                            _this.reInitScroll();
+                            _this.unbindInfinite();
+                            if (!_this.infiniteInit) {
+                                setTimeout(_this.reInitScroll, 500);
+                            }
                         }
                         //$.refreshScroller();
                         callback && callback();

@@ -1104,11 +1104,9 @@
         s.container[0].style.cursor = '-moz-grab';
         s.container[0].style.cursor = 'grab';
       }
-
       // Time diff
       var touchEndTime = Date.now();
       var timeDiff = touchEndTime - touchStartTime;
-
       // Tap, doubleTap, Click
       if (s.allowClick) {
         s.updateClickedSlide(e);

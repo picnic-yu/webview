@@ -32,7 +32,7 @@
                   </div>
                 </nav>-->
             </div>
-            <div id="userListContent" class="content content-items mu-content pull-to-refresh-content infinite-scroll"
+            <div id="muserListContent" class="content content-items mu-content pull-to-refresh-content infinite-scroll"
                  data-ptr-distance="55" data-distance="240">
                 <div class="pull-to-refresh-layer">
                     <div class="preloader"></div>
@@ -179,11 +179,11 @@
             init: function (opt) {
                 var _this = this;
                 if (!this.refreshInit) {
-                    $('#userListContent').scroller({
+                    $('#muserListContent').scroller({
                         type: 'native'
                     });
-                    $.initPullToRefresh('#userListContent');
-                    $(document).on('refresh', '#userListContent', function (e) {
+                    $.initPullToRefresh('#muserListContent');
+                    $(document).on('refresh', '#muserListContent', function (e) {
                         _this.refresh();
                     });
                     this.refreshInit = true;
@@ -198,20 +198,20 @@
             unbindInfinite: function () {
                 if (!this.infiniteInit) return;
                 this.infiniteInit = false;
-                $.detachInfiniteScroll($('#userListContent'));
-                $('#userListContent .infinite-scroll-preloader').hide();
+                $.detachInfiniteScroll($('#muserListContent'));
+                $('#muserListContent .infinite-scroll-preloader').hide();
             },
             bindInfiniteEvent: function () {
                 if (this.infiniteInit) return;
                 var _this = this;
-                $.attachInfiniteScroll($('#userListContent'));
-                $('#userListContent .infinite-scroll-preloader').show();
+                $.attachInfiniteScroll($('#muserListContent'));
+                $('#muserListContent .infinite-scroll-preloader').show();
                 var func = function (e) {
                     if (_this.loading) return;
                     _this.page.index += _this.page.num;
                     _this.getData();
                 };
-                $(document).off('infinite', '#userListContent').on('infinite', '#userListContent', func);
+                $(document).off('infinite', '#muserListContent').on('infinite', '#muserListContent', func);
                 this.infiniteInit = true;
             },
             getData: function (callback, searchData) {
@@ -220,6 +220,7 @@
                 searchData = searchData ? searchData : this;
                 this.$http.post('/service/getUsers.action?token=' + Constant.token, {
                     userName: searchData.searchName,
+                    isFilterOwn: 1,//过滤掉自己
                     pageNumber: searchData.page.index / searchData.page.num + 1,
                     pageSize: searchData.page.num
                 }).then(function (ret) {
@@ -245,7 +246,10 @@
                         if (_this.page.total <= _this.items.length) {
                             _this.unbindInfinite();
                         } else {
-                            _this.reInitScroll();
+                            _this.unbindInfinite();
+                            if (!_this.infiniteInit) {
+                                setTimeout(_this.reInitScroll, 500);
+                            }
                         }
                         //$.refreshScroller();
                         callback && callback();
@@ -266,7 +270,7 @@
                 //this.items = [];
                 this.unbindInfinite();
                 this.getData(function () {
-                    $.pullToRefreshDone('#userListContent');
+                    $.pullToRefreshDone('#muserListContent');
                 });
             },
             /**

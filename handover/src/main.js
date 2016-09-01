@@ -13,8 +13,10 @@ Main = require('./Main.vue'),
     commonutils = require('../../common/assets/js/commonutils'),
     Constant = require('./constant'),
     VueTap = require('vue-tap');
+//var DragAndDrop = require('vue-drag-and-drop');
 Vue.use(VueRouter);
 Vue.use(VueTap);
+//Vue.use(DragAndDrop);
 Vue.use(require('vue-resource'));
 //设置url传递过来的参数
 Vue.http.options.emulateJSON = true;
@@ -43,7 +45,6 @@ window.router = router;
 window.goBack = function () {
     var curPathName = Constant.curRoute.pathName;
     var backInfo = utils.getBackPath(curPathName);
-    ;
     //从APP门店界面跳转过来的，返回时直接返回到APP界面
     /*if(Constant.source == 1 && backInfo.parent == 'default'){
      window.webview　&& window.webview.goBack(true);

@@ -205,7 +205,10 @@
                         if (_this.page.total <= _this.items.length) {
                             _this.unbindInfinite();
                         } else {
-                            _this.reInitScroll();
+                            _this.unbindInfinite();
+                            if (!_this.infiniteInit) {
+                                setTimeout(_this.reInitScroll, 500);
+                            }
                         }
                         //$.refreshScroller();
                         callback && callback();

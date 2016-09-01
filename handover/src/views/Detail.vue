@@ -65,16 +65,21 @@
                                             <span class="not-view" v-show="cmt.replyUserId">回复</span>
                                             <span v-show="cmt.replyUserId" class="cmt-user not-view">{{cmt.replyUserName}}</span>
                                             ：{{cmt.content}}
-                                            <span v-if="cmt.showDelete" @click.stop="deleteCmt(bo.comment,cmt.id)"
-                                                  class="delete-text-cmt">删除</span>
                                         </div>
+                                        <div class="cmt-pic" v-for="pic in cmt.filePaths">
+                                            <a class="detail-cmted-pic pb-standalone" index="{{$index}}"
+                                               parentIndex="{{$parent.$index}}">
+                                                <img width="40" height="40" v-bind:src="pic"/>
+                                            </a>
+                                        </div>
+                                        <div class="clearboth"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="c-split-content" v-show="items&&items.length>0"></div>
+                <!--<div class="c-split-content" v-show="items&&items.length>0"></div>-->
                 <div class="c-item-content">
                     <ul>
                         <li v-for="item in items" class="item-li">
@@ -93,8 +98,8 @@
                                             </div>
                                         </div>
                                         <div class="f-panel">
-                                            <div class="fp-left" v-for="path in subItem.filePaths" track-by="$index">
-                                                <a class="item-pic pb-standalone ditem-pic" index="{{$index}}"
+                                            <div class="fp-left" v-for="path in subItem.filePaths">
+                                                <a class="item-pic pb-standalone sub-item-pic" index="{{$index}}"
                                                    subItemIndex="{{$parent.$index}}"
                                                    itemIndex="{{$parent.$parent.$index}}">
                                                     <img width="60" height="60" v-bind:src="path"/>
@@ -111,21 +116,34 @@
             </div>
             <div class="cmt-bottom cmt-bottom0">
                 <div class="cb-container">
+                    <button class="not-view button button-link button-nav button-light btn-addpic"
+                            @click="beforeUpload($event)">
+                        <span class="icon-image"></span>
+                        <input class="add-pic" index="{{$index}}" type="file" name="upload0" multiple accept="image/*"/>
+                    </button>
                     <textarea class="cmt-textarea" placeholder="回复" id="cmtInput2"
                               v-model="cmtContent"></textarea>
                     <button class="button button-link button-nav button-fill button-orange btn-send"
                             v-on:click="submitCmt()">
                         发送
                     </button>
+                    <div class="cmtpic-container" v-show="cmtPics && cmtPics.length>0">
+                        <div class="cmt-pic" v-for="pic in cmtPics" track-by="$index">
+                            <a class="detail-cmt-pic pb-standalone" index="{{$index}}" parentIndex="{{$parent.$index}}">
+                                <img v-bind:src="pic" width="40" height="40">
+                            </a>
+                            <span class="delete-img icon-cross" v-on:click="deleteCmtImg(cmtPics,$index)"></span>
+                        </div>
+                    </div>
                     <div class="clearboth"></div>
                 </div>
             </div>
             <modal-dialog v-bind:show-modal.sync="showModal">
                 <header class="dialog-header" slot="header">
                     <div class="buttons-tab head-tab">
-                        <a href="#readtab1" class="button  tab-link active" v-on:click="selectTabIndex(0)"
+                        <a class="button  tab-link active" v-on:click="selectTabIndex(0)"
                            v-bind:class="currentTabIndex==0?'active':''">未读的({{unreadUsers.length}})</a>
-                        <a href="#readtab2" class="button  tab-link" v-on:click="selectTabIndex(1)"
+                        <a class="button  tab-link" v-on:click="selectTabIndex(1)"
                            v-bind:class="currentTabIndex==1?'active':''">谁看过了({{readUsers.length}})</a>
                     </div>
                 </header>
@@ -152,19 +170,6 @@
                     </div>
                 </div>
             </modal-dialog>
-            <div class="dlgs-cmt">
-                <div class="dlg-cmt" v-show="showCommentModal" v-bind:class="{ 'active': showCommentModal}">
-                    <div class="cmt-bottom">
-                        <textarea class="cmt-textarea" placeholder="回复" id="cmtInput1"
-                                  v-model="cmtContent"></textarea>
-                        <button class="button button-link button-nav button-fill button-orange btn-send"
-                                v-on:click="submitCmt()">
-                            发送
-                        </button>
-                    </div>
-                </div>
-                <div class="overlay-cmt" @click="closeCmtDialog()"></div>
-            </div>
         </div>
     </div>
 </template>
@@ -173,8 +178,11 @@
     require('../../../common/assets/css/sm-extend.min.css');
     require('../../../common/assets/font.css');
     require('../../../common/libs/sm-extend.js');
+    require('../../../common/libs/drag/dragula.css');
+    var dragula = require('dragula');
     var commonutils = require('../../../common/assets/js/commonutils');
     var Vue = require('vue');
+    var maxCmtImgNum = 3;
     var myPhotoBrowserStandalone;
     module.exports = {
         route: {
@@ -231,6 +239,7 @@
                 showCommentModal: false,//是否显示评论的框
                 cmtContent: '',//评论内容
                 cmtPid: '',//评论的父id
+                cmtPics: [],//评论时上传的图片
                 selectItem: {},//当前操作的记录
                 loading: false,
                 refreshInit: false
@@ -272,27 +281,29 @@
             },
             init: function () {
                 $(document).off('input', '.handover-detail .cmt-textarea').on('input', '.handover-detail .cmt-textarea', function () {
-                    if (this.scrollHeight > 30) {
+                    if (this.scrollHeight > 28) {
                         this.style.height = this.scrollHeight + 'px';
                         $(this).parent().parent().height(this.scrollHeight + 6);
                     }
                 });
                 $(document).off('propertychange', '.handover-detail .cmt-textarea').on('propertychange', '.handover .cmt-textarea', function () {
-                    if (this.scrollHeight > 30) {
+                    if (this.scrollHeight > 28) {
                         this.style.height = this.scrollHeight + 'px';
                         $(this).parent().parent().height(this.scrollHeight + 6);
                     }
-                })
+                });
+                dragula([$('.cmt-bottom0 .cmtpic-container')[0]]);
             },
             bind: function () {
                 this.bindPicEvent();
             },
             bindPicEvent: function () {
                 //点击时打开图片浏览器
-                var photos = this.pics;
                 var _this = this;
+                //top区域图片点击事件
                 $(document).off('click', '.pb-standalone.ditem-pic').on('click', '.pb-standalone.ditem-pic', function () {
                     var index = $(this).attr('index');//当前图片组中查看的图片的索引
+                    var photos = _this.bo.showPicPaths;
                     //获取当前点击的记录的图片信息
                     myPhotoBrowserStandalone = $.photoBrowser({
                         photos: photos,
@@ -302,15 +313,136 @@
                         loop: false,
                         lazyLoading: true,
                         lazyLoadingInPrevNext: true,
+                        onClick: function () {
+                            myPhotoBrowserStandalone.close();
+                        },
                         navbarTemplate: '<header class="bar bar-nav">' +
-                        '<a class="icon icon-right pull-right photo-browser-close-link icon-cross"></a>' +
                         '<h1 class="title" style="float: left;"><div class="center sliding"><span class="photo-browser-current"></span> <span class="photo-browser-of">/</span> <span class="photo-browser-total"></span></div></h1>' +
                         '</header>'
                     });
                     myPhotoBrowserStandalone.open();
-                    $('.photo-browser .content').off('click').on('click', function () {
-                        myPhotoBrowserStandalone.close();
+                });
+                $(document).off('click', '.pb-standalone.sub-item-pic').on('click', '.pb-standalone.sub-item-pic', function () {
+                    var index = $(this).attr('index');//当前图片组中查看的图片的索引
+                    var subItemIndex = $(this).attr('subItemIndex');
+                    var itemIndex = $(this).attr('itemIndex');
+                    var photos = _this.bo.subItems[itemIndex].childs[subItemIndex].filePaths;
+                    //获取当前点击的记录的图片信息
+                    myPhotoBrowserStandalone = $.photoBrowser({
+                        photos: photos,
+                        initialSlide: index,
+                        toolbar: false,
+                        theme: 'dark',
+                        loop: false,
+                        lazyLoading: true,
+                        lazyLoadingInPrevNext: true,
+                        onClick: function () {
+                            myPhotoBrowserStandalone.close();
+                        },
+                        navbarTemplate: '<header class="bar bar-nav">' +
+                        '<h1 class="title" style="float: left;"><div class="center sliding"><span class="photo-browser-current"></span> <span class="photo-browser-of">/</span> <span class="photo-browser-total"></span></div></h1>' +
+                        '</header>'
                     });
+                    myPhotoBrowserStandalone.open();
+                });
+                //上传图片的点击事件
+                $(document).off('click', '.pb-standalone.detail-cmt-pic').on('click', '.pb-standalone.detail-cmt-pic', function () {
+                    var index = $(this).attr('index');//当前图片组中查看的图片的索引
+                    var photos = _this.cmtPics;
+                    //获取当前点击的记录的图片信息
+                    myPhotoBrowserStandalone = $.photoBrowser({
+                        photos: photos,
+                        initialSlide: index,
+                        toolbar: false,
+                        theme: 'dark',
+                        loop: false,
+                        lazyLoading: true,
+                        lazyLoadingInPrevNext: true,
+                        onClick: function () {
+                            myPhotoBrowserStandalone.close();
+                        },
+                        navbarTemplate: '<header class="bar bar-nav">' +
+                        '<h1 class="title" style="float: left;"><div class="center sliding"><span class="photo-browser-current"></span> <span class="photo-browser-of">/</span> <span class="photo-browser-total"></span></div></h1>' +
+                        '</header>'
+                    });
+                    myPhotoBrowserStandalone.open();
+                });
+                //评论中的图片点击事件
+                $(document).off('click', '.pb-standalone.detail-cmted-pic').on('click', '.pb-standalone.detail-cmted-pic', function () {
+                    var index = $(this).attr('index');//当前图片组中查看的图片的索引
+                    var parentIndex = $(this).attr('parentIndex');
+                    var photos = _this.bo.comment[parentIndex].filePaths;
+                    //获取当前点击的记录的图片信息
+                    myPhotoBrowserStandalone = $.photoBrowser({
+                        photos: photos,
+                        initialSlide: index,
+                        toolbar: false,
+                        theme: 'dark',
+                        loop: false,
+                        lazyLoading: true,
+                        lazyLoadingInPrevNext: true,
+                        onClick: function () {
+                            myPhotoBrowserStandalone.close();
+                        },
+                        navbarTemplate: '<header class="bar bar-nav">' +
+                        '<h1 class="title" style="float: left;"><div class="center sliding"><span class="photo-browser-current"></span> <span class="photo-browser-of">/</span> <span class="photo-browser-total"></span></div></h1>' +
+                        '</header>'
+                    });
+                    myPhotoBrowserStandalone.open();
+                });
+                //上传图片事件
+                $(document).off('change', '.handover-detail .add-pic').on('change', '.handover-detail .add-pic', function () {
+                    var index = $(this).attr('index');
+                    var $addImg = $(this).prev();
+                    var _file = this;
+                    var hasToMorePic = false;
+                    var successNum = 0, fileNum = this.files.length;
+                    for (var i = 0; i < fileNum; i++) {
+                        var file = this.files[i];
+                        if (file.size > 1024 * 1024 * 10) {
+                            $.toast('图片大小不能超过10M');
+                            break;
+                        }
+                        (function (i) {
+                            new html5ImgCompress(_file.files[i], {
+                                maxWidth: 1600,
+                                maxHeight: 1600,
+                                before: function (file) {
+                                    //console.log('多张: ' + i + ' 压缩前...');
+                                },
+                                done: function (file, base64) { // 这里是异步回调，done中i的顺序不能保证
+                                    //console.log('多张: ' + i + ' 压缩成功...'+file.length+","+base64.length);
+                                    successNum++;
+                                    if (!_this.cmtPics) _this.cmtPics = [];
+                                    _this.cmtPics.push(base64);
+                                    if (successNum == fileNum) {
+                                        $(_file).remove();
+                                        //上传成功之后重置input
+                                        $($addImg).parent().append('<input class="add-pic" index="' + index + '" name="upload0" type="file" multiple accept="image/*"/>');
+                                    }
+                                    //检测是否上传了太多的图片
+                                    setTimeout(function () {
+                                        if (!hasToMorePic) {
+                                            if ($('.cmt-bottom0 .cmt-pic').length > maxCmtImgNum) {
+                                                hasToMorePic = true;
+                                                $.toast('上传的图片最多不能超过' + maxCmtImgNum + '张');
+                                            }
+                                        }
+                                    }, 500);
+                                },
+                                fail: function () {
+                                    console.log('多张: ' + i + ' 压缩失败...');
+                                },
+                                complate: function () {
+                                    console.log('多张: ' + i + ' 压缩完成...');
+                                },
+                                notSupport: function (file) {
+                                    notSupport = true;
+                                    alert('浏览器不支持！');
+                                }
+                            });
+                        })(i);
+                    }
                 });
             },
             getData: function () {
@@ -336,7 +468,7 @@
                             _this.items = [];
                         }
                         _this.curUser = ret.data.data.user;
-                        _this.allpics();
+                        //_this.allpics();
                         setTimeout(_this.bind, 1000);
                     }
                 });
@@ -411,6 +543,13 @@
              */
             selectTabIndex: function (index) {
                 this.currentTabIndex = index;
+                if (index == 0) {
+                    $('#readtab1').addClass('active');
+                    $('#readtab2').removeClass('active');
+                } else {
+                    $('#readtab2').addClass('active');
+                    $('#readtab1').removeClass('active');
+                }
             },
             /**
              * 评论
@@ -444,26 +583,57 @@
                     return;
                 }
                 var _this = this;
+                if (this.cmtPics && this.cmtPics.length > maxCmtImgNum) {
+                    $.toast('上传的图片最多不能超过' + maxCmtImgNum + '张');
+                    return;
+                }
                 $.showPreloader('正在处理');
-                this.$http.post('/service/saveHandoverBookComment.action', {
-                    'handoverBookComment.content': this.cmtContent,
-                    'handoverBookComment.pid': this.bo.id,
-                    'handoverBookComment.replyPid': this.cmtPid ? this.cmtPid : null,
-                    token: Constant.token
+                this.sortImgs();
+                Vue.http.options.emulateJSON = false;
+                var handoverBookComment = {
+                    filePaths: this.cmtPics,
+                    content: this.cmtContent,
+                    pid: this.bo.id,
+                    replyPid: this.cmtPid ? this.cmtPid : null
+                };
+                this.$http.post('/service/saveHandoverBookComment.action?token=' + Constant.token, {
+                    handoverBookComment: handoverBookComment
                 }).then(function (ret) {
+                    Vue.http.options.emulateJSON = true;
                     $.hidePreloader();
                     if (ret.ok && ret.data && ret.data.result == 'ok') {
                         $.toast('发表成功');
                         $('.cmt-bottom0').height('auto');
                         if (!_this.bo.comment) _this.bo.comment = [];
-                        _this.bo.comment.push(ret.data.data.data);
+                        var data = ret.data.data.data;
+                        //后台目前没有返回给我评论的图片，自己深拷贝一把
+                        if (_this.cmtPics && _this.cmtPics.length > 0 && !data.filePaths) {
+                            data.filePaths = [];
+                            for (var i = 0; i < _this.cmtPics.length; i++) {
+                                data.filePaths.push(_this.cmtPics[i]);
+                            }
+                        }
+                        _this.bo.comment.push(data);
                         _this.cmtContent = '';
                         _this.cmtPid = null;
+                        _this.cmtPics = [];
                         _this.closeCmtDialog();
                     } else {
                         $.toast('发表失败');
                     }
                 });
+            },
+            /**
+             * 给所有图片排序
+             */
+            sortImgs: function () {
+                var _this = this;
+                if (this.cmtPics && this.cmtPics.length > 0) {
+                    this.cmtPics = [];
+                    $('.cmt-bottom0 .cmtpic-container').find('img').each(function () {
+                        _this.cmtPics.push(this.src);
+                    });
+                }
             },
             deleteCmt: function (cmts, id) {
                 var _this = this;
@@ -481,6 +651,19 @@
                 }, function () {
 
                 });
+            },
+            /**
+             * 删除评论图片*/
+            deleteCmtImg: function (cmtPics, index) {
+                cmtPics.splice(index, 1);
+            },
+            beforeUpload: function (event) {
+                if ($('.cmt-bottom0 .cmt-pic').length >= maxCmtImgNum) {
+                    $.toast('上传的图片最多不能超过' + maxCmtImgNum + '张');
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                }
             },
             popActions: function (id, cmts) {
                 var _this = this;
@@ -546,6 +729,7 @@
     .handover-detail .content {
         bottom: 40px;
         border: none;
+        background: #eee;
     }
 
     .handover-detail .who-content ul li {
@@ -701,6 +885,7 @@
     .handover-detail .item-container {
         width: 100%;
         padding: 0px;
+        background: #fff;
     }
 
     .handover-detail .item-container-top {
@@ -941,13 +1126,12 @@
 
     .head-tab {
         justify-content: flex-start;
-        margin-top: 10px;
     }
 
     .buttons-tab.head-tab a.tab-link {
         top: 0px;
-        height: 30px;
-        line-height: 30px;
+        height: 40px;
+        line-height: 40px;
         color: #999;
         font-size: 14px;
     }
@@ -1029,11 +1213,11 @@
     }
 
     .handover-detail .cmt-textarea {
-        width: calc(100% - 80px);
+        width: calc(100% - 103px);
         float: left;
         height: 30px;
         margin-top: 3px;
-        margin-left: 10px;
+        margin-left: 36px;
         border-radius: 4px;
         border: 1px solid #ddd;
         font-size: 14px;
@@ -1072,6 +1256,63 @@
         word-wrap: break-word;
     }
 
+    .handover-detail .button.btn-addpic {
+        height: 30px;
+        line-height: 30px;
+        width: 30px;
+        padding: 0px;
+        position: absolute;
+        bottom: 0px;
+        left: 3px;
+    }
+
+    .handover-detail .btn-addpic .add-pic {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        opacity: 0;
+        font-size: 12px;
+        width: 30px;
+        height: 30px;
+    }
+
+    .handover-detail .cmtpic-container {
+        position: absolute;
+        top: -54px;
+        left: 0px;
+        min-height: 50px;
+        width: 100%;
+        background: #fff;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        padding: 4px;
+    }
+
+    .handover-detail .cmt-pic {
+        float: left;
+        margin: 0 4px;
+        width: 40px;
+        height: 40px;
+        margin-top: 5px;
+        position: relative;
+    }
+
+    .handover-detail .icon-image {
+        font-size: 20px;
+        margin-top: 4px;
+        display: inline-block;
+        color: #999;
+    }
+
+    .handover-detail .cmtpic-container .delete-img, .cmt-pic .delete-img {
+        position: absolute;
+        top: -4px;
+        right: -6px;
+        background: #eee;
+        border-radius: 8px;
+        font-size: 12px;
+        padding: 2px;
+    }
     @media all and (max-width: 360px) {
 
     }

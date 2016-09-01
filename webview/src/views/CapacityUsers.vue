@@ -77,15 +77,19 @@
                       <td class="item-label">已点检项数</td>
                       <td class="item-num">{{item.checkedItemNum}}</td>
                       <td><span class="item-splitor"></span></td>
-                      <td class="item-label">发现问题数</td>
-                      <td class="item-num">{{item.findProblemNum}}</td>
-                    </tr>
-                    <tr>
-                      <td class="item-label">门店总数</td>
-                      <td class="item-num">{{item.authDeptNum}}</td>
-                      <td><span class="item-splitor"></span></td>
                       <td class="item-label">点检项总数</td>
                       <td class="item-num">{{item.groupItemNum}}</td>
+                    </tr>
+                    <tr>
+                      <td class="item-label">点检门店数</td>
+                      <td class="item-num">{{item.checkedDeptNum}}</td>
+                      <td><span class="item-splitor"></span></td>
+                      <td class="item-label">门店总数</td>
+                      <td class="item-num">{{item.authDeptNum}}</td>
+                    </tr>
+                    <tr>
+                      <td class="item-label">发现问题数</td>
+                      <td class="item-num">{{item.findProblemNum}}</td>
                     </tr>
                   </table>
                 </div>

@@ -1,5 +1,5 @@
 <template>
-    <div class="dialogs">
+    <div class="dialogs" v-bind:class="{ 'active': showModal}">
         <div class="dialog" v-bind:class="{ 'dialog-active': showModal}">
             <div class="dialog-content">
                 <slot name="header"></slot>
@@ -29,15 +29,20 @@
     .dialogs {
         width: 100%;
         height: 100%;
+        position: absolute;
+        z-index: -1;
     }
 
+    .dialogs.active {
+        z-index: 2000;
+    }
     .dialog {
         width: 300px;
         position: fixed;
         left: 50%;
         top: 20%;
         transform: translateX(-50%);
-        z-index: 2000;
+        z-index: -1;
         visibility: hidden;
         backface-visibility: hidden;
         perspective: 1300px;
@@ -46,6 +51,7 @@
 
     .dialog-active {
         visibility: visible;
+        z-index: 2000;
     }
 
     .dialog-active .dialog-content {

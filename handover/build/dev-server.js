@@ -68,7 +68,16 @@ app.use(bodyParser.json({limit: '50mb'}));
 
 var baseUrl = 'http://localhost:8080/';
 app.post('/service/saveHandoverBookBo.action', function (req, response) {
-    console.log(req.body);
+    request({
+        url: baseUrl + req.url,
+        body: req.body,
+        json: true,
+        method: 'POST'
+    }, function (error, res, data) {
+        response.send(data);
+    });
+});
+app.post('/service/saveHandoverBookComment.action', function (req, response) {
     request({
         url: baseUrl + req.url,
         body: req.body,
