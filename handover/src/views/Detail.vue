@@ -3,6 +3,7 @@
         <div class="page page-current container">
             <header class="bar bar-nav">
                 <h1 class='title'>详情</h1>
+                <span class="pull-left icon-back" v-on:click="backTo()" v-if="showBackBtn==1"></span>
             </header>
             <div class="content" v-show="!display.loading">
                 <div class="item-container item-container-top">
@@ -32,6 +33,12 @@
                             </div>
                             <div class="item-type">
                                 <span class="type-name">{{bo.moudleName}}</span>
+                            </div>
+                            <div class="item-footer">
+                                <span class="type-name">检查人：{{bo.checkerName}}</span>
+                            </div>
+                            <div class="item-footer" v-if="bo.moudleType == 1">
+                                <span class="type-name">截止日期：{{bo.deadline?bo.deadline.substring(0,10):'无'}}</span>
                             </div>
                             <div class="item-footer">
                                 <span class="dept-name" v-show="bo.isOpen==0">{{bo.deptName}}</span>
@@ -80,7 +87,7 @@
                     </div>
                 </div>
                 <!--<div class="c-split-content" v-show="items&&items.length>0"></div>-->
-                <div class="c-item-content">
+                <div class="c-item-content" v-if="bo.moudleType == 0">
                     <ul>
                         <li v-for="item in items" class="item-li">
                             <div class="cic-title">
@@ -112,6 +119,17 @@
                             </ul>
                         </li>
                     </ul>
+                </div>
+                <div class="c-item-content mt-content" v-show="bo.moudleType == 1">
+                    <div class="doer-panel">
+                        <h4>执行人列表</h4>
+
+                        <div class="doer-item" v-for="item in bo.subItems">
+                            <label class="user-name">{{item.userName}}</label>
+                            <span class="mt-status">{{item.isPass==1?'已通过':'未通过'}}</span>
+                            <span class="mt-status">{{item.isCompleted==1?'已完成':'未完成'}}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="cmt-bottom cmt-bottom0">
@@ -201,6 +219,13 @@
                 if (myPhotoBrowserStandalone) {
                     myPhotoBrowserStandalone.close();
                 }
+                var _this = this;
+                setTimeout(function () {
+                    Constant.bo = this.bo = '';
+                    _this.items = [];
+                    _this.readUsers = [];
+                    _this.unreadUsers = [];
+                }, 0);
                 transition.next();
             },
             canDeactivate: function (transition) {
@@ -242,7 +267,8 @@
                 cmtPics: [],//评论时上传的图片
                 selectItem: {},//当前操作的记录
                 loading: false,
-                refreshInit: false
+                refreshInit: false,
+                showBackBtn: Constant.showBackBtn
             }
         },
         components: {
@@ -267,6 +293,33 @@
             this.init();
         },
         methods: {
+            backTo: function () {
+                var curPathName = Constant.curRoute.pathName;
+                var backInfo = utils.getBackPath(curPathName);
+                router.go({name: backInfo.parent, params: backInfo.params});
+            },
+            webviewReady: function () {
+                if ($.device.android && Constant.showBackBtn == 1) {
+                    try {
+                        window.webview && window.webview.loadSuccess_webview();
+                    } catch (e) {
+                    }
+                } else if ($.device.ios) {
+                    if (Constant.isWKWebView == 1) {
+                        try {
+                            window.webkit.messageHandlers.loadSuccess_webview.postMessage(1);
+                        } catch (e) {
+                        }
+                    } else {
+                        try {
+                            loadSuccess_webview();
+                        } catch (e) {
+                        }
+                    }
+                } else {
+
+                }
+            },
             /**
              * 计算每张图片的大小
              * */
@@ -280,6 +333,7 @@
                 }
             },
             init: function () {
+                this.webviewReady();
                 $(document).off('input', '.handover-detail .cmt-textarea').on('input', '.handover-detail .cmt-textarea', function () {
                     if (this.scrollHeight > 28) {
                         this.style.height = this.scrollHeight + 'px';
@@ -292,7 +346,7 @@
                         $(this).parent().parent().height(this.scrollHeight + 6);
                     }
                 });
-                dragula([$('.cmt-bottom0 .cmtpic-container')[0]]);
+                dragula([$('.cmt-bottom0 .cmtpic-container')[0]])
             },
             bind: function () {
                 this.bindPicEvent();
@@ -508,17 +562,18 @@
                 }, 500);
             },
             clearData: function () {
-                Constant.bo = this.bo = '';
-                this.items = [];
-                this.readUsers = [];
-                this.unreadUsers = [];
+                //Constant.bo = this.bo = '';
+                //this.items = [];
+                //this.readUsers = [];
+                //this.unreadUsers = [];
                 this.showModal = false;//是否打开对话框
                 this.currentTabIndex = 0;//对话框中选择的选项卡
-                this.showCommentModal = false;//是否显示评论的框
+                //this.showCommentModal = false;//是否显示评论的框
                 this.cmtContent = '';//评论内容
                 this.cmtPid = '';//评论的父id
                 this.selectItem = {};//当前操作的记录
                 this.pics = [];
+                Constant.needRefresh = false;//返回到主页时不需要刷新
             },
             hasReadCertainBook: function () {
                 this.$http.post('/service/hasReadCertainBook.action?token=' + Constant.token, {
@@ -1313,6 +1368,11 @@
         font-size: 12px;
         padding: 2px;
     }
+
+    .handover-detail .checker-panel {
+
+    }
+
     @media all and (max-width: 360px) {
 
     }

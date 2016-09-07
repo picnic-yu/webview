@@ -32,8 +32,23 @@ module.exports = {
         id: '',
         name: ''
     },
+    module: {
+        id: '',
+        name: ''
+    },//类型
     create: {
-        isOpen: 0//创建界面是不是公开的门店
+        isOpen: 0,//创建界面是不是公开的门店
+        mDate: {
+            value: '',
+            parentIndex: 0,
+            index: 0
+        },//模板中选择的日期
+        mUserInfo: {
+            names: '',
+            ids: '',
+            parentIndex: 0,
+            index: 0
+        },//模板中选择的天数
     },
     layout: {
         scrollTop: 0

@@ -3,6 +3,7 @@
         <div class="page page-current container">
             <header class="bar bar-nav">
                 <h1 class='title'>选择用户{{tt}}</h1>
+                <span class="pull-left icon-back" v-on:click="backTo()" v-if="showBackBtn==1"></span>
             </header>
             <div class="bar bar-header-secondary">
                 <div class="searchbar">
@@ -22,7 +23,7 @@
                 </div>
                 <div class="items-list">
                     <ul>
-                        <li v-on:click="detail('','')">
+                        <li v-on:click="detail('','')" v-if="$route.params.dowhich==0">
                             <div class="item-left">
                                 <div class="default-header">
                                     <span class="user-icon"></span></div>
@@ -91,7 +92,8 @@
                 searchName: '',
                 scrollInit: false,
                 infiniteInit: false,
-                refreshInit: false
+                refreshInit: false,
+                showBackBtn: Constant.showBackBtn
             };
         },
         components: {
@@ -122,6 +124,16 @@
             this.init();
         },
         methods: {
+            backTo: function () {
+                var curPathName = Constant.curRoute.pathName;
+                var backInfo = utils.getBackPath(curPathName);
+                Constant.needRefresh = false;
+                if (Constant.curRoute.path.indexOf('/userlist/1') > -1) {//创建界面，选择门店时，返回到创建界面
+                    router.go({name: 'create', params: {deptId: Constant.shopInfo.id ? Constant.shopInfo.id : 0}});
+                } else {
+                    router.go({name: backInfo.parent, params: backInfo.params});
+                }
+            },
             init: function (opt) {
                 var _this = this;
                 if (!this.refreshInit) {
@@ -208,12 +220,18 @@
                 });
             },
             detail: function (id, name) {
-                Constant.userInfo = {
-                    id: id,
-                    name: name
-                };
-                Constant.needRefresh = true;
-                router.go({name: 'default'});
+                if (this.$route.params.dowhich == 0) {//返回到主页
+                    Constant.userInfo = {
+                        id: id,
+                        name: name
+                    };
+                    Constant.needRefresh = true;
+                    router.go({name: 'default'});
+                } else if (this.$route.params.dowhich == 1) {
+                    Constant.create.mUserInfo.names = name;
+                    Constant.create.mUserInfo.ids = id;
+                    router.go({name: 'create', params: {deptId: Constant.shopInfo.id ? Constant.shopInfo.id : 0}});
+                }
             }
         }
     };

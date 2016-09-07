@@ -20,5 +20,7 @@ module.exports = {
     id:'',
     name:''
   },
+  showBackBtn: 0,
+  isWKWebView: 0,
   source:''//空为webviewurl来自于未选择门店时候的跳转，1来自于门店界面的跳转
 };

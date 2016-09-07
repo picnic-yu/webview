@@ -2,10 +2,8 @@
     <div class="page-group handover" :transition="transitionName">
         <div class="container page page-current">
             <header class="bar bar-nav">
-                <!--<button class="button button-link button-nav pull-right button-btn add-btn" v-on:click="back()">
-                    返回
-                </button>-->
                 <h1 class='title'>工作圈(v1.3.1)</h1>
+                <span class="pull-left icon-back" v-on:click="backTo()" v-if="showBackBtn==1"></span>
                 <button class="button button-link button-nav pull-right button-btn add-btn" v-on:click="goToCreate()">
                     新增
                 </button>
@@ -19,17 +17,23 @@
                             <span class="search-value" v-show="shopInfo.id">{{shopInfo.name}}</span>
                             <span class="icon-detail_down search-icon"></span>
                         </li>
-                        <li class="search-li" v-bind:style="{width:layout.searchBarWidth+'px'}"
+                        <!--<li class="search-li" v-bind:style="{width:layout.searchBarWidth+'px'}"
                             v-on:click="goToSearchDate()">
                             <span class="search-label" v-show="!search.dateTime">日期</span>
                             <span class="search-value search-time"
                                   v-show="search.dateTime">{{search.dateTime|getdate}}</span>
                             <span class="icon-detail_down search-icon"></span>
-                        </li>
+                        </li>-->
                         <li class="search-li" v-bind:style="{width:layout.searchBarWidth+'px'}"
                             v-on:click="goToUserlist()">
                             <span class="search-label" v-show="!userInfo.id">创建人</span>
                             <span class="search-value" v-show="userInfo.id">{{userInfo.name}}</span>
+                            <span class="icon-detail_down search-icon"></span>
+                        </li>
+                        <li class="search-li" v-bind:style="{width:layout.searchBarWidth+'px'}"
+                            v-on:click="whichTemplate()">
+                            <span class="search-label" v-show="!module.id">类型</span>
+                            <span class="search-value" v-show="module.id">{{module.name}}</span>
                             <span class="icon-detail_down search-icon"></span>
                         </li>
                         <li class="search-li search-li-other" v-bind:class="display.searchOther?'active':''"
@@ -231,6 +235,12 @@
             <div class="sp-item" v-on:click="searchAtMe()" v-bind:class="!!atMe?'active':''">
                 <label class="item-title label">提到我的</label>
             </div>
+            <div class="sp-item" v-on:click="searchAtMe()">
+                <label class="item-title label sp-time" v-bind:class="!!atMe?'active':''">本周</label><label
+                    class="item-title label sp-time" v-bind:class="!!atMe?'active':''">上周</label>
+                <label class="item-title label sp-time" v-bind:class="!!atMe?'active':''">本月</label><label
+                    class="item-title label sp-time" v-bind:class="!!atMe?'active':''">上月</label>
+            </div>
         </div>
     </div>
 </template>
@@ -284,6 +294,7 @@
                 transition.next({
                     search: Constant.search,
                     userInfo: Constant.userInfo,
+                    module: Constant.module,
                     atMe: Constant.atMe,
                     isMe: Constant.isMe,
                     page: {
@@ -338,6 +349,10 @@
                     id: '',
                     name: ''
                 },
+                module: {
+                    id: '',
+                    name: ''
+                },
                 onlyShop: {//只有一家店权限门店
                     id: '',
                     name: ''
@@ -370,7 +385,8 @@
                 selectItem: {},//当前操作的记录
                 itemImgWidth: 60,
                 loading: false,
-                refreshInit: false
+                refreshInit: false,
+                showBackBtn: Constant.showBackBtn
             }
         },
         components: {
@@ -414,8 +430,50 @@
                     return (this.layout.width - 80) / 3 - 10;
                 }
             },
+            backTo: function () {
+                if ($.device.android) {
+                    window.webview && window.webview.closeCurrentInterface();
+                } else if ($.device.ios) {
+                    if (Constant.isWKWebView == 1) {
+                        try {
+                            window.webkit.messageHandlers.closeCurrentInterface.postMessage(1);
+                        } catch (e) {
+                        }
+                    } else {
+                        try {
+                            closeCurrentInterface();
+                        } catch (e) {
+                        }
+                    }
+                } else {
+
+                }
+            },
+            webviewReady: function () {
+                if ($.device.android && Constant.showBackBtn == 1) {
+                    try {
+                        window.webview && window.webview.loadSuccess_webview();
+                    } catch (e) {
+                    }
+                } else if ($.device.ios) {
+                    if (Constant.isWKWebView == 1) {
+                        try {
+                            window.webkit.messageHandlers.loadSuccess_webview.postMessage(1);
+                        } catch (e) {
+                        }
+                    } else {
+                        try {
+                            loadSuccess_webview();
+                        } catch (e) {
+                        }
+                    }
+                } else {
+
+                }
+            },
             init: function (opt) {
                 var _this = this;
+                this.webviewReady();
                 if (!this.refreshInit) {
                     $('#dataContent').scroller({
                         type: 'native'
@@ -628,6 +686,7 @@
                     deptIds: this.hasSigleDep ? '' : searchData.shopInfo.id,
                     isAtMe: searchData.atMe,
                     isMe: searchData.isMe,
+                    moudleId: searchData.module.id,
                     index: searchData.page.index,
                     num: searchData.page.num,
                     token: Constant.token
@@ -676,10 +735,13 @@
                 router.go({name: 'shoplist', params: {dowhich: 0}});
             },
             goToUserlist: function () {
-                router.go({path: '/userlist'});
+                router.go({name: 'userlist', params: {dowhich: 0}});
+            },
+            whichTemplate: function () {
+                router.go({name: 'templates', params: {dowhich: 0}});
             },
             goToSearchDate: function () {
-                router.go({path: '/searchdate'});
+                router.go({name: 'searchdate'});
             },
             toggleSearchPanel: function () {
                 if (!this.display.searchOther) {
@@ -709,7 +771,7 @@
                 this.userInfo.id = '';
                 this.userInfo.name = '';
                 this.toggleSearchPanel();
-                this.getData();
+                $.pullToRefreshTrigger('#dataContent');
             },
             searchIsMe: function () {
                 this.page.index = 0;
@@ -722,7 +784,7 @@
                 this.userInfo.id = '';
                 this.userInfo.name = '';
                 this.toggleSearchPanel();
-                this.getData();
+                $.pullToRefreshTrigger('#dataContent');
             },
             searchAtMe: function () {
                 this.page.index = 0;
@@ -733,16 +795,11 @@
                     Constant.atMe = this.atMe = 0;
                 }
                 this.toggleSearchPanel();
-                this.getData();
+                $.pullToRefreshTrigger('#dataContent');
             },
             viewAllContent: function (item, index) {
                 var obj = Object.assign({}, item, {showAllContent: !item.showAllContent});
                 this.items.$set(index, obj);
-            },
-            back: function () {
-                window.webkit.messageHandlers.closeCurrentInterface.postMessage({
-                    msg: 'hello wkwebview'
-                });
             },
             goToCreate: function () {
                 if (this.hasSigleDep) {//只有一家店权限的无需选择门店
@@ -917,10 +974,12 @@
             deleteItem: function (id) {
                 var _this = this;
                 $.confirm('确定要删除这条记录吗？', function () {
+                    $.showPreloader('正在删除');
                     _this.$http.post('/service/deleteHandoverBookById.action', {
                         'handoverBookId': id,
                         token: Constant.token
                     }).then(function (ret) {
+                        $.hidePreloader();
                         if (ret.ok && ret.data && ret.data.result == 'ok') {
                             _this.page.index = 0;
                             _this.items = [];
@@ -1132,6 +1191,18 @@
         color: #f90;
     }
 
+    .bar .icon-back {
+        font-size: 1.3rem;
+        color: #f90;
+        width: 2rem;
+        height: 2.2rem;
+        line-height: 2.2rem;
+        text-align: center;
+        display: inline-block;
+        position: absolute;
+        left: 0px;
+    }
+
     #dataContent .items-list {
 
     }
@@ -1312,7 +1383,7 @@
     }
 
     .search-panel {
-        padding: 10px;
+        padding: 0px 10px;
         padding-top: 0px;
         background: #fcfcfc;
         height: auto;
@@ -1329,11 +1400,18 @@
         margin-right: 10px;
     }
 
+    .handover .sp-item.label {
+        height: 46px;
+        line-height: 46px;
+    }
     .handover .sp-item.active {
         background: #fff;
         color: #fa0;
     }
 
+    .handover .sp-time.label {
+        margin-right: 20px;
+    }
     .handover .item-icon {
         font-size: 16px;
         margin-right: 10px;
@@ -1474,6 +1552,7 @@
 
     .handover .footer-textarea {
         position: relative;
+        clear: both;
     }
 
     .item-footer .cmt-textarea {

@@ -581,4 +581,20 @@
     .bar .icon.icon-cross {
         padding: 0.5rem 0.5rem;
     }
+
+    .bar .icon-back {
+        font-size: 1.3rem;
+        color: #f90;
+        width: 2rem;
+        height: 2.2rem;
+        line-height: 2.2rem;
+        text-align: center;
+        display: inline-block;
+        position: absolute;
+        left: 0px;
+    }
+
+    ::-webkit-file-upload-button {
+        width: 30px;
+    }
 </style>

@@ -22,7 +22,8 @@ Vue.http.headers.common['authenticator'] = Constant.token = commonutils.getPageU
 Constant.shopInfo.id = commonutils.getPageUrlParam('id');
 Constant.shopInfo.name = decodeURIComponent(commonutils.getPageUrlParam('name'));
 Constant.source = commonutils.getPageUrlParam('source');
-
+Constant.showBackBtn = commonutils.getPageUrlParam('showBackBtn');//是否需要我显示返回按钮，主要用于兼容过去返回按钮全部由app做的问题
+Constant.isWKWebView = commonutils.getPageUrlParam('isWKWebView');//ios专有参数，表示使用的webview框架,0代表UIWebview,1代表WKWebview
 Vue.filter('istoday',Filters.isToday);
 Vue.filter('percent',Filters.percent);
 
@@ -40,7 +41,7 @@ window.router = router;
  */
 window.goBack = function(){
   var curPathName = Constant.curRoute.pathName;
-  var backInfo = utils.getBackPath(curPathName)
+  var backInfo = utils.getBackPath(curPathName);
   //从APP门店界面跳转过来的，返回时直接返回到APP界面
   if(Constant.source == 1 && backInfo.parent == 'default'){
     window.webview　&& window.webview.goBack(true);

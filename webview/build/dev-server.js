@@ -65,6 +65,7 @@ var baseUrl = 'http://localhost:8080/';
  });
  });*/
 app.post('/service/:actionname', function (req, response) {
+    console.log(req.body);
   request.post(baseUrl+req.url,{
     form:req.body
   },function(error,res,data){

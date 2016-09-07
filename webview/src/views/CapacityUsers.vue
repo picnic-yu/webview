@@ -4,10 +4,18 @@
       <header class="bar bar-nav">
         <h1 class='title' v-bind:class="'state-'+key">{{title}}</h1>
       </header>
-      <div class="top-panel">
-        <label class="date-time">{{search.startTime}}</label>
+      <div class="top-panel bar">
+        <!--<label class="date-time">{{search.startTime}}</label>
         ～
-        <label class="date-time">{{search.endTime}}</label>
+        <label class="date-time">{{search.endTime}}</label>-->
+        <div class="searchbar">
+          <a class="searchbar-cancel" v-on:click="cancelSearch()">取消</a>
+
+          <div class="search-input">
+            <label class="icon icon-search" for="search"></label>
+            <input type="search" id="search" v-model="searchName" placeholder="请输入显示名进行查询"/>
+          </div>
+        </div>
       </div>
       <div id="shopPage2Content" class="content content-items pull-to-refresh-content infinite-scroll"  data-ptr-distance="55" data-distance="240">
         <div class="pull-to-refresh-layer">
@@ -116,10 +124,12 @@
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script>
   var num = 20;//每页显示的条数
+  var searchTimer;
   module.exports =  {
     route:{
       data:function(transition){
@@ -169,6 +179,7 @@
           num:num,
           total:0
         },
+        searchName: '',
         loading:false,
         items:[],
         reportType:-1,
@@ -186,6 +197,27 @@
         var rate100 = rate*100;
         var result = Math.floor(rate100)==rate100?rate100:(rate100).toFixed(1);
         return result+'%';
+      }
+    },
+    watch: {
+      /**
+       * 监听搜索框的变化
+       * @param newValue
+       * @param oldValue
+       */
+      'searchName': function (newValue, oldValue) {
+        if (newValue != oldValue) {
+          if (searchTimer) {
+            clearTimeout(searchTimer);
+            searchTimer = null;
+          }
+          var _this = this;
+          searchTimer = setTimeout(function () {
+            _this.searchName = newValue;
+            _this.page.index = 0;
+            _this.getData(null, _this);
+          }, 500);
+        }
       }
     },
     ready:function(){
@@ -258,6 +290,7 @@
           region:searchData.key,
           index:searchData.page.index,
           num:searchData.page.num,
+          searchName: searchData.searchName,
           token:Constant.token
         }).then(function(ret){
           _this.loading = false;
@@ -272,9 +305,14 @@
           }
         });
       },
+      cancelSearch: function () {
+        this.clearData();
+        this.refresh();
+      },
       clearData:function(){
         this.page.index = 0;
         this.items = [];
+        this.searchName = '';
       },
       refresh:function(){
         this.page.index = 0;
@@ -328,7 +366,7 @@
     top: 44px;
   }
   .content-items{
-    top:31px;
+    top: 44px;
     z-index: 2;
   }
   .item-container{

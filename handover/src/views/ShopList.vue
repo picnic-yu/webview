@@ -3,6 +3,7 @@
         <div class="page page-current container" id="index">
             <header class="bar bar-nav">
                 <h1 class='title'>请选择一个门店</h1>
+                <span class="pull-left icon-back" v-on:click="backTo()" v-if="showBackBtn==1"></span>
             </header>
             <div class="bar bar-header-secondary">
                 <div class="searchbar">
@@ -22,7 +23,7 @@
                 </div>
                 <div class="items-list">
                     <ul>
-                        <li v-on:click="detail('','')" v-show="$route.params.dowhich==0">
+                        <li v-on:click="detail('','')" v-show="$route.params.dowhich==0 || $route.params.dowhich==3">
                             <div class="">
                                 <div class="item-name">全部</div>
                             </div>
@@ -113,7 +114,8 @@
                 searchName: '',
                 scrollInit: false,
                 infiniteInit: false,
-                refreshInit: false
+                refreshInit: false,
+                showBackBtn: Constant.showBackBtn
             };
         },
         watch: {
@@ -146,6 +148,16 @@
             this.init();
         },
         methods: {
+            backTo: function () {
+                var curPathName = Constant.curRoute.pathName;
+                var backInfo = utils.getBackPath(curPathName);
+                Constant.needRefresh = false;
+                if (Constant.curRoute.path.indexOf('/shoplist/1') > -1) {//创建界面，选择门店时，返回到创建界面
+                    router.go({name: 'create', params: {deptId: Constant.shopInfo.id ? Constant.shopInfo.id : 0}});
+                } else {
+                    router.go({name: backInfo.parent, params: backInfo.params});
+                }
+            },
             init: function (opt) {
                 var _this = this;
                 if (!this.refreshInit) {
@@ -240,8 +252,12 @@
                 if (this.$route.params.dowhich == 0) {//主页面选择
                     Constant.needRefresh = true;
                     router.go({name: 'default'});
-                } else {//创建界面选择
+                } else if (this.$route.params.dowhich == 1) {//创建界面选择门店
                     Constant.create.isOpen = 0;
+                    router.go({name: 'create', params: {deptId: id}});
+                } else if (this.$route.params.dowhich == 2) {//创建界面模板内容中单选门店
+                    router.go({name: 'create', params: {deptId: id}});
+                } else if (this.$route.params.dowhich == 3) {//创建界面模板内容中多选门店
                     router.go({name: 'create', params: {deptId: id}});
                 }
             },

@@ -3,8 +3,9 @@
         <div class="container">
             <header class="bar bar-nav">
                 <h1 class='title'></h1>
+                <span class="pull-left icon-back" v-on:click="backTo()" v-if="showBackBtn==1"></span>
                 <button class="button button-link button-nav button-fill  pull-right  button-orange btn-submit"
-                        v-bind:class="users.length>0?'':'disabled'" v-on:click="ok()">
+                        v-on:click="ok()"><!--v-bind:class="users.length>0?'':'disabled'"-->
                     确定
                 </button>
                 <button class="button button-link button-nav button-fill  pull-right  button-light btn-submit"
@@ -40,7 +41,7 @@
                 </div>
                 <div class="items-list">
                     <ul>
-                        <li v-on:click="atall()">
+                        <li v-on:click="atall()" v-show="$route.params.type == 0">
                             <span class="item-icon icon-square"></span>
 
                             <div class="item-left">
@@ -50,6 +51,7 @@
                             <div class="item-right">
                                 <div class="item-name">全部</div>
                                 <span class="item-sub">@all</span>
+                                <!--<span class="item-sub" v-show="$route.params.type == 1">所有用户</span>-->
                                 <span class="item-sub"></span>
                             </div>
                         </li>
@@ -111,13 +113,29 @@
                         }
                     });
                 }
-                transition.next({
-                    page: {
-                        index: 0,
-                        num: num
-                    },
-                    users: Constant.selectedUsers
-                });
+                this.users = [];
+                if (this.$route.params.type == 0) {//＠的用户
+                    this.users = $.extend(true, this.users, Constant.selectedUsers);
+                } else if (this.$route.params.type == 1) {//选择模板中的用户时，设置好原来选择的用户
+                    if (Constant.create.mUserInfo.ids) {
+                        var ids = Constant.create.mUserInfo.ids.split(',');
+                        var names = Constant.create.mUserInfo.names.split(',');
+                        for (var i = 0; i < ids.length; i++) {
+                            this.users.push({
+                                id: ids[i],
+                                showName: names[i]
+                            });
+                        }
+                    }
+                }
+                this.$nextTick(function () {
+                    transition.next({
+                        page: {
+                            index: 0,
+                            num: num
+                        }
+                    });
+                })
             },
             deactivate: function (transition) {
                 this.unbindInfinite();
@@ -141,10 +159,12 @@
                 loading: false,
                 items: [],
                 users: [],//已选择用户列表
+                userlist: [],//最终选择的用户
                 searchName: '',
                 scrollInit: false,
                 infiniteInit: false,
-                refreshInit: false
+                refreshInit: false,
+                showBackBtn: Constant.showBackBtn
             };
         },
         components: {
@@ -176,6 +196,11 @@
             this.init();
         },
         methods: {
+            backTo: function () {
+                var curPathName = Constant.curRoute.pathName;
+                var backInfo = utils.getBackPath(curPathName);
+                router.go({name: backInfo.parent, params: backInfo.params});
+            },
             init: function (opt) {
                 var _this = this;
                 if (!this.refreshInit) {
@@ -285,10 +310,6 @@
                 this.showModal = true;
             },
             detail: function (item) {
-                /*if(!item.checked && this.users.length >= 10){
-                 $.toast('最多选择10人');
-                 return;
-                 }*/
                 Vue.set(item, 'checked', !item.checked);
                 if (item.checked) {
                     this.users.push(item);
@@ -304,10 +325,23 @@
                 router.go({name: 'create', params: {deptId: Constant.shopInfo.id ? Constant.shopInfo.id : 0}});
             },
             ok: function () {
-                if (this.users.length == 0) return;
-                Constant.bo.isAtAll = 0;
-                Constant.selectedUsers = this.users;
-                router.go({name: 'create', params: {deptId: Constant.shopInfo.id ? Constant.shopInfo.id : 0}});
+                /*if (this.users.length == 0) return;*/
+                if (this.$route.params.type == 0) {
+                    if (Constant.bo)
+                        Constant.bo.isAtAll = 0;
+                    this.userlist = [];
+                    this.userlist = $.extend(true, this.userlist, this.users);
+                    this.userlist.push({});
+                    this.userlist.pop();
+                    Constant.selectedUsers = this.userlist;
+                    router.go({name: 'create', params: {deptId: Constant.shopInfo.id ? Constant.shopInfo.id : 0}});
+                } else {
+                    //返回到创建界面，并设置多选用户的结果
+                    var idnames = getIdsNames(this.users);
+                    Constant.create.mUserInfo.names = idnames.names;
+                    Constant.create.mUserInfo.ids = idnames.ids;
+                    router.go({name: 'create', params: {deptId: Constant.shopInfo.id ? Constant.shopInfo.id : 0}});
+                }
             },
             deleteUser: function (user) {
                 Vue.set(user, 'checked', !user.checked);
@@ -329,6 +363,22 @@
             }
         }
         return -1;
+    }
+
+    function getIdsNames(data) {
+        var ids = '', names = '';
+        for (var i = 0; i < data.length; i++) {
+            ids += data[i].id;
+            names += data[i].showName;
+            if (i < data.length - 1) {
+                ids += ',';
+                names += ',';
+            }
+        }
+        return {
+            ids: ids,
+            names: names
+        };
     }
 </script>
 

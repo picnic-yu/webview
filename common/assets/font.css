@@ -24,6 +24,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-back:before {
+  content: "\e9fe";
+}
 .icon-square-checked .path1:before {
   content: "\e900";
   color: rgb(255, 153, 0);

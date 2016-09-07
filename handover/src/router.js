@@ -17,19 +17,19 @@ module.exports = function (router) {
                 require(['./views/ShopList'], resolve);
             }
         },
-        '/userlist': {
+        '/userlist/:dowhich': {
             name: 'userlist',
             component: function (resolve) {
                 require(['./views/UserList'], resolve);
             }
         },
-        '/mutipleuserlist': {
+        '/mutipleuserlist/:type': {
             name: 'mutipleuserlist',
             component: function (resolve) {
                 require(['./views/MutipleUserList'], resolve);
             }
         },
-        '/templates': {
+        '/templates/:dowhich': {
             name: 'templates',
             component: function (resolve) {
                 require(['./views/Templates'], resolve);
@@ -51,6 +51,12 @@ module.exports = function (router) {
             name: 'searchdate',
             component: function (resolve) {
                 require(['./views/SearchDateBox'], resolve);
+            }
+        },
+        '/expiredate': {
+            name: 'expiredate',
+            component: function (resolve) {
+                require(['./views/ExpireDateBox'], resolve);
             }
         }
     });

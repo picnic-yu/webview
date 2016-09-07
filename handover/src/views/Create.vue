@@ -3,6 +3,7 @@
         <div class="container">
             <header class="bar bar-nav">
                 <h1 class='title'>{{shopInfo.name}}</h1>
+                <span class="pull-left icon-back" v-on:click="backTo()" v-if="showBackBtn==1"></span>
                 <button class="button button-link button-nav pull-right button-btn btn-submit" v-on:click="submit()">
                     提交
                 </button>
@@ -33,7 +34,7 @@
                         <tr>
                             <td valign="top" class="wc-tip">模板</td>
                             <td valign="top" class="wc-userlist">
-                                <div class="no-content" v-show="!bo.moudleId">未选择模板</div>
+                                <div class="no-content" v-show="!bo.moudleId">未选择类型</div>
                                 <div class="no-content input" v-show="bo.moudleId">{{bo.moudleName}}</div>
                             </td>
                             <td valign="top" class="wc-icon"><span class="icon-pre"></span></td>
@@ -51,8 +52,10 @@
                                 <li v-for="subItem in item.childs" class="sub-li">
                                     <div class="sub-item">
                                         <div class="sub-title"><span>{{$index+1}}、{{subItem.confName}}</span></div>
-                                        <div class="sub-content">
-                                            <div class="capture-img" @click="beforeUpload($event)">
+                                        <!--类型中填写文字以及拍照-->
+                                        <div class="sub-content" v-if="subItem.contentType == 0">
+                                            <div class="capture-img" @click="beforeUpload($event)"
+                                                 v-if="subItem.hasPic == 1">
                                                 <img src="../../../common/assets/imgs/capture.png" width="40px"
                                                      height="40px"/>
                                                 <input class="add-file capture-img-file add-{{subItem.confId}}"
@@ -64,7 +67,8 @@
                                                           placeholder="描述..." maxlength="1000"></textarea>
                                             </div>
                                         </div>
-                                        <div class="f-panel sub-panel" v-show="subItem.showPicPanel">
+                                        <div class="f-panel sub-panel"
+                                             v-show="subItem.showPicPanel && subItem.hasPic == 1">
                                             <div class="uploadimg-container uploadimg-container-{{$index}}">
                                                 <div class="fp-left" v-for="path in subItem.filePaths"
                                                      track-by="$index">
@@ -85,13 +89,39 @@
                                             </div>
                                             <div class="clearboth"></div>
                                         </div>
+                                        <!--类型中选择人-->
+                                        <div class="sub-content" v-if="subItem.contentType == 1"
+                                             @click="goToUserList(subItem,$parent.$index,$index)">
+                                            <div class="no-content" v-show="!subItem.content">请选择{{subItem.confName}}
+                                            </div>
+                                            <div class="d-type-item" v-show="subItem.content">
+                                                {{subItem.contentStr}}
+                                            </div>
+                                        </div>
+                                        <!--类型中选择门店-->
+                                        <div class="sub-content" v-if="subItem.contentType == 2"
+                                             @click="goToShopList(subItem,$parent.$index,$index)">
+                                            <div class="no-content" v-show="!subItem.content">请选择{{subItem.confName}}
+                                            </div>
+                                            <div class="d-type-item" v-show="subItem.content">
+                                                {{subItem.contentStr}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--类型中选择日期-->
+                                    <div class="sub-content" v-if="subItem.contentType == 3"
+                                         @click="goToDate(subItem.content,$parent.$index,$index)">
+                                        <div class="no-content" v-show="!subItem.content">请选择{{subItem.confName}}</div>
+                                        <div class="d-type-item" v-show="subItem.content">
+                                            {{subItem.content}}
+                                        </div>
                                     </div>
                                 </li>
                             </ul>
                         </li>
                     </ul>
                 </div>
-                <div class="dep-content who-content" v-on:click="whichDep()">
+                <div class="dep-content who-content" v-on:click="whichDep()" v-if="bo.moudleType != 1">
                     <table>
                         <tr>
                             <td valign="top" class="wc-tip">门店</td>
@@ -104,7 +134,8 @@
                         </tr>
                     </table>
                 </div>
-                <div class="who-content bottom-content" v-on:click="atWho()">
+                <div class="who-content bottom-content" v-on:click="atWho()"
+                     v-bind:class="bo.moudleType == 1?'dep-content':''">
                     <table>
                         <tr>
                             <td valign="top" class="wc-tip">提醒谁看</td>
@@ -131,6 +162,7 @@
     require('../../../common/libs/sm-extend.js');
     require('../../../common/libs/drag/dragula.css');
     var dragula = require('dragula');
+    var utils = require('./../utils');
     var commonutils = require('../../../common/assets/js/commonutils');
     var Vue = require('vue');
     var num = 20;//每页显示的条数
@@ -147,12 +179,33 @@
                     this.bo.isOpen = Constant.create.isOpen;
                 }
                 if (transition.from.name == 'templates') {
-                    //根据模板获取具体模板内容
+                    //根据类型获取具体类型内容
                     if (this.bo.moudleId) {
                         this.getTemplateItems(this.bo.moudleId);
                     }
                     else {
-                        Constant.bo.subItems = this.bo.subItems = this.items = [];//如果没有选择模板，清空模板内容
+                        Constant.bo.subItems = this.bo.subItems = this.items = [];//如果没有选择类型，清空类型内容
+                    }
+                }
+                //以下为兼容亮点推广而增加的逻辑
+                if (transition.from.name == 'expiredate') {
+                    //设置刚刚选择的日期
+                    if (this.bo.moudleId && this.bo.moudleType == 1 && this.bo.subItems && this.bo.subItems.length > 0) {
+                        this.bo.subItems[Constant.create.mDate.parentIndex].childs[Constant.create.mDate.index].content = Constant.create.mDate.value;
+                    }
+                }
+                if (transition.from.name == 'mutipleuserlist' && transition.from.params.type == 1) {
+                    //设置刚刚选择的用户(多选),content为传入后台用的ids,contentStr为显示用的名称
+                    if (this.bo.moudleId && this.bo.moudleType == 1 && this.bo.subItems && this.bo.subItems.length > 0) {
+                        this.bo.subItems[Constant.create.mUserInfo.parentIndex].childs[Constant.create.mUserInfo.index].content = Constant.create.mUserInfo.ids;
+                        Vue.set(this.bo.subItems[Constant.create.mUserInfo.parentIndex].childs[Constant.create.mUserInfo.index], 'contentStr', Constant.create.mUserInfo.names);
+                    }
+                }
+                if (transition.from.name == 'userlist' && transition.from.params.dowhich == 1) {
+                    //设置刚刚选择的用户(单选),content为传入后台用的ids,contentStr为显示用的名称
+                    if (this.bo.moudleId && this.bo.moudleType == 1 && this.bo.subItems && this.bo.subItems.length > 0) {
+                        this.bo.subItems[Constant.create.mUserInfo.parentIndex].childs[Constant.create.mUserInfo.index].content = Constant.create.mUserInfo.ids;
+                        Vue.set(this.bo.subItems[Constant.create.mUserInfo.parentIndex].childs[Constant.create.mUserInfo.index], 'contentStr', Constant.create.mUserInfo.names);
                     }
                 }
                 transition.next({
@@ -163,6 +216,7 @@
                     items: (Constant.bo && Constant.bo.subItems) ? Constant.bo.subItems : [],
                     shopInfo: Constant.shopInfo
                 });
+
             },
             deactivate: function (transition) {
                 if (myPhotoBrowserStandalone) {
@@ -193,6 +247,7 @@
                         $.modal.prototype.defaults.modalButtonOk = '确定';
                         $.modal.prototype.defaults.modalButtonCancel = '取消';
                         _this.clearData();
+                        Constant.needRefresh = false;//返回到主页时不需要刷新
                         transition.next();
                     }, function () {
                         transition.abort();
@@ -242,7 +297,8 @@
                 items: (Constant.bo && Constant.bo.subItems) ? Constant.bo.subItems : [],
                 hasCreateToday: false,//今天是否已经创建过
                 loading: false,
-                refreshInit: false
+                refreshInit: false,
+                showBackBtn: Constant.showBackBtn
             }
         },
         created: function () {
@@ -265,6 +321,11 @@
             this.init();
         },
         methods: {
+            backTo: function () {
+                var curPathName = Constant.curRoute.pathName;
+                var backInfo = utils.getBackPath(curPathName);
+                router.go({name: backInfo.parent, params: backInfo.params});
+            },
             init: function (opt) {
                 if (!this.refreshInit) {
                     this.refreshInit = true;
@@ -516,8 +577,25 @@
                 this.items = [];
                 Constant.selectedUsers = this.userlist = [];
             },
-            goToUserlist: function () {
-                router.go({path: '/userlist'});
+            goToUserList: function (subItem, parentIndex, index) {
+                Constant.create.mUserInfo.ids = subItem.content;
+                Constant.create.mUserInfo.names = subItem.contentStr;
+                Constant.create.mUserInfo.parentIndex = parentIndex;
+                Constant.create.mUserInfo.index = index;
+                if (subItem.isMulti) {
+                    router.go({name: 'mutipleuserlist', params: {type: 1}});
+                } else {
+                    router.go({name: 'userlist', params: {dowhich: 1}});
+                }
+            },
+            goToDate: function (value, parentIndex, index) {
+                Constant.create.mDate.value = value;
+                Constant.create.mDate.parentIndex = parentIndex;
+                Constant.create.mDate.index = index;
+                router.go({name: 'expiredate'});
+            },
+            goToShopList: function (mutiple) {
+                router.go({name: 'shoplist', params: {dowhich: mutiple ? 3 : 2}});
             },
             whichDep: function () {
                 router.go({name: 'shoplist', params: {dowhich: 1}});
@@ -533,10 +611,10 @@
                 sitem.filePaths.splice(index, 1);
             },
             atWho: function () {
-                router.go({name: 'mutipleuserlist'});
+                router.go({name: 'mutipleuserlist', params: {type: 0}});
             },
             whichTemplate: function () {
-                router.go({name: 'templates'});
+                router.go({name: 'templates', params: {dowhich: 1}});
             },
             submit: function () {
                 if (this.submiting) {
@@ -586,6 +664,7 @@
                         $.toast('提交成功');
                         _this.done = true;
                         Constant.needRefresh = true;
+                        Constant.selectedUsers = [];
                         router.go({name: 'default'});
                     } else {
                         $.toast('提交失败');
@@ -901,6 +980,11 @@
         color: #444;
     }
 
+    .d-type-item {
+        font-size: 14px;
+        color: #444;
+    }
+
     .handover-create .item-title {
         margin: 0px;
         display: inline-block;
@@ -909,7 +993,7 @@
 
     .handover-create .cic-title {
         width: 100%;
-        height: 25px;
+        min-height: 25px;
         position: relative;
     }
 
