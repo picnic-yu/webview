@@ -5,16 +5,20 @@
                 <h1 class='title'>详情</h1>
                 <span class="pull-left icon-back" v-on:click="backTo()" v-if="showBackBtn==1"></span>
             </header>
-            <div class="content" v-show="!display.loading">
-                <div class="item-container item-container-top">
+            <div id="hdetailContent" class="content pull-to-refresh-content">
+                <div class="pull-to-refresh-layer">
+                    <div class="preloader"></div>
+                    <div class="pull-to-refresh-arrow"></div>
+                </div>
+                <div class="item-container item-container-top" v-show="!display.loading">
                     <div class="item-container">
                         <div class="item-left">
-                            <div v-on:click="searchByUser(bo.userId,bo.userName)">
+                            <div>
                                 <userhead v-bind:user="user"></userhead>
                             </div>
                         </div>
                         <div class="item-right">
-                            <label class="user-name not-view" v-on:click="searchByUser(bo.userId,bo.userName)">{{bo.userName}}</label>
+                            <label class="user-name not-view">{{bo.userName}}</label>
                             <span class="time-name">{{bo.createTime && bo.createTime.replace('T',' ')}}</span>
                         </div>
                         <div class="item-content">
@@ -32,13 +36,125 @@
                                 </ul>
                             </div>
                             <div class="item-type">
-                                <span class="type-name">{{bo.moudleName}}</span>
-                            </div>
-                            <div class="item-footer">
-                                <span class="type-name">检查人：{{bo.checkerName}}</span>
-                            </div>
-                            <div class="item-footer" v-if="bo.moudleType == 1">
-                                <span class="type-name">截止日期：{{bo.deadline?bo.deadline.substring(0,10):'无'}}</span>
+                                <span class="type-name">{{bo.moudleName}}</span><span @click="toggleModule()"
+                                                                                      v-if="bo.moudleId"
+                                                                                      class="ce-btn"
+                                                                                      v-bind:class="bo.moudleName && showMoudle?'icon-detail_up':'icon-detail_down'"></span>
+
+                                <div v-show="bo.moudleName &&　showMoudle">
+                                    <hr class="type-hr">
+                                    <div class="c-item-content" v-if="bo.moudleType != 1">
+                                        <ul>
+                                            <li v-for="item in items" class="item-li">
+                                                <div class="cic-title">
+                                                    <span class="cic-flag"></span>
+                                                    <h4 class="item-title sys-text">{{item.confName}}</h4>
+                                                </div>
+                                                <ul>
+                                                    <li v-for="subItem in item.childs" class="sub-li">
+                                                        <div class="sub-item">
+                                                            <div class="sub-title sys-text">
+                                                                <span v-if="item.childs.length > 1">{{$index+1}}、{{subItem.confName}}</span>
+                                                                <span v-if="item.childs.length == 1">{{subItem.confName}}</span>
+                                                            </div>
+                                                            <div class="sub-content">
+                                                                <div class="sub-textarea">
+                                                                    <div class="text require-text">{{subItem.content}}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="f-panel">
+                                                                <div class="fp-left" v-for="path in subItem.filePaths">
+                                                                    <a class="item-pic pb-standalone sub-item-pic"
+                                                                       index="{{$index}}"
+                                                                       subItemIndex="{{$parent.$index}}"
+                                                                       itemIndex="{{$parent.$parent.$index}}">
+                                                                        <img width="60" height="60" v-bind:src="path"/>
+                                                                    </a>
+                                                                </div>
+                                                                <div class="clearboth"></div>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="item-footer mt-info" v-if="bo.moudleType == 1">
+                                        <span class="mt-name">检查人:{{bo.checkerName}}</span>
+                                        <span class="mt-name" v-show="bo.isOverdue==0">截止日期:{{bo.deadline?bo.deadline.substring(0,10):'无'}}</span>
+                                        <span class="mt-name over-due" v-show="bo.isOverdue==1">已过期</span>
+
+                                        <div class="u-list">
+                                            <div class="af-at" v-on:click="whoView(bo)">
+                                                <progress v-on:click="whoView(bo)" class="not-view"
+                                                          v-bind:percent="bo.performerReadList && bo.performerReadList.length>0 && bo.performerReadCount/bo.performerReadList.length"
+                                                          v-if="bo.performerReadList && bo.performerReadList.length>0"></progress>
+                                                <label v-on:click="whoView(bo)" class="reminder-name not-view"
+                                                       v-show="bo.performerReadList && bo.performerReadList.length>0">
+                                        <span class="not-view"
+                                              v-show="bo.performerReadList && bo.performerReadList.length>bo.performerReadCount">{{bo.performerReadCount}}人已查看</span>
+                                        <span class="not-view"
+                                              v-show="bo.performerReadList && bo.performerReadList.length==bo.performerReadCount">全部已查看</span>
+                                                </label>
+                                            </div>
+                                            <div class="af-at" v-on:click="whoSubmit(bo)">
+                                                <progress v-on:click="whoSubmit(bo)" class="not-view"
+                                                          v-bind:percent="bo.performerSubmitList && bo.performerSubmitList.length>0 && bo.performerSubmitCount/bo.performerSubmitList.length"
+                                                          v-if="bo.performerSubmitList && bo.performerSubmitList.length>0"></progress>
+                                                <label v-on:click="whoSubmit(bo)" class="reminder-name not-view"
+                                                       v-show="bo.performerSubmitList && bo.performerSubmitList.length>0">
+                                        <span class="not-view"
+                                              v-show="bo.performerSubmitList && bo.performerSubmitList.length>bo.performerSubmitCount">{{bo.performerSubmitCount}}人已处理</span>
+                                        <span class="not-view"
+                                              v-show="bo.performerSubmitList && bo.performerSubmitList.length==bo.performerSubmitCount">全部已处理</span>
+                                                </label>
+                                            </div>
+                                            <div class="af-at" v-on:click="whoPassed(bo)">
+                                                <progress v-on:click="whoPassed(bo)" class="not-view"
+                                                          v-bind:percent="bo.performerPassList && bo.performerPassList.length>0 && bo.performerPassCount/bo.performerPassList.length"
+                                                          v-if="bo.performerPassList && bo.performerPassList.length>0"></progress>
+                                                <label v-on:click="whoPassed(bo)" class="reminder-name not-view"
+                                                       v-show="bo.performerPassList && bo.performerPassList.length>0">
+                                        <span class="not-view"
+                                              v-show="bo.performerPassList && bo.performerPassList.length>bo.performerPassCount">{{bo.performerPassCount}}人已完成</span>
+                                        <span class="not-view"
+                                              v-show="bo.performerPassList && bo.performerPassList.length==bo.performerPassCount">全部已完成</span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="c-item-content mt-content" v-show="bo.moudleType == 1">
+                                        <div class="doer-panel">
+                                            <div class="doer-item" v-for="item in bo.subItems"
+                                                 v-on:click="goToOpt(item)">
+                                                <div class="item-left">
+                                                    <div class="user-header">
+                                                        <userhead v-bind:user="item"></userhead>
+                                                    </div>
+                                                </div>
+                                                <div class="doer-status">
+                                                    <span class="user-name not-view">{{item.userName}}</span>
+                                                    <span class="mt-status state-{{item.state}}">{{item.state|whichstate}}</span>
+                                                </div>
+                                                <div class="doer-content">
+                                                    <div class="mt-opt" v-if="item.operRole==1&&item.canOper==1">
+                                                        <button class="not-view button button-link button-nav  button-orange btn-opt">
+                                                            处理
+                                                        </button>
+                                                    </div>
+                                                    <div class="mt-opt" v-if="item.operRole==0&&item.canOper==1">
+                                                        <button class="not-view button button-link button-nav  button-orange btn-opt">
+                                                            审批
+                                                        </button>
+                                                    </div>
+                                                    <span class="icon-pre icon-nextpage"></span>
+                                                </div>
+                                                <div class="clearboth"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="item-footer">
                                 <span class="dept-name" v-show="bo.isOpen==0">{{bo.deptName}}</span>
@@ -83,51 +199,6 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <!--<div class="c-split-content" v-show="items&&items.length>0"></div>-->
-                <div class="c-item-content" v-if="bo.moudleType == 0">
-                    <ul>
-                        <li v-for="item in items" class="item-li">
-                            <div class="cic-title">
-                                <span class="cic-flag"></span>
-                                <h4 class="item-title sys-text">{{item.confName}}</h4>
-                            </div>
-                            <ul>
-                                <li v-for="subItem in item.childs" class="sub-li">
-                                    <div class="sub-item">
-                                        <div class="sub-title sys-text"><span>{{$index+1}}、{{subItem.confName}}</span>
-                                        </div>
-                                        <div class="sub-content">
-                                            <div class="sub-textarea">
-                                                <div class="text require-text">{{subItem.content}}</div>
-                                            </div>
-                                        </div>
-                                        <div class="f-panel">
-                                            <div class="fp-left" v-for="path in subItem.filePaths">
-                                                <a class="item-pic pb-standalone sub-item-pic" index="{{$index}}"
-                                                   subItemIndex="{{$parent.$index}}"
-                                                   itemIndex="{{$parent.$parent.$index}}">
-                                                    <img width="60" height="60" v-bind:src="path"/>
-                                                </a>
-                                            </div>
-                                            <div class="clearboth"></div>
-                                        </div>
-                                    </div>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </div>
-                <div class="c-item-content mt-content" v-show="bo.moudleType == 1">
-                    <div class="doer-panel">
-                        <h4>执行人列表</h4>
-
-                        <div class="doer-item" v-for="item in bo.subItems">
-                            <label class="user-name">{{item.userName}}</label>
-                            <span class="mt-status">{{item.isPass==1?'已通过':'未通过'}}</span>
-                            <span class="mt-status">{{item.isCompleted==1?'已完成':'未完成'}}</span>
                         </div>
                     </div>
                 </div>
@@ -188,8 +259,103 @@
                     </div>
                 </div>
             </modal-dialog>
+            <modal-dialog v-bind:show-modal.sync="showViewModal">
+                <header class="dialog-header" slot="header">
+                    <div class="buttons-tab head-tab">
+                        <a class="button  tab-link active" v-on:click="selectViewTabIndex(0)"
+                           v-bind:class="currentViewTabIndex==0?'active':''">未查看的({{unviewUsers.length}})</a>
+                        <a class="button  tab-link" v-on:click="selectViewTabIndex(1)"
+                           v-bind:class="currentViewTabIndex==1?'active':''">已查看的({{viewUsers.length}})</a>
+                    </div>
+                </header>
+                <div class="dialog-body" slot="body">
+                    <div class="tabs">
+                        <div class="tab active" id="viewtab1">
+                            <ul class="modal-ul">
+                                <li v-for="user in unviewUsers">
+                                    <userhead v-bind:user="user"></userhead>
+                                    <div class="dlg-username">{{user.userName}}</div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="tab" id="viewtab2">
+                            <ul class="modal-ul">
+                                <li v-for="user in viewUsers">
+                                    <userhead v-bind:user="user"></userhead>
+
+                                    <div class="dlg-username">{{user.userName}}</div>
+                                    <div class="dlg-time">{{user.readTime | whichreadtime}}</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </modal-dialog>
+            <modal-dialog v-bind:show-modal.sync="showSubmitModal">
+                <header class="dialog-header" slot="header">
+                    <div class="buttons-tab head-tab">
+                        <a class="button  tab-link active" v-on:click="selectSubmitTabIndex(0)"
+                           v-bind:class="currentSubmitTabIndex==0?'active':''">未处理的({{unsubmitUsers.length}})</a>
+                        <a class="button  tab-link" v-on:click="selectSubmitTabIndex(1)"
+                           v-bind:class="currentSubmitTabIndex==1?'active':''">已处理的({{submitUsers.length}})</a>
+                    </div>
+                </header>
+                <div class="dialog-body" slot="body">
+                    <div class="tabs">
+                        <div class="tab active" id="submittab1">
+                            <ul class="modal-ul">
+                                <li v-for="user in unsubmitUsers">
+                                    <userhead v-bind:user="user"></userhead>
+                                    <div class="dlg-username">{{user.userName}}</div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="tab" id="submittab2">
+                            <ul class="modal-ul">
+                                <li v-for="user in submitUsers">
+                                    <userhead v-bind:user="user"></userhead>
+
+                                    <div class="dlg-username">{{user.userName}}</div>
+                                    <div class="dlg-time">{{user.submitTime | whichreadtime}}</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </modal-dialog>
+            <modal-dialog v-bind:show-modal.sync="showPassedModal">
+                <header class="dialog-header" slot="header">
+                    <div class="buttons-tab head-tab">
+                        <a class="button  tab-link active" v-on:click="selectPassedTabIndex(0)"
+                           v-bind:class="currentPassedTabIndex==0?'active':''">未完成的({{unpassedUsers.length}})</a>
+                        <a class="button  tab-link" v-on:click="selectPassedTabIndex(1)"
+                           v-bind:class="currentPassedTabIndex==1?'active':''">已完成的({{passedUsers.length}})</a>
+                    </div>
+                </header>
+                <div class="dialog-body" slot="body">
+                    <div class="tabs">
+                        <div class="tab active" id="passedtab1">
+                            <ul class="modal-ul">
+                                <li v-for="user in unpassedUsers">
+                                    <userhead v-bind:user="user"></userhead>
+                                    <div class="dlg-username">{{user.userName}}</div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="tab" id="passedtab2">
+                            <ul class="modal-ul">
+                                <li v-for="user in passedUsers">
+                                    <userhead v-bind:user="user"></userhead>
+
+                                    <div class="dlg-username">{{user.userName}}</div>
+                                    <div class="dlg-time">{{user.passTime | whichreadtime}}</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </modal-dialog>
         </div>
-    </div>
 </template>
 
 <script>
@@ -205,9 +371,14 @@
     module.exports = {
         route: {
             data: function (transition) {
-                this.getData();
-                if (Constant.needReadMessage || Constant.source == 1) {
-                    this.hasReadCertainBook();
+                if ((Constant.needRefreshDetail && transition.from.name == 'opt') || transition.from.name != 'opt') {
+                    //this.getData();
+                    this.$nextTick(function () {
+                        $.pullToRefreshTrigger('#hdetailContent');
+                    });
+                    if (Constant.needReadMessage || Constant.source == 1) {
+                        this.hasReadCertainBook();
+                    }
                 }
                 transition.next({
                     bo: Constant.bo,
@@ -220,12 +391,17 @@
                     myPhotoBrowserStandalone.close();
                 }
                 var _this = this;
-                setTimeout(function () {
-                    Constant.bo = this.bo = '';
-                    _this.items = [];
-                    _this.readUsers = [];
-                    _this.unreadUsers = [];
-                }, 0);
+                if (transition.to.name != 'opt') {
+                    this.transitionName = 'right';
+                    setTimeout(function () {
+                        Constant.bo = this.bo = '';
+                        _this.items = [];
+                        _this.readUsers = [];
+                        _this.unreadUsers = [];
+                    }, 0);
+                } else {
+                    this.transitionName = 'left';
+                }
                 transition.next();
             },
             canDeactivate: function (transition) {
@@ -252,6 +428,7 @@
                     searchOther: false,
                     loading: true
                 },
+                showMoudle: true,//是否显示模板具体内容
                 pics: [],
                 bo: Constant.bo,
                 items: (Constant.bo && Constant.bo.subItems) ? Constant.bo.subItems : [],
@@ -261,6 +438,24 @@
                 unreadUsers: [],
                 showModal: false,//是否打开对话框
                 currentTabIndex: 0,//对话框中选择的选项卡
+
+                viewUsers: [],
+                unviewUsers: [],
+                showViewModal: false,//是否打开对话框
+                currentViewTabIndex: 0,//对话框中选择的选项卡
+
+
+                submitUsers: [],
+                unsubmitUsers: [],
+                showSubmitModal: false,//是否打开对话框
+                currentSubmitTabIndex: 0,//对话框中选择的选项卡
+
+
+                passedUsers: [],
+                unpassedUsers: [],
+                showPassedModal: false,//是否打开对话框
+                currentPassedTabIndex: 0,//对话框中选择的选项卡
+
                 showCommentModal: false,//是否显示评论的框
                 cmtContent: '',//评论内容
                 cmtPid: '',//评论的父id
@@ -287,6 +482,12 @@
             'whichreadtime': function (time) {
                 time = time.replace('T', ' ');
                 return time.substring(5, 16);
+            },
+            'whichstate': function (state) {
+                if (state == 0) return "未处理";
+                if (state == 1) return "待审批";
+                if (state == 2) return "未通过";
+                if (state == 3) return "已完成";
             }
         },
         ready: function () {
@@ -346,7 +547,23 @@
                         $(this).parent().parent().height(this.scrollHeight + 6);
                     }
                 });
+                if (!this.refreshInit) {
+                    var _this = this;
+                    $('#hdetailContent').scroller({
+                        type: 'native'
+                    });
+                    $.initPullToRefresh('#hdetailContent');
+                    $(document).on('refresh', '#hdetailContent', function (e) {
+                        _this.refresh();
+                    });
+                    this.refreshInit = true;
+                }
                 dragula([$('.cmt-bottom0 .cmtpic-container')[0]])
+            },
+            refresh: function () {
+                this.getData(function () {
+                    $.pullToRefreshDone('#hdetailContent');
+                });
             },
             bind: function () {
                 this.bindPicEvent();
@@ -499,14 +716,12 @@
                     }
                 });
             },
-            getData: function () {
+            getData: function (callback) {
                 var _this = this;
-                $.showPreloader('正在加载');
                 this.display.loading = true;
                 this.$http.post('/service/constructHandoverBookBo.action?token=' + Constant.token, {
                     handoverBookId: this.$route.params.id
                 }).then(function (ret) {
-                    $.hidePreloader();
                     _this.display.loading = false;
                     if (ret.ok && ret.data && ret.data.result == 'ok') {
                         var data = ret.data.data.data;
@@ -524,6 +739,7 @@
                         _this.curUser = ret.data.data.user;
                         //_this.allpics();
                         setTimeout(_this.bind, 1000);
+                        callback && callback();
                     }
                 });
             },
@@ -604,6 +820,78 @@
                 } else {
                     $('#readtab2').addClass('active');
                     $('#readtab1').removeClass('active');
+                }
+            },
+            /**
+             * 点击查看谁已经看过
+             * @param item
+             */
+            whoView: function (item) {
+                var users = whohasview(item.performerReadList);
+                this.viewUsers = users.read;
+                this.unviewUsers = users.unRead;
+                this.showViewModal = true;
+            },
+            /**
+             * 谁已经看过对话框中选择tab页
+             * @param index
+             */
+            selectViewTabIndex: function (index) {
+                this.currentViewTabIndex = index;
+                if (index == 0) {
+                    $('#viewtab1').addClass('active');
+                    $('#viewtab2').removeClass('active');
+                } else {
+                    $('#viewtab2').addClass('active');
+                    $('#viewtab1').removeClass('active');
+                }
+            },
+            /**
+             * 点击查看谁已经看过
+             * @param item
+             */
+            whoSubmit: function (item) {
+                var users = whohassubmit(item.performerSubmitList);
+                this.submitUsers = users.read;
+                this.unsubmitUsers = users.unRead;
+                this.showSubmitModal = true;
+            },
+            /**
+             * 谁已经看过对话框中选择tab页
+             * @param index
+             */
+            selectSubmitTabIndex: function (index) {
+                this.currentSubmitTabIndex = index;
+                if (index == 0) {
+                    $('#submittab1').addClass('active');
+                    $('#submittab2').removeClass('active');
+                } else {
+                    $('#submittab2').addClass('active');
+                    $('#submittab1').removeClass('active');
+                }
+            },
+            /**
+             * 点击查看谁已经看过
+             * @param item
+             */
+            whoPassed: function (item) {
+                var users = whohaspassed(item.performerPassList);
+                this.passedUsers = users.read;
+                this.unpassedUsers = users.unRead;
+                this.showPassedModal = true;
+            },
+            /**
+             * 谁已经看过对话框中选择tab页
+             * @param index
+             */
+            selectPassedTabIndex: function (index) {
+                this.currentPassedTabIndex = index;
+                if (index == 0) {
+                    $('#passedtab1').addClass('active');
+                    $('#passedtab2').removeClass('active');
+                } else {
+                    $('#passedtab2').addClass('active');
+                    $('#passedtab1').removeClass('active');
                 }
             },
             /**
@@ -707,6 +995,23 @@
 
                 });
             },
+            goToOpt: function (item) {
+                var state = 0;
+                if (item.operRole == 1 && item.canOper == 1 && item.state == 0) {//进入我处理的界面
+                    state = 0;
+                } else if (item.operRole == 1 && item.canOper == 1 && item.state == 2) {//进入我不通过的界面
+                    state = 2;
+                } else if (item.operRole == 0 && item.canOper == 1) {//进入我审批的界面
+                    state = 1;
+                } else {//其他情况只能查看
+                    state = 2;
+                }
+                if (item.childs) {
+                    item.childs = item.childs.reverse();
+                }
+                Constant.itemOpt = item;
+                router.go({name: 'opt', params: {state: state, pid: item.id}});
+            },
             /**
              * 删除评论图片*/
             deleteCmtImg: function (cmtPics, index) {
@@ -734,6 +1039,12 @@
                     $('.modal-overlay.modal-overlay-visible').off('click');
                 });
             },
+            /**
+             * 切换模板详细内容的显示与隐藏
+             * */
+            toggleModule: function () {
+                this.showMoudle = !this.showMoudle;
+            },
             closeCmtDialog: function () {
                 this.showCommentModal = false;
             }
@@ -744,6 +1055,51 @@
         var unRead = [], read = [];
         for (var i = 0; i < users.length; i++) {
             if (users[i].isRead == 0) {
+                unRead.push(users[i]);
+            } else {
+                read.push(users[i]);
+            }
+        }
+        return {
+            unRead: unRead,
+            read: read
+        };
+    }
+
+    function whohasview(users) {
+        var unRead = [], read = [];
+        for (var i = 0; i < users.length; i++) {
+            if (!users[i].readTime) {
+                unRead.push(users[i]);
+            } else {
+                read.push(users[i]);
+            }
+        }
+        return {
+            unRead: unRead,
+            read: read
+        };
+    }
+
+    function whohassubmit(users) {
+        var unRead = [], read = [];
+        for (var i = 0; i < users.length; i++) {
+            if (!users[i].submitTime) {
+                unRead.push(users[i]);
+            } else {
+                read.push(users[i]);
+            }
+        }
+        return {
+            unRead: unRead,
+            read: read
+        };
+    }
+
+    function whohaspassed(users) {
+        var unRead = [], read = [];
+        for (var i = 0; i < users.length; i++) {
+            if (!users[i].passTime) {
                 unRead.push(users[i]);
             } else {
                 read.push(users[i]);
@@ -775,10 +1131,10 @@
         display: block;
     }
 
-    .c-split-content{
-        height:10px;
-        background:#eee;
-        width:100%;
+    .c-split-content {
+        height: 10px;
+        background: #eee;
+        width: 100%;
     }
 
     .handover-detail .content {
@@ -851,14 +1207,12 @@
     }
 
     .handover-detail .item-li {
-        padding: 10px 10px 0px 15px;
+        padding: 0px 10px 5px 10px;
         display: block;
     }
 
     .handover-detail .sub-li {
-        margin-top: 10px;
-        padding-bottom: 10px;
-        border-bottom: 1px dashed #ddd;
+        /*margin-top: 4px;*/
     }
 
     .handover-detail .sub-li:last-child {
@@ -868,26 +1222,35 @@
     .handover-detail .item-title {
         margin: 0px;
         display: inline-block;
+        font-size: 14px;
+    }
+
+    .handover-detail .sys-text {
+        color: #333;
+    }
+
+    .handover-detail .sub-item {
+        font-size: 14px;
     }
 
     .handover-detail .cic-title {
         width: 100%;
-        height: 25px;
+        min-height: 25px;
         position: relative;
     }
 
     .handover-detail .cic-flag {
         display: inline-block;
         position: absolute;
-        width: 6px;
+        width: 4px;
         height: 15px;
         background: #fa0;
-        left: -15px;
-        top: 3px;
+        left: -10px;
+        top: 5px;
     }
 
     .handover-detail .item-li ul {
-        border-bottom: 1px solid #ddd;
+        /*border-bottom: 1px solid #ddd;*/
     }
 
     .handover-detail .item-li:last-child ul {
@@ -895,17 +1258,19 @@
     }
 
     .handover-detail .sub-textarea {
-
+        margin-right: 0px;
     }
 
     .handover-detail .sub-textarea .text {
         width: 100%;
-        font-size: 14px;
+        font-size: 16px;
+        color: #666;
     }
 
     .handover-detail .sub-content {
-        margin-top: 5px;
-        margin-bottom: 10px;
+        /*margin-top: 5px;
+        margin-bottom: 10px;*/
+        padding-left: 0px;
     }
 
     .handover-detail .f-panel {
@@ -960,9 +1325,15 @@
         clear: both;
     }
 
+    .handover-detail .item-text {
+        word-wrap: break-word;
+        font-size: 16px;
+    }
+
     .handover-detail .c-item-content {
         background: #fff;
-        margin-top: 10px;
+        color: #686868;
+        border-bottom: 1px solid #ffe0b2;
     }
 
     .handover-detail .user-name {
@@ -1014,6 +1385,7 @@
 
     .handover-detail .at-footer {
         height: 30px;
+        clear: both;
     }
 
     .handover-detail .footer-cmt {
@@ -1072,9 +1444,60 @@
         clear: both;
     }
 
+    .handover-detail .item-type .type-name {
+        color: #ffa500;
+        display: inline-block;
+        max-width: calc(100% - 65px);
+    }
+
     .handover-detail .type-name {
         color: #999;
         font-size: 12px;
+    }
+
+    .handover-detail .ce-btn {
+        display: inline-block;
+        width: 60px;
+        height: 30px;
+        float: right;
+        line-height: 30px;
+        text-align: right;
+        color: #ffa500;
+    }
+
+    .handover-detail .type-hr {
+        border-top: 1px solid #ffe0b2;
+        border-bottom: none;
+        position: relative;
+    }
+
+    .handover-detail .type-hr:after, .handover-detail .type-hr:before {
+        position: absolute;
+        content: '';
+        border: 6px solid transparent;
+        border-bottom: 6px solid #fff;
+        top: -12px;
+        left: 8px;
+    }
+
+    .handover-detail .type-hr:before {
+        top: -13px;
+        border-bottom-color: #ffe0b2;
+    }
+
+    .handover-detail .mt-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .handover-detail .mt-name {
+        font-size: 12px;
+        color: #585858;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 50%;
     }
 
     .handover-detail .atme-name {
@@ -1148,7 +1571,6 @@
         float: right;
     }
 
-
     .modal-ul {
         text-align: left;
     }
@@ -1173,6 +1595,7 @@
         font-size: 12px;
         text-align: center;
     }
+
     .modal-ul li {
         display: inline-block;
         text-align: center;
@@ -1249,6 +1672,7 @@
         width: 100%;
         height: auto;
     }
+
     .dlg-cmt.active ~ .overlay-cmt {
         opacity: 1;
         visibility: visible;
@@ -1369,11 +1793,157 @@
         padding: 2px;
     }
 
-    .handover-detail .checker-panel {
+    .handover-detail .mt-item-content .cmtpic-container {
+        position: absolute;
+        top: -54px;
+        left: 0px;
+        min-height: 50px;
+        width: 100%;
+        background: #fff;
+        border-radius: 4px;
+        border: 1px solid #ddd;
+        padding: 4px;
+    }
+
+    .handover-detail .mt-item-content .cmt-pic {
+        float: left;
+        margin: 0 4px;
+        width: 40px;
+        height: 40px;
+        margin-top: 5px;
+        position: relative;
+    }
+
+    .handover-detail .mt-item-content .icon-image {
+        font-size: 20px;
+        margin-top: 4px;
+        display: inline-block;
+        color: #999;
+    }
+
+    .handover-detail .mt-item-content .cmtpic-container .delete-img, .cmt-pic .delete-img {
+        position: absolute;
+        top: -4px;
+        right: -6px;
+        background: #eee;
+        border-radius: 8px;
+        font-size: 12px;
+        padding: 2px;
+    }
+
+    .handover-detail .doer-panel {
 
     }
 
-    @media all and (max-width: 360px) {
+    .handover-detail .doer-item {
+        padding: 10px 0px;
+        margin-top: 1px;
+        background: #fff;
+        clear: both;
+        border-top: 1px dotted #ddd;
+    }
 
+    .handover-detail .doer-item:first-child {
+        border-top: none;
+    }
+
+    .handover-detail .user-header {
+        margin-top: 4px;
+    }
+
+    .handover-detail .mt-status {
+        font-size: 12px;
+        display: block;
+    }
+
+    .handover-detail .doer-panel .item-left {
+        width: 40px;
+    }
+
+    .handover-detail .doer-panel .user-header-img {
+        width: 36px;
+        height: 36px;
+        border-radius: 18px;
+    }
+
+    .handover-detail .doer-panel .default-header {
+        width: 36px;
+        height: 36px;
+        border-radius: 21px;
+        text-align: center;
+        margin: 0 auto;
+    }
+
+    .handover-detail .doer-panel .default-header .user-shortname {
+        height: 24px;
+        display: inline-block;
+        margin-top: 10px;
+        font-size: 12px;
+        color: #fff;
+    }
+
+    .handover-detail .doer-panel .item-right {
+        height: 36px;
+        line-height: 36px;
+    }
+
+    .handover-detail .doer-status {
+        width: calc(100% - 120px);
+        float: left;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding-left: 5px;
+    }
+
+    .handover-detail .doer-content {
+        float: right;
+        padding-top: 10px;
+    }
+
+    .mt-opt {
+        float: left;
+    }
+
+    .icon-nextpage {
+        float: left;
+        margin-top: 6px;
+        margin-left: 4px;
+        font-size: 18px;
+    }
+
+    .handover-detail .mt-info {
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .handover-detail .u-list {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .handover-detail .over-due {
+        font-size: 14px;
+        font-weight: 500;
+        color: red;
+    }
+
+    .handover-detail .btn-opt {
+        width: 100%;
+        height: 30px;
+        line-height: 30px;
+        text-align: center;
+    }
+
+    @media all and (max-width: 360px) {
+        .handover-detail .mt-info {
+            display: block;
+        }
+
+        .handover-detail .mt-info .mt-name {
+            max-width: 100%;
+            display: block;
+        }
     }
 </style>

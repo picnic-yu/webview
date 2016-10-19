@@ -5,9 +5,12 @@
           <menu class="tabs-menu">
             <div class="tabs-menu-inner">
               <div class="buttons-tab head-tab">
-                <a v-on:click="showWhichChart(0)" class="tab-link  button" v-bind:class="currentIndex==0?'active':''">门店报表</a>
-                <a v-on:click="showWhichChart(1)" class="tab-link button" v-bind:class="currentIndex==1?'active':''">点检项报表</a>
-                <a v-on:click="showWhichChart(2)" class="tab-link button" v-bind:class="currentIndex==2?'active':''">执行力报表</a>
+                <a v-on:click="showWhichChart(0)" class="tab-link  button"
+                   v-bind:class="currentIndex==0?'active':''"><span class="text-title">门店</span></a>
+                <a v-on:click="showWhichChart(1)" class="tab-link button"
+                   v-bind:class="currentIndex==1?'active':''"><span class="text-title">核心工作</span></a>
+                <a v-on:click="showWhichChart(2)" class="tab-link button"
+                   v-bind:class="currentIndex==2?'active':''"><span class="text-title">执行力</span></a>
               </div>
             </div>
           </menu>
@@ -133,8 +136,35 @@ ul{list-style: none}
 	justify-content:flex-start;
 }
 .content{overflow-x: hidden}
-.buttons-tab.head-tab a.tab-link{width:100px;top:0px;height:44px;line-height: 44px;color: #999;}
-.buttons-tab.head-tab .button.active{border-color:#f90; color: #333;font-size: 18px}
+
+  /*.buttons-tab.head-tab a.tab-link{width:auto;top:0px;height:44px;line-height: 44px;color: #999;padding-left: 3px;padding-right: 3px;font-size: 14px;}*/
+  .buttons-tab.head-tab a.tab-link {
+    width: 33%;
+    top: 0px;
+    height: 44px;
+    line-height: 44px;
+    color: #999;
+    padding-left: 3px;
+    padding-right: 3px;
+    font-size: 14px;
+  }
+
+  /*.buttons-tab.head-tab .button.active{border-color:#f90; color: #333;font-size: 14px}*/
+  .text-title {
+    display: inline-block;
+    padding: 0 6px;
+    height: 2.2rem;
+  }
+
+  .buttons-tab.head-tab .button.active .text-title {
+    border-bottom: 2px solid #f90;
+    color: #333;
+    font-size: 14px;
+  }
+
+  .buttons-tab.head-tab .button.active {
+    border: none;
+  }
 .search-box{
   text-align: center;
   display: flex;
@@ -239,7 +269,8 @@ header.bar,.content{background: #fff;}
     position: relative;
   }
   .tabs-menu-inner .head-tab{
-    width: 400px;
+    /*width: 400px;*/
+    width: 100%;
     left:0px;
     overflow: hidden;
     position: absolute;

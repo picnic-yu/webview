@@ -87,6 +87,16 @@ app.post('/service/saveHandoverBookComment.action', function (req, response) {
         response.send(data);
     });
 });
+app.post('/service/saveSoptlightPromoteProcess.action', function (req, response) {
+    request({
+        url: baseUrl + req.url,
+        body: req.body,
+        json: true,
+        method: 'POST'
+    }, function (error, res, data) {
+        response.send(data);
+    });
+});
 app.post('/:namespace/:actionname', function (req, response) {
     console.log(req.body);
     request.post(baseUrl + req.url, {

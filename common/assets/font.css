@@ -24,6 +24,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-scan－qrcode:before {
+  content: "\e9ff";
+}
 .icon-back:before {
   content: "\e9fe";
 }

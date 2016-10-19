@@ -83,7 +83,7 @@
                 router.go({name: 'create', params: {deptId: Constant.shopInfo.id ? Constant.shopInfo.id : 0}});
             },
             ok: function (displayValues) {
-                Constant.create.mDate.value = displayValues[0];
+                Constant.create.mDate.value = displayValues[0] + " 23:59:59";
                 router.go({name: 'create', params: {deptId: Constant.shopInfo.id ? Constant.shopInfo.id : 0}});
             }
         }

@@ -32,7 +32,17 @@
                             <div class="item-name">全部</div>
                           </div>
                         </li>
-                        <li v-for="item in items" v-on:click="detail(item.id,item.showName)">
+                        <li v-on:click="detail(curUser.id,curUser.showName)" v-if="$route.params.dowhich==0">
+                            <div class="item-left">
+                                <div class="default-header">
+                                    <span class="user-icon"></span></div>
+                            </div>
+                            <div class="item-right">
+                                <div class="item-name">{{curUser.showName}}(我)</div>
+                            </div>
+                        </li>
+                        <li v-for="item in items" v-on:click="detail(item.id,item.showName)"
+                            v-if="!($route.params.dowhich==0 && item.id == curUser.id)">
                             <div class="item-left">
                                 <userhead v-bind:user="item"></userhead>
                             </div>
@@ -66,11 +76,14 @@
                         }
                     });
                 }
-                transition.next({
-                    page: {
-                        index: 0,
-                        num: num
-                    }
+                this.curUser = Constant.curUser;
+                this.$nextTick(function () {
+                    transition.next({
+                        page: {
+                            index: 0,
+                            num: num
+                        }
+                    });
                 });
             },
             deactivate: function (transition) {
@@ -87,6 +100,7 @@
                     num: num,
                     total: 0
                 },
+                curUser: {},
                 loading: false,
                 items: [],
                 searchName: '',

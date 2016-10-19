@@ -259,6 +259,8 @@
 
     .user-header-img {
         border-radius: 21px;
+        width: 42px;
+        height: 42px;
     }
 
     .default-header {
@@ -596,5 +598,21 @@
 
     ::-webkit-file-upload-button {
         width: 30px;
+    }
+
+    .state-0 {
+        color: #ff5959;
+    }
+
+    .state-1 {
+        color: #f90;
+    }
+
+    .state-2 {
+        color: red;
+    }
+
+    .state-3 {
+        color: #8acc47;
     }
 </style>

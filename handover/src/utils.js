@@ -20,10 +20,16 @@ var paths = [{
         name: 'mutipleuserlist', parent: 'create'
     },
     {
+        name: 'grouplist', parent: 'create'
+    },
+    {
         name: 'templates', parent: 'create'
     },
     {
         name: 'searchdate', parent: 'default'
+    },
+    {
+        name: 'opt', parent: 'detail'
     }];
 module.exports.getBackPath = function (name) {
     var res = {};

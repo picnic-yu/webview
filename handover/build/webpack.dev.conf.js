@@ -31,6 +31,19 @@ module.exports = merge(baseWebpackConfig, {
         new HtmlWebpackPlugin({
             filename: 'index.html',
             template: path.resolve(__dirname, '../index.html'),
+            inject: true,
+            chunks: ['app', 'vendor']//告诉插件应用entry里面的哪个入口
+        }),
+        new HtmlWebpackPlugin({
+            filename: 'feedback.html',
+            template: path.resolve(__dirname, '../feedback.html'),
+            chunks: ['feedback', 'vendor'],//告诉插件应用entry里面的哪个入口
+            inject: true
+        }),
+        new HtmlWebpackPlugin({
+            filename: 'customer.html',
+            template: path.resolve(__dirname, '../customer.html'),
+            chunks: ['customer', 'vendor'],//告诉插件应用entry里面的哪个入口
             inject: true
         })
     ]

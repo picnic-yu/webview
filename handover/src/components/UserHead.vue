@@ -6,7 +6,7 @@
             <span class="user-shortname">{{user.shortName || user.userShortName}}</span>
         </div>
         <img class="user-header-img" v-if="user.thumbUrl || user.userPicture"
-             v-bind:src="user.thumbUrl || user.userPicture" width="42px" height="42px"/>
+             v-bind:src="user.thumbUrl || user.userPicture"/>
     </div>
 </template>
 <script>

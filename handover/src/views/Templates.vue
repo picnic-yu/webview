@@ -13,7 +13,9 @@
                                 <div class="item-name">全部</div>
                             </div>
                         </li>
-                        <li v-for="item in items" v-on:click="detail(item.id,item.name,item.moudleType)">
+                        <li v-for="item in items"
+                            v-on:click="detail(item.id,item.name,item.moudleType,item.isSecretary)" v-show="$route.params.dowhich==0 || ($route.params.dowhich==1 && item.isChoiceable == 1)
+                        || ( $route.params.dowhich==1 && item.isSecretary==1 && isSecretary)">
                             <div class="">
                                 <div class="item-name">{{item.name}}</div>
                             </div>
@@ -34,7 +36,9 @@
     module.exports = {
         route: {
             data: function (transition) {
-                transition.next();
+                transition.next({
+                    isSecretary: Constant.isSecretary
+                });
             }
         },
         data: function () {
@@ -45,6 +49,7 @@
                 scrollInit: false,
                 infiniteInit: false,
                 refreshInit: false,
+                isSecretary: false,
                 showBackBtn: Constant.showBackBtn
             };
         },
@@ -83,11 +88,12 @@
             clearData: function () {
                 this.items = [];
             },
-            detail: function (id, name, type) {
+            detail: function (id, name, type, isSecretary) {
                 if (this.$route.params.dowhich == 1) {//创建时，选择工作圈的类型
                     Constant.bo.moudleId = id;
                     Constant.bo.moudleName = name;
                     Constant.bo.moudleType = type;
+                    Constant.bo.isSecretary = isSecretary;
                     router.go({name: 'create', params: {deptId: Constant.shopInfo.id ? Constant.shopInfo.id : 0}});
                 } else if (this.$route.params.dowhich == 0) {//查询时，筛选类型
                     Constant.module.id = id;

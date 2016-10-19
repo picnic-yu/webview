@@ -41,6 +41,12 @@ module.exports = function (router) {
                 require(['./views/Create'], resolve);
             }
         },
+        '/grouplist': {
+            name: 'grouplist',
+            component: function (resolve) {
+                require(['./views/GroupList'], resolve);
+            }
+        },
         '/detail/:id': {
             name: 'detail',
             component: function (resolve) {
@@ -57,6 +63,12 @@ module.exports = function (router) {
             name: 'expiredate',
             component: function (resolve) {
                 require(['./views/ExpireDateBox'], resolve);
+            }
+        },
+        '/opt/:state/:pid': {
+            name: 'opt',
+            component: function (resolve) {
+                require(['./views/OperateState'], resolve);
             }
         }
     });

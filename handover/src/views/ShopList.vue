@@ -23,7 +23,7 @@
                 </div>
                 <div class="items-list">
                     <ul>
-                        <li v-on:click="detail('','')" v-show="$route.params.dowhich==0 || $route.params.dowhich==3">
+                        <li v-on:click="detail('','')" v-show="($route.params.dowhich==0 || $route.params.dowhich==3)">
                             <div class="">
                                 <div class="item-name">全部</div>
                             </div>

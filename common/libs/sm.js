@@ -1626,7 +1626,10 @@ Device/OS Detection
 
         modal.removeClass('modal-in').addClass('modal-out').transitionEnd(function (e) {
             if (modal.hasClass('modal-out')) modal.trigger('closed');
-            else modal.trigger('opened');
+            else {
+                modal.trigger('opened');
+                return;
+            }
 
             if (isPickerModal) {
                 $(defaults.modalContainer).removeClass('picker-modal-closing');

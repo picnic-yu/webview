@@ -3,11 +3,11 @@ var path = require('path');
 module.exports = {
   build: {
     env: require('./prod.env'),
-    index: path.resolve(__dirname, '../../../znmd/shopweb/WebContent/webview/checkreport/index.html'),
-    assetsRoot: path.resolve(__dirname, '../../../znmd/shopweb/WebContent/webview/checkreport/'),
+    index: path.resolve(__dirname, '../../../wdz/shopweb/WebContent/webview/checkreport/index.html'),
+    assetsRoot: path.resolve(__dirname, '../../../wdz/shopweb/WebContent/webview/checkreport/'),
     assetsSubDirectory: 'static',
     assetsPublicPath: '',
-    productionSourceMap: true
+    productionSourceMap: false
   },
   dev: {
     env: require('./dev.env'),

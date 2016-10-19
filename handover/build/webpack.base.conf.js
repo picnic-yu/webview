@@ -6,6 +6,8 @@ var webpack = require('webpack');
 module.exports = {
     entry: {
         app: './src/main.js',
+        feedback: './src/feedback_main.js',
+        customer: './src/customer_main.js',
         vendor: ['vue']
     },
     output: {

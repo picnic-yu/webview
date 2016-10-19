@@ -2,7 +2,7 @@
     <div class="page-group handover" :transition="transitionName">
         <div class="container page page-current">
             <header class="bar bar-nav">
-                <h1 class='title'>工作圈(v1.3.1)</h1>
+                <h1 class='title' @click="showVersion()">工作圈</h1>
                 <span class="pull-left icon-back" v-on:click="backTo()" v-if="showBackBtn==1"></span>
                 <button class="button button-link button-nav pull-right button-btn add-btn" v-on:click="goToCreate()">
                     新增
@@ -85,19 +85,38 @@
                                     </div>
                                     <div class="item-type">
                                         <span class="type-name">{{item.moudleName}}</span>
+
+                                        <div class="other-list">
+                                            <div class="af-at" v-on:click="whoPassed(item)"
+                                                 v-show="item.performerPassList && item.performerPassList.length>0">
+                                                <progress v-on:click="whoPassed(item)" class="not-view"
+                                                          v-bind:percent="item.performerPassList && item.performerPassList.length>0 && item.performerPassCount/item.performerPassList.length"
+                                                          v-if="item.performerPassList && item.performerPassList.length>0"></progress>
+                                                <label v-on:click="whoPassed(item)" class="reminder-name not-view"
+                                                       v-show="item.performerPassList && item.performerPassList.length>0">
+                                                <span class="not-view"
+                                                      v-show="item.performerPassList && item.performerPassList.length>item.performerPassCount">{{item.performerPassCount}}人完成</span>
+                                                <span class="not-view state-3"
+                                                      v-show="item.performerPassList && item.performerPassList.length==item.performerPassCount">全部完成</span>
+                                                </label>
+                                            </div>
+                                            <div class="spot-state state-{{item.spotState}}">
+                                                {{item.spotState|whichstate}}
+                                            </div>
+                                        </div>
                                     </div>
                                     <div class="item-footer">
                                         <span class="dept-name" v-show="item.isOpen==0">{{item.deptName}}</span>
                                         <span class="dept-name" v-show="item.isOpen==1">公开</span>
                                     </div>
-                                    <div class="item-footer confirm-footer" v-show="item.isAtMe==1 && !item.isRead">
+                                    <div class="item-footer confirm-footer" v-show="item.isRead == 0">
                                         <button class="button button-link button-nav button-fill button-orange btn-confirm"
                                                 v-on:click="viewDetail(item)">
                                             点击确认已读
                                         </button>
                                     </div>
                                     <div class="item-footer at-footer"
-                                         v-show="item.isAtMe==0 || (item.isAtMe == 1&& item.isRead==1)">
+                                         v-show="item.isRead != 0">
                                         <label class="atme-name" v-show="item.isAtMe==1">已读</label>
 
                                         <div class="af-at" v-on:click="whoRead(item)"
@@ -123,7 +142,7 @@
                                         </div>
                                     </div>
                                     <div class="item-footer footer-cmt not-view footer-cmt-{{item.id}}"
-                                         v-if="item.comment && item.comment.length>0 && (item.isAtMe==0 || (item.isAtMe == 1&& item.isRead==1))">
+                                         v-if="item.comment && item.comment.length>0 && item.isRead != 0">
                                         <div class="cmt-item not-view" v-for="cmt in item.comment">
                                             <div class="cmt-content not-view" @click="doCmt(item,cmt)">
                                                 <span class="cmt-user not-view">{{cmt.userName}}</span>
@@ -212,6 +231,37 @@
                     </div>
                 </div>
             </modal-dialog>
+            <modal-dialog v-bind:show-modal.sync="showPassedModal">
+                <header class="dialog-header" slot="header">
+                    <div class="buttons-tab head-tab">
+                        <a class="button  tab-link active" v-on:click="selectPassedTabIndex(0)"
+                           v-bind:class="currentPassedTabIndex==0?'active':''">未完成的({{unreadUsers.length}})</a>
+                        <a class="button  tab-link" v-on:click="selectPassedTabIndex(1)"
+                           v-bind:class="currentPassedTabIndex==1?'active':''">已完成的({{passedUsers.length}})</a>
+                    </div>
+                </header>
+                <div class="dialog-body" slot="body">
+                    <div class="tabs">
+                        <div class="tab active" id="passtab1">
+                            <ul class="modal-ul">
+                                <li v-for="user in unpassedUsers">
+                                    <userhead v-bind:user="user"></userhead>
+                                    <div class="dlg-username">{{user.userName}}</div>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="tab" id="passtab2">
+                            <ul class="modal-ul">
+                                <li v-for="user in passedUsers">
+                                    <userhead v-bind:user="user"></userhead>
+                                    <div class="dlg-username">{{user.userName}}</div>
+                                    <div class="dlg-time">{{user.passTime | whichreadtime}}</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </modal-dialog>
         </div>
         <!--<div class="dlgs-cmt">
             <div class="dlg-cmt" v-show="showCommentModal" v-bind:class="{ 'active': showCommentModal}">
@@ -229,18 +279,18 @@
             <div class="sp-item" v-on:click="searchAll()" v-bind:class="!isMe && !atMe?'active':''">
                 <label class="sp-label">全部</label>
             </div>
-            <div class="sp-item" v-on:click="searchIsMe()" v-bind:class="!!isMe?'active':''">
+            <!--<div class="sp-item" v-on:click="searchIsMe()" v-bind:class="!!isMe?'active':''">
                 <label class="sp-label">我创建的</label>
-            </div>
+            </div>-->
             <div class="sp-item" v-on:click="searchAtMe()" v-bind:class="!!atMe?'active':''">
                 <label class="item-title label">提到我的</label>
             </div>
-            <div class="sp-item" v-on:click="searchAtMe()">
+            <!--<div class="sp-item" v-on:click="searchAtMe()">
                 <label class="item-title label sp-time" v-bind:class="!!atMe?'active':''">本周</label><label
                     class="item-title label sp-time" v-bind:class="!!atMe?'active':''">上周</label>
                 <label class="item-title label sp-time" v-bind:class="!!atMe?'active':''">本月</label><label
                     class="item-title label sp-time" v-bind:class="!!atMe?'active':''">上月</label>
-            </div>
+            </div>-->
         </div>
     </div>
 </template>
@@ -254,6 +304,8 @@
     var commonutils = require('../../../common/assets/js/commonutils');
     var FastClick = require('../../../common/libs/fastclick');
     var num = 10;//每页显示的条数
+    var clickShowVesionNum = 0;//点击多少次标题栏，用于查看版本
+    var clickTimer = null;
     var maxCmtImgNum = 3;//上传的评论图片max value
     var Vue = require('vue');
     module.exports = {
@@ -323,9 +375,21 @@
                     });
                 }
             },
+            canDeactivate: function (transition) {
+                var _this = this;
+                if (this.display.searchOther) {
+                    this.hideSearchPanel();
+                    setTimeout(function () {
+                        _this.$nextTick(function () {
+                            transition.next();
+                        })
+                    }, 410);
+                } else {
+                    transition.next();
+                }
+            },
             deactivate: function (transition) {
                 this.transitionName = 'left';
-                this.hideSearchPanel();
                 //this.unbindInfinite();
                 //this.clearData();
                 Constant.layout.srcollTop = $('#dataContent').scrollTop();
@@ -375,10 +439,14 @@
                 curUser: {},//当前用户
                 readUsers: [],
                 unreadUsers: [],
+                passedUsers: [],
+                unpassedUsers: [],
                 items: [],
                 hasCreateToday: false,//今天是否已经创建过
                 showModal: false,//是否打开对话框
+                showPassedModal: false,//是否打开完成人的对话框
                 currentTabIndex: 0,//对话框中选择的选项卡
+                currentPassedTabIndex: 0,//对话框中选择的选项卡
                 showCommentModal: false,//是否显示评论的框
                 cmtContent: '',//评论内容
                 cmtPid: '',//评论的父id
@@ -412,6 +480,12 @@
             'whichreadtime': function (time) {
                 time = time.replace('T', ' ');
                 return time.substring(5, 16);
+            },
+            'whichstate': function (state) {
+                if (state == 0) return "未处理";
+                if (state == 1) return "待审批";
+                if (state == 2) return "未通过";
+                if (state == 3) return "已完成";
             }
         },
         ready: function () {
@@ -426,8 +500,22 @@
                     return 0;
                 } else if (item.showPicPaths.length == 1) {
                     return (this.layout.width - 70) / 2;
+                } else if (item.showPicPaths.length == 4 || item.showPicPaths.length == 2) {
+                    return (this.layout.width - 100) / 2 - 10;
                 } else {
                     return (this.layout.width - 80) / 3 - 10;
+                }
+            },
+            showVersion: function () {
+                clearTimeout(clickTimer);
+                if (clickShowVesionNum >= 2) {
+                    $.toast('当前工作圈版本V2.1.4');
+                    clickShowVesionNum = 0;
+                } else {
+                    clickShowVesionNum++;
+                    clickTimer = setTimeout(function () {
+                        clickShowVesionNum = 0;
+                    }, 1000);
                 }
             },
             backTo: function () {
@@ -668,7 +756,7 @@
                             _this.hasSigleDep = false;
                             _this.layout.searchBarWidth = _this.layout.width / 4;
                         }
-                        _this.curUser = data.user;
+                        Constant.curUser = _this.curUser = data.user;
                     }
                     Constant.hasGetAuth = true;
                     Constant.hasSigleDep = _this.hasSigleDep;
@@ -745,6 +833,7 @@
             },
             toggleSearchPanel: function () {
                 if (!this.display.searchOther) {
+                    $('.popup-overlay').height($('body').height() - 80);
                     $.popup('.popup-search');
                     this.display.searchOther = true;
                     var _this = this;
@@ -760,6 +849,7 @@
             },
             hideSearchPanel: function () {
                 if (this.display.searchOther) {
+                    $('.popup-overlay.modal-overlay-visible').off('click');
                     $.closeModal('.popup-search');
                     this.display.searchOther = false;
                 }
@@ -819,8 +909,19 @@
                  return false;
                  }*/
                 //需要发送已读申请
-                Constant.needReadMessage = (item.isAtMe == 1 && item.isRead == 0) ? true : false;
-                item.isRead = 1;
+                Constant.needReadMessage = (item.isRead == 0) ? true : false;
+                if (Constant.needReadMessage) {
+                    item.isRead = 1;
+                    if (item.reminderList && item.reminderList.length > 0) {
+                        item.remindersReadCount++;
+                        for (var i = 0; i < item.reminderList.length; i++) {
+                            if (item.reminderList[i].id == this.curUser.id) {
+                                item.reminderList[i].isRead = 1;
+                                break;
+                            }
+                        }
+                    }
+                }
                 //查看详情
                 router.go({name: 'detail', params: {id: item.id}});
             },
@@ -863,6 +964,12 @@
                 this.unreadUsers = users.unRead;
                 this.showModal = true;
             },
+            whoPassed: function (item) {
+                var users = whohaspassed(item.performerPassList);
+                this.passedUsers = users.passed;
+                this.unpassedUsers = users.unpassed;
+                this.showPassedModal = true;
+            },
             /**
              * 谁已经看过对话框中选择tab页
              * @param index
@@ -875,6 +982,20 @@
                 } else {
                     $('#readtab2').addClass('active');
                     $('#readtab1').removeClass('active');
+                }
+            },
+            /**
+             * 谁已经看过对话框中选择tab页
+             * @param index
+             */
+            selectPassedTabIndex: function (index) {
+                this.currentPassedTabIndex = index;
+                if (index == 0) {
+                    $('#passtab1').addClass('active');
+                    $('#passtab2').removeClass('active');
+                } else {
+                    $('#passtab2').addClass('active');
+                    $('#passtab1').removeClass('active');
                 }
             },
             /**
@@ -1045,6 +1166,9 @@
             },
             closeUserDialog: function () {
                 this.showModal = false;
+            },
+            closePassedUserDialog: function () {
+                this.showPassedModal = false;
             }
         }
     };
@@ -1061,6 +1185,22 @@
         return {
             unRead: unRead,
             read: read
+        };
+    }
+
+
+    function whohaspassed(users) {
+        var unpassed = [], passed = [];
+        for (var i = 0; i < users.length; i++) {
+            if (!users[i].passTime) {
+                unpassed.push(users[i]);
+            } else {
+                passed.push(users[i]);
+            }
+        }
+        return {
+            unpassed: unpassed,
+            passed: passed
         };
     }
 
@@ -1209,7 +1349,7 @@
 
     #dataContent .items-list li {
         border: none;
-        margin-top: 8px;
+        margin-top: 5px;
         background: #fff;
         padding: 10px 0px;
     }
@@ -1237,8 +1377,14 @@
         margin-right: 10px;
     }
 
+    #dataContent .item-text {
+        word-wrap: break-word;
+        font-size: 16px;
+    }
+
     #dataContent .user-name {
         font-size: 14px;
+
     }
 
     .time-name {
@@ -1289,6 +1435,21 @@
         font-size: 12px;
     }
 
+    .handover .item-type .type-name {
+        color: #fa0;
+    }
+
+    .handover .other-list {
+        display: inline-block;
+        vertical-align: middle;
+        height: 16px;
+        line-height: 16px;
+        float: right;
+    }
+
+    .state-3 {
+        color: #8acc47;
+    }
     .handover .atme-name {
         color: #fa0;
         font-size: 12px;
@@ -1306,6 +1467,14 @@
         display: flex;
         justify-content: center;
         align-items: center;
+    }
+
+    .handover .spot-state {
+        font-size: 12px;
+        height: 30px;
+        line-height: 30px;
+        vertical-align: middle;
+        float: left;
     }
 
     .handover .af-delete {
@@ -1419,8 +1588,8 @@
     }
 
     #dataContent .item-images li {
-        display: inline-block;
-        padding: 0px 10px 0px 0px;
+        float: left;
+        padding: 0px 5px 0px 0px;
     }
 
     .bar a.icon.icon-cross {

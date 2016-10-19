@@ -10,7 +10,12 @@
                     <ul><li>
                         <div class="item-content">
                             <div class="item-inner">
-                                <div class="item-input"><input type="text" v-model="mac" placeholder="请输入12位的设备序列号" maxlength="12"/></div>
+                                <div class="item-input">
+                                    <input type="text" v-model="mac" placeholder="请输入12位的设备序列号" maxlength="12"/>
+                                </div>
+                                <label class="scaner" @click="scaner()">
+                                    <span class="icon-scan－qrcode"></span>
+                                </label>
                             </div>
                         </div>
                     </li></ul>
@@ -21,7 +26,10 @@
     </div>
 </template>
 <script>
+    require('../../../common/assets/font.css');
+    var Vue = require('vue');
     var utils = require('./../utils');
+    var VueData;
     module.exports = {
         route:{
             data:function(transition){
@@ -45,10 +53,33 @@
         },
         methods: {
             init: function () {
-
+                VueData = this;
             },
             goDeviceList:function(){
                 utils.goDeviceList();
+            },
+            scaner: function () {
+                if ($.device.android) {
+                    try {
+                        window.webview && window.webview.getDeviceCode();
+                    } catch (e) {
+                        $.toast('即将支持扫一扫入网');
+                    }
+                } else if ($.device.ios) {
+                    if (Constant.isWKWebView == 1) {
+                        try {
+                            window.webkit.messageHandlers.getDeviceCode.postMessage(1);
+                        } catch (e) {
+                            $.toast('即将支持扫一扫入网');
+                        }
+                    } else {
+                        try {
+                            getDeviceCode();
+                        } catch (e) {
+                            $.toast('即将支持扫一扫入网');
+                        }
+                    }
+                }
             },
             next:function(){
                 if(this.doing || this.mac.length < 12) return;
@@ -82,10 +113,44 @@
             success:function(data){
                 Constant.device = data;
                 router.go('step3');
+            },
+            setMac: function (mac) {
+                this.mac = mac;
             }
+        }
+    };
+
+
+    window.setDeviceCode = function (url) {
+        var suf = '#$%&';
+        url = url || '';
+        if (!url || url.indexOf(suf) == -1 || url.length != 16) {
+            $.toast('未能正确识别该二维码');
+        } else {
+            var code = url.replace(suf, '');
+            VueData.setMac(code);
         }
     };
 </script>
 <style>
+    .item-input {
+        float: left;
+    }
 
+    .list-block .item-inner {
+        padding-right: 0px;
+    }
+
+    .scaner {
+        float: left;
+        width: 60px;
+        height: 30px;
+        line-height: 30px;
+        text-align: center;
+        padding-top: 2px;
+    }
+
+    .scaner .icon-expand {
+        font-size: 22px;
+    }
 </style>

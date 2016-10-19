@@ -2,11 +2,11 @@
     <div class="page handover-create" :transition="transitionName">
         <div class="container">
             <header class="bar bar-nav">
-                <h1 class='title'>{{shopInfo.name}}</h1>
                 <span class="pull-left icon-back" v-on:click="backTo()" v-if="showBackBtn==1"></span>
                 <button class="button button-link button-nav pull-right button-btn btn-submit" v-on:click="submit()">
                     提交
                 </button>
+                <h1 class='title'></h1>
             </header>
             <div class="content create-content">
                 <div class="top-content">
@@ -92,7 +92,9 @@
                                         <!--类型中选择人-->
                                         <div class="sub-content" v-if="subItem.contentType == 1"
                                              @click="goToUserList(subItem,$parent.$index,$index)">
-                                            <div class="no-content" v-show="!subItem.content">请选择{{subItem.confName}}
+                                            <div class="no-content"
+                                                 v-bind:class="subItem.isRequired==1?'require-text-subitem':''"
+                                                 v-show="!subItem.content">请选择{{subItem.confName}}
                                             </div>
                                             <div class="d-type-item" v-show="subItem.content">
                                                 {{subItem.contentStr}}
@@ -101,7 +103,9 @@
                                         <!--类型中选择门店-->
                                         <div class="sub-content" v-if="subItem.contentType == 2"
                                              @click="goToShopList(subItem,$parent.$index,$index)">
-                                            <div class="no-content" v-show="!subItem.content">请选择{{subItem.confName}}
+                                            <div class="no-content"
+                                                 v-bind:class="subItem.isRequired==1?'require-text-subitem':''"
+                                                 v-show="!subItem.content">请选择{{subItem.confName}}
                                             </div>
                                             <div class="d-type-item" v-show="subItem.content">
                                                 {{subItem.contentStr}}
@@ -111,7 +115,10 @@
                                     <!--类型中选择日期-->
                                     <div class="sub-content" v-if="subItem.contentType == 3"
                                          @click="goToDate(subItem.content,$parent.$index,$index)">
-                                        <div class="no-content" v-show="!subItem.content">请选择{{subItem.confName}}</div>
+                                        <div class="no-content"
+                                             v-bind:class="subItem.isRequired==1?'require-text-subitem':''"
+                                             v-show="!subItem.content">请选择{{subItem.confName}}
+                                        </div>
                                         <div class="d-type-item" v-show="subItem.content">
                                             {{subItem.content}}
                                         </div>
@@ -121,7 +128,9 @@
                         </li>
                     </ul>
                 </div>
-                <div class="dep-content who-content" v-on:click="whichDep()" v-if="bo.moudleType != 1">
+                <!--mouduletype 1为亮点推广和任务-->
+                <div class="dep-content who-content" v-on:click="whichDep()"
+                     v-if="bo.moudleType != 1 && !(bo.isSecretary && isSecretary)">
                     <table>
                         <tr>
                             <td valign="top" class="wc-tip">门店</td>
@@ -134,7 +143,7 @@
                         </tr>
                     </table>
                 </div>
-                <div class="who-content bottom-content" v-on:click="atWho()"
+                <div class="who-content bottom-content" v-on:click="atWho()" v-if="!(bo.isSecretary && isSecretary)"
                      v-bind:class="bo.moudleType == 1?'dep-content':''">
                     <table>
                         <tr>
@@ -145,6 +154,21 @@
                                     {{user.showName}}<span class="splitor-f" v-if="$index!=userlist.length-1">,</span>
                                 </div>
                                 <div class="" v-show="isAtAll==1">所有人</div>
+                            </td>
+                            <td valign="top" class="wc-icon"><span class="icon-pre"></span></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="group-content who-content" v-on:click="whicGroup()" v-if="bo.isSecretary && isSecretary">
+                    <table>
+                        <tr>
+                            <td valign="top" class="wc-tip">企业</td>
+                            <td valign="top" class="wc-userlist">
+                                <div class="no-content" v-show="grouplist.length == 0 && bo.isOpen == 0">请选择一个企业</div>
+                                <div v-for="group in grouplist" class="user-item" v-show="bo.isOpen != 1">
+                                    {{group.name}}<span class="splitor-f" v-if="$index!=grouplist.length-1">,</span>
+                                </div>
+                                <div class="no-content input public" v-show="bo.isOpen==1">公开</div>
                             </td>
                             <td valign="top" class="wc-icon"><span class="icon-pre"></span></td>
                         </tr>
@@ -171,12 +195,14 @@
     module.exports = {
         route: {
             data: function (transition) {
-                if (!this.bo) {
-                    this.getData();
-                } else {
-                    Constant.bo.deptId = Constant.shopInfo.id;
-                    Constant.bo.deptName = Constant.shopInfo.name;
-                    this.bo.isOpen = Constant.create.isOpen;
+                if (this.refreshInit) {
+                    if (!this.bo) {
+                        this.getData();
+                    } else {
+                        Constant.bo.deptId = Constant.shopInfo.id;
+                        Constant.bo.deptName = Constant.shopInfo.name;
+                        this.bo.isOpen = Constant.create.isOpen;
+                    }
                 }
                 if (transition.from.name == 'templates') {
                     //根据类型获取具体类型内容
@@ -211,6 +237,7 @@
                 transition.next({
                     done: false,
                     userlist: Constant.selectedUsers,
+                    grouplist: Constant.selectedGroups,
                     bo: Constant.bo,
                     isAtAll: Constant.bo ? Constant.bo.isAtAll : 0,
                     items: (Constant.bo && Constant.bo.subItems) ? Constant.bo.subItems : [],
@@ -292,7 +319,9 @@
                 done: false,//是否完成创建
                 submiting: false,//是否正在提交
                 bo: Constant.bo,
+                isSecretary: false,
                 userlist: Constant.selectedUsers,
+                grouplist: Constant.selectedGroups,
                 pics: [],
                 items: (Constant.bo && Constant.bo.subItems) ? Constant.bo.subItems : [],
                 hasCreateToday: false,//今天是否已经创建过
@@ -551,6 +580,7 @@
                         Constant.bo.deptId = Constant.shopInfo.id;
                         Constant.bo.deptName = Constant.shopInfo.name;
                         Constant.create.isOpen = _this.bo.isOpen;
+                        Constant.isSecretary = _this.isSecretary = ret.data.data.isSecretary;
                         setTimeout(_this.bindItemEvent, 1000);
                     }
                 });
@@ -576,6 +606,7 @@
                 Constant.bo = this.bo = '';
                 this.items = [];
                 Constant.selectedUsers = this.userlist = [];
+                Constant.selectedGroups = this.grouplist = [];
             },
             goToUserList: function (subItem, parentIndex, index) {
                 Constant.create.mUserInfo.ids = subItem.content;
@@ -600,6 +631,9 @@
             whichDep: function () {
                 router.go({name: 'shoplist', params: {dowhich: 1}});
             },
+            whicGroup: function () {
+                router.go({name: 'grouplist'});
+            },
             showPicPanel: function (sitem) {
                 if (sitem.showPicPanel) return;
                 Vue.set(sitem, 'showPicPanel', true);
@@ -620,15 +654,26 @@
                 if (this.submiting) {
                     return;
                 }
-                var hasTextSth = false;
+                var hasTextSth = false, noSubItemSth = false, errorTip;
                 $('.require-text').each(function () {
                     if (this.value) {
                         hasTextSth = true;
-
                     }
                 });
                 if (!hasTextSth) {
                     $.toast('说点什么吧');
+                    return;
+                }
+                $('.require-text-subitem').each(function () {
+                    var val = $.trim($(this).next().html());
+                    if (!val || typeof(val) == 'undefined') {
+                        noSubItemSth = true;
+                        errorTip = $(this).html();
+                        return false;
+                    }
+                });
+                if (noSubItemSth) {
+                    $.toast(errorTip);
                     return;
                 }
                 if ($('.handover-create .pb-standalone').length > maxImgNum) {
@@ -644,12 +689,30 @@
                 this.bo.deptId = Constant.shopInfo.id;
                 this.bo.reminders = getUserIds(this.userlist);
                 this.bo.isAtAll = Constant.bo.isAtAll;
-                if (!this.bo.deptId) {
+                if (!this.bo.moudleType || this.bo.moudleType == 0) {//0为交接本、日志等基本类型
+                    if (!this.bo.deptId) {
+                        this.bo.deptId = 0;
+                        this.bo.isOpen = 1;
+                    } else {
+                        this.bo.isOpen = 0;
+                    }
+                } else if (this.bo.moudleType == 1) {//1为亮点推广和任务
                     this.bo.deptId = 0;
-                    this.bo.isOpen = 1;
-                } else {
+                    this.bo.isOpen = 0;
+                } else if (this.bo.moudleType == 2) {//2为用户反馈
+                    this.bo.deptId = 0;
                     this.bo.isOpen = 0;
                 }
+                //如果是企业小秘书，并且选择的是公告（特有类型）
+                if (this.bo.isSecretary && this.isSecretary) {
+                    this.bo.groupIds = getUserIds(this.grouplist);
+                    if (!this.bo.groupIds) {
+                        this.bo.isOpen = 1;
+                    } else {
+                        this.bo.isOpen = 0;
+                    }
+                }
+
                 this.sortImgs();
                 $.showPreloader('正在处理');
                 this.submiting = true;
@@ -665,6 +728,7 @@
                         _this.done = true;
                         Constant.needRefresh = true;
                         Constant.selectedUsers = [];
+                        Constant.selectedGroups = [];
                         router.go({name: 'default'});
                     } else {
                         $.toast('提交失败');
@@ -756,6 +820,12 @@
     .content.create-content {
         background: #f5f5f5;
         overflow-x: hidden;
+    }
+
+    .handover-create .title {
+        width: 88%;
+        margin: 0 auto;
+        position: static;
     }
 
     .who-content ul li {

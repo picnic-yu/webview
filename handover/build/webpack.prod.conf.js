@@ -55,7 +55,42 @@ module.exports = merge(baseWebpackConfig, {
                 // https://github.com/kangax/html-minifier#options-quick-reference
             },
             // necessary to consistently work with multiple chunks via CommonsChunkPlugin
-            chunksSortMode: 'dependency'
+            chunksSortMode: 'dependency',
+            excludeChunks: ['feedback', 'customer']
+        }),
+        new HtmlWebpackPlugin({
+            filename: process.env.NODE_ENV === 'testing'
+                ? 'feedback.html'
+                : config.build.feedback,
+            template: 'feedback.html',
+            inject: true,
+            minify: {
+                removeComments: true,
+                collapseWhitespace: true,
+                removeAttributeQuotes: true
+                // more options:
+                // https://github.com/kangax/html-minifier#options-quick-reference
+            },
+            // necessary to consistently work with multiple chunks via CommonsChunkPlugin
+            chunksSortMode: 'dependency',
+            excludeChunks: ['app', 'customer']
+        }),
+        new HtmlWebpackPlugin({
+            filename: process.env.NODE_ENV === 'testing'
+                ? 'customer.html'
+                : config.build.customer,
+            template: 'customer.html',
+            inject: true,
+            minify: {
+                removeComments: true,
+                collapseWhitespace: true,
+                removeAttributeQuotes: true
+                // more options:
+                // https://github.com/kangax/html-minifier#options-quick-reference
+            },
+            // necessary to consistently work with multiple chunks via CommonsChunkPlugin
+            chunksSortMode: 'dependency',
+            excludeChunks: ['app', 'feedback']
         }),
         // split vendor js into its own file
         new webpack.optimize.CommonsChunkPlugin({
