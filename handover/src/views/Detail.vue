@@ -367,7 +367,6 @@
     var commonutils = require('../../../common/assets/js/commonutils');
     var Vue = require('vue');
     var maxCmtImgNum = 3;
-    var myPhotoBrowserStandalone;
     module.exports = {
         route: {
             data: function (transition) {
@@ -389,6 +388,7 @@
                 //this.clearData();
                 if (myPhotoBrowserStandalone) {
                     myPhotoBrowserStandalone.close();
+                    isPhotoOpen = false;
                 }
                 var _this = this;
                 if (transition.to.name != 'opt') {
@@ -586,12 +586,14 @@
                         lazyLoadingInPrevNext: true,
                         onClick: function () {
                             myPhotoBrowserStandalone.close();
+                            isPhotoOpen = false;
                         },
                         navbarTemplate: '<header class="bar bar-nav">' +
                         '<h1 class="title" style="float: left;"><div class="center sliding"><span class="photo-browser-current"></span> <span class="photo-browser-of">/</span> <span class="photo-browser-total"></span></div></h1>' +
                         '</header>'
                     });
                     myPhotoBrowserStandalone.open();
+                    isPhotoOpen = true;
                 });
                 $(document).off('click', '.pb-standalone.sub-item-pic').on('click', '.pb-standalone.sub-item-pic', function () {
                     var index = $(this).attr('index');//当前图片组中查看的图片的索引
@@ -609,12 +611,14 @@
                         lazyLoadingInPrevNext: true,
                         onClick: function () {
                             myPhotoBrowserStandalone.close();
+                            isPhotoOpen = false;
                         },
                         navbarTemplate: '<header class="bar bar-nav">' +
                         '<h1 class="title" style="float: left;"><div class="center sliding"><span class="photo-browser-current"></span> <span class="photo-browser-of">/</span> <span class="photo-browser-total"></span></div></h1>' +
                         '</header>'
                     });
                     myPhotoBrowserStandalone.open();
+                    isPhotoOpen = true;
                 });
                 //上传图片的点击事件
                 $(document).off('click', '.pb-standalone.detail-cmt-pic').on('click', '.pb-standalone.detail-cmt-pic', function () {
@@ -631,12 +635,14 @@
                         lazyLoadingInPrevNext: true,
                         onClick: function () {
                             myPhotoBrowserStandalone.close();
+                            isPhotoOpen = false;
                         },
                         navbarTemplate: '<header class="bar bar-nav">' +
                         '<h1 class="title" style="float: left;"><div class="center sliding"><span class="photo-browser-current"></span> <span class="photo-browser-of">/</span> <span class="photo-browser-total"></span></div></h1>' +
                         '</header>'
                     });
                     myPhotoBrowserStandalone.open();
+                    isPhotoOpen = true;
                 });
                 //评论中的图片点击事件
                 $(document).off('click', '.pb-standalone.detail-cmted-pic').on('click', '.pb-standalone.detail-cmted-pic', function () {
@@ -654,12 +660,14 @@
                         lazyLoadingInPrevNext: true,
                         onClick: function () {
                             myPhotoBrowserStandalone.close();
+                            isPhotoOpen = false;
                         },
                         navbarTemplate: '<header class="bar bar-nav">' +
                         '<h1 class="title" style="float: left;"><div class="center sliding"><span class="photo-browser-current"></span> <span class="photo-browser-of">/</span> <span class="photo-browser-total"></span></div></h1>' +
                         '</header>'
                     });
                     myPhotoBrowserStandalone.open();
+                    isPhotoOpen = true;
                 });
                 //上传图片事件
                 $(document).off('change', '.handover-detail .add-pic').on('change', '.handover-detail .add-pic', function () {
@@ -899,6 +907,7 @@
              */
             doCmt: function (item, cmt) {
                 if (cmt && this.curUser && this.curUser.id == cmt.userId) {
+                    if (cmt.canDelete == 0) return;
                     //Vue.set(cmt, 'showDelete', !cmt.showDelete);
                     this.popActions(cmt.id, item.comment);
                     return;
@@ -987,6 +996,8 @@
                     }).then(function (ret) {
                         if (ret.ok && ret.data && ret.data.result == 'ok') {
                             removeCmt(cmts, id);
+                        } else if (ret.data.result == 'EXPIRE') {
+                            $.toast('当前记录发表时间已经超过5分钟，不能被删除');
                         } else {
                             $.toast('删除失败');
                         }

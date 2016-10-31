@@ -128,10 +128,26 @@
         if(value == 0) return '不合格';
         return '不适用';
       },
-      whichchecktype:function(value){
-        if(value == 1) return "图片点检";
-        if(value == 8) return "现场巡店";
-        if(value == 5) return "在线考评";
+      whichchecktype: function (sourcetype) {
+        if (sourcetype == 1) {
+          return "图片点检";
+        } else if (sourcetype == 2) {
+          return "摇一摇";
+        } else if (sourcetype == 3) {
+          return "抓拍";
+        } else if (sourcetype == 4) {
+          return "手动创建";
+        } else if (sourcetype == 5) {
+          return "在线考评";
+        } else if (sourcetype == 6) {
+          return "快拍";
+        } else if (sourcetype == 7) {
+          return "告警";
+        } else if (sourcetype == 8) {
+          return "现场巡店";
+        } else if (sourcetype == 9) {
+          return "远程巡店";
+        }
       }
     },
     ready:function(){

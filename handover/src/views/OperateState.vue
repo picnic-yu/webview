@@ -102,7 +102,6 @@
     var commonutils = require('../../../common/assets/js/commonutils');
     var Vue = require('vue');
     var maxImgNum = 3;//最多可以上传的图片数目
-    var myPhotoBrowserStandalone;
     module.exports = {
         route: {
             data: function (transition) {
@@ -137,6 +136,7 @@
             deactivate: function (transition) {
                 if (myPhotoBrowserStandalone) {
                     myPhotoBrowserStandalone.close();
+                    isPhotoOpen = false;
                 }
                 this.obj = {
                     content: '',
@@ -307,12 +307,14 @@
                         lazyLoadingInPrevNext: true,
                         onClick: function () {
                             myPhotoBrowserStandalone.close();
+                            isPhotoOpen = false;
                         },
                         navbarTemplate: '<header class="bar bar-nav">' +
                         '<h1 class="title" style="float: left;"><div class="center sliding"><span class="photo-browser-current"></span> <span class="photo-browser-of">/</span> <span class="photo-browser-total"></span></div></h1>' +
                         '</header>'
                     });
                     myPhotoBrowserStandalone.open();
+                    isPhotoOpen = true;
                 });
 
                 //点击时打开图片浏览器
@@ -333,12 +335,14 @@
                         lazyLoadingInPrevNext: true,
                         onClick: function () {
                             myPhotoBrowserStandalone.close();
+                            isPhotoOpen = false;
                         },
                         navbarTemplate: '<header class="bar bar-nav">' +
                         '<h1 class="title" style="float: left;"><div class="center sliding"><span class="photo-browser-current"></span> <span class="photo-browser-of">/</span> <span class="photo-browser-total"></span></div></h1>' +
                         '</header>'
                     });
                     myPhotoBrowserStandalone.open();
+                    isPhotoOpen = true;
                 });
 
 

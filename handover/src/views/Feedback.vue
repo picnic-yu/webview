@@ -14,10 +14,10 @@
                                 </a>
                                 <span class="delete-img icon-cross" v-on:click="deleteItemImg($index)"></span>
                             </div>
-                        </div>
-                        <div class="fp-add" @click="beforeUpload($event)">
-                            <img width="60" height="60" src="../../../common/assets/imgs/add.png"/>
-                            <input class="add-file0" type="file" name="upload0" multiple accept="image/*"/>
+                            <div class="fp-add" @click="beforeUpload($event)">
+                                <img width="60" height="60" src="../../../common/assets/imgs/add.png"/>
+                                <input class="add-file0" type="file" name="upload0" multiple accept="image/*"/>
+                            </div>
                         </div>
                         <div class="clearboth"></div>
                     </div>
@@ -95,7 +95,20 @@
                         this.style.height = this.scrollHeight + 'px';
                     }
                 });
-                dragula([$('.img-content .uploadimg-container')[0]]);
+                dragula([$('.img-content .uploadimg-container')[0]], {
+                    moves: function (el) {
+                        if ($(el).hasClass('fp-left')) {
+                            return true;
+                        }
+                        return false;
+                    },
+                    canDrop: function (el) {
+                        if ($(el).hasClass('fp-add') || $(el).hasClass('uploadimg-container')) {
+                            return false;
+                        }
+                        return true;
+                    }
+                });
                 this.getData('', opt);
             },
             bindItemEvent: function () {

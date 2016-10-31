@@ -12,7 +12,7 @@
               <span class="cell-tip"id="help32">合格人数<span class="moon-ico icon-info"></span></span>
               <span class="cell-value" v-on:click="okDetails()">{{report.okNum}}</span>
 
-              <div class="toast-tip help32 help2">当前时间范围内问题整改完成率超过{{report.levelMid*100}}%的店长人数</div>
+              <div class="toast-tip help32 help2">当前时间范围内问题整改完成率大于等于{{report.levelMid*100}}%的店长人数</div>
             </div>
           </div>
           <div class="chart-box">

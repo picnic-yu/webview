@@ -19,7 +19,7 @@
           <ul>
             <li v-for="item in items" v-on:click="detail(item.deptId,item.deptName,item.score)">
               <div class="item-left">
-                <div class="item-name">{{item.deptName}}</div>
+                <div class="item-name wrap-line">{{item.deptName}}</div>
                 <div class="item-des">
                   <label class="item-label">检查项总数</label><span class="item-num">{{item.checkItemNum}}</span><span class="item-splitor"></span>
                   <label class="item-label">不合格项数</label><span class="item-num">{{item.unqualifiedItemNum}}</span>

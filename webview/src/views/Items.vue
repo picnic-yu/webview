@@ -19,7 +19,7 @@
           <ul>
             <li v-for="item in items" v-on:click="detail(item.itemId,item.itemName,item.qualifiedRate)">
               <div class="item-left">
-                <div class="item-name">{{item.itemName}}</div>
+                <div class="item-name wrap-line">{{item.itemName}}</div>
                 <div class="item-des">
                   <label class="item-label">检查店总数</label><span class="item-num">{{item.checkDeptNum}}</span><span class="item-splitor"></span>
                   <label class="item-label">不合格店数</label><span class="item-num">{{item.unqualifiedDeptNum}}</span>

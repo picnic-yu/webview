@@ -473,7 +473,6 @@
     z-index: 2000;
     max-width: 200px;
     word-wrap: break-word;
-    white-space: pre;
     background-color: rgba(50, 50, 50, 0.7);
     padding: 5px;
     color: #fff;

@@ -16,8 +16,8 @@
                     <div class="item-input"><input type="text" v-model="shopInfo.name" placeholder="选择一个门店" v-on:click="goToShoplist()" readonly/></div>
                   </div>
                 </div>
-              </li>
               <li>
+            </li>
                 <div class="item-content">
                   <div class="item-inner">
                     <div class="item-title label">日期</div>
@@ -29,8 +29,8 @@
                 <div class="item-content">
                   <div class="item-inner">
                     <div class="item-title label">销售单数</div>
-                    <div class="item-input"><input type="number" pattern="[0-9]{1,10}" placeholder="请输入当日的销售单数"
-                                                   v-model="dealPersonNum" maxlength="9"/></div>
+                    <div class="item-input"><input type="text" pattern="[0-9]{1,10}" placeholder="请输入当日的销售单数"
+                                                   v-model="dealPersonNum" @input="istoolong0()"/></div>
                   </div>
                 </div>
               </li>
@@ -39,7 +39,7 @@
                   <div class="item-inner">
                     <div class="item-title label">销售件数</div>
                     <div class="item-input"><input type="number" pattern="[0-9]{1,10}" placeholder="请输入当日的销售件数"
-                                                   v-model="dealNum" maxlength="9"/></div>
+                                                   v-model="dealNum" maxlength="9" @input="istoolong1()"/></div>
                   </div>
                 </div>
               </li>
@@ -48,7 +48,7 @@
                   <div class="item-inner">
                     <div class="item-title label">总销售额</div>
                     <div class="item-input"><input type="number" pattern="[0-9]{1,10}" placeholder="请输入当日的销售额(元)"
-                                                   v-model="total" maxlength="9"/></div>
+                                                   v-model="total" maxlength="9" @input="istoolong2()"/></div>
                   </div>
                 </div>
               </li>
@@ -144,9 +144,9 @@ module.exports =  {
             _this.dealPersonNum = item.dealPersonNum;
             _this.id = item.id;
           } else {
-            _this.total = '';
+            /*_this.total = '';
             _this.dealNum = '';
-            _this.dealPersonNum = '';
+             _this.dealPersonNum = '';*/
             _this.id = null;
           }
         }
@@ -234,6 +234,21 @@ module.exports =  {
         }
       }];
       $.actions([btns]);
+    },
+    istoolong0: function () {
+      if (this.dealPersonNum.length > 9) {
+        this.dealPersonNum = this.dealPersonNum.slice(0, 9);
+      }
+    },
+    istoolong1: function () {
+      if (this.dealNum.length > 9) {
+        this.dealNum = this.dealNum.slice(0, 9);
+      }
+    },
+    istoolong2: function () {
+      if (this.total.length > 9) {
+        this.total = this.total.slice(0, 9);
+      }
     }
   }
 };

@@ -42,10 +42,8 @@ window.goBack = function(){
   if(backInfo.parent){
     router.go({name:backInfo.parent,params:backInfo.params});
     window.webview &&　window.webview.goBack(false);
-    alert(0);
     return false;
   }
-  alert(1);
   window.webview　&& window.webview.goBack(true);
   return true;
 };

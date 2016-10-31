@@ -1,6 +1,6 @@
 <template>
     <div class="page-group">
-        <div class="page page-current" id="index">
+        <div class="page page-current container app" id="index">
             <header class="bar bar-nav">
                 <h1 class='title'>热点数据</h1>
             </header>
@@ -30,11 +30,14 @@
                 </div>
             </div>
             <div id="dataContent" class="content content-items">
+                <div class="no-data" v-show="display.nodata">暂无任何热点数据</div>
+                <!--<div class="hs-container" >
+
+                    &lt;!&ndash;<img src="../../../common/assets/imgs/hotspot_default_bg.png" width="{{layout.width}}px"/>&ndash;&gt;
+                </div>-->
                 <div class="swiper-container">
                     <div class="swiper-pagination" v-show="devices.length>1"></div>
-                    <div class="hs-container" v-show="devices.length==0">
-                        <img src="../../../common/assets/imgs/hotspot_default_bg.png" width="{{layout.width}}px"/>
-                    </div>
+
                     <div class="data-container swiper-wrapper" v-show="devices.length>0">
                         <div class="swiper-slide" v-for="device in devices">
                             <div v-show="display.showareas" class="canvas" id="canvas-{{$index}}" v-bind:style="{width:layout.width-10+'px',height:(layout.width-10)*3/4+'px'}"></div>
@@ -161,7 +164,23 @@
                     });
                     this.refreshInit = true;
                 }
-                this.getDevices();
+                this.getDefaultShop();
+            },
+            getDefaultShop: function () {
+                var _this = this;
+                this.$http.post('/service/getDefaultHotspotShop.action?token=' + Constant.token, {}).then(function (ret) {
+                    if (ret.ok && ret.data && ret.data.result == 'ok') {
+                        var data = ret.data.data.data;
+                        if (data) {
+                            _this.shopInfo.id = data.id;
+                            _this.shopInfo.name = data.name;
+                            _this.display.nodata = false;
+                            _this.getDevices();
+                        } else {
+                            _this.display.nodata = true;
+                        }
+                    }
+                });
             },
             /**
              * 获取当前门店下的热点设备
@@ -178,8 +197,10 @@
                 if(this.deviceCache[depId] == 0){
                     $.hidePreloader();
                     $.toast('当前门店还没有配置热点设备');
+                    _this.display.nodata = true;
                     return;
                 }else if(this.deviceCache[depId]){
+                    _this.display.nodata = false;
                     this.devices = this.deviceCache[depId];
                     searchData.search.mac = this.devices[this.selectIndex].mac;
                     this.initSwiper();
@@ -197,8 +218,10 @@
                             _this.deviceCache[depId] = 0;
                             $.hidePreloader();
                             $.toast('当前门店还没有配置热点设备');
+                            _this.display.nodata = true;
                             return;
                         }
+                        _this.display.nodata = false;
                         _this.initSwiper();
                         searchData.search.mac = _this.devices[_this.selectIndex].mac;
                         _this.getDeviceHotspotZone(searchData);
@@ -473,6 +496,14 @@
         height: 30px;
         line-height: 30px;
         margin-right: 10px;
+    }
+
+    .app .no-data {
+        width: 100%;
+        height: 100%;
+        color: red;
+        text-align: center;
+        margin-top: 40px;
     }
     @media all and (max-width:360px){
         .timebox .date-time{font-size: 12px;}

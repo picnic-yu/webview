@@ -21,10 +21,10 @@
                                 </a>
                                 <span class="delete-img icon-cross" v-on:click="deleteItemImg($index)"></span>
                             </div>
-                        </div>
-                        <div class="fp-add" @click="beforeUpload($event)">
-                            <img width="60" height="60" src="../../../common/assets/imgs/add.png"/>
-                            <input class="add-file0" type="file" name="upload0" multiple accept="image/*"/>
+                            <div class="fp-add" @click="beforeUpload($event)">
+                                <img width="60" height="60" src="../../../common/assets/imgs/add.png"/>
+                                <input class="add-file0" type="file" name="upload0" multiple accept="image/*"/>
+                            </div>
                         </div>
                         <div class="clearboth"></div>
                     </div>
@@ -80,12 +80,14 @@
                                                 <span class="delete-img icon-cross"
                                                       v-on:click="deleteImg(subItem,subItem.confId,$index)"></span>
                                                 </div>
-                                            </div>
-                                            <div class="fp-add" @click="beforeUpload($event)">
-                                                <img width="60" height="60" src="../../../common/assets/imgs/add.png"/>
-                                                <input class="add-file add-{{subItem.confId}}"
-                                                       typeId="{{subItem.confId}}" type="file" name="upload" multiple
-                                                       accept="image/*"/>
+                                                <div class="fp-add" @click="beforeUpload($event)">
+                                                    <img width="60" height="60"
+                                                         src="../../../common/assets/imgs/add.png"/>
+                                                    <input class="add-file add-{{subItem.confId}}"
+                                                           typeId="{{subItem.confId}}" type="file" name="upload"
+                                                           multiple
+                                                           accept="image/*"/>
+                                                </div>
                                             </div>
                                             <div class="clearboth"></div>
                                         </div>
@@ -191,7 +193,6 @@
     var Vue = require('vue');
     var num = 20;//每页显示的条数
     var maxImgNum = 12;//最多可以上传的图片数目
-    var myPhotoBrowserStandalone;
     module.exports = {
         route: {
             data: function (transition) {
@@ -248,6 +249,7 @@
             deactivate: function (transition) {
                 if (myPhotoBrowserStandalone) {
                     myPhotoBrowserStandalone.close();
+                    isPhotoOpen = false;
                 }
                 if (transition.to.name == 'default') {
                     this.initAllSearch();
@@ -379,7 +381,20 @@
                         this.style.height = this.scrollHeight + 'px';
                     }
                 });
-                dragula([$('.img-content .uploadimg-container')[0]]);
+                dragula([$('.img-content .uploadimg-container')[0]], {
+                    moves: function (el, source) {
+                        if ($(el).hasClass('fp-left')) {
+                            return true;
+                        }
+                        return false;
+                    },
+                    canDrop: function (el) {
+                        if ($(el).hasClass('fp-add') || $(el).hasClass('uploadimg-container')) {
+                            return false;
+                        }
+                        return true;
+                    }
+                });
                 this.getData('', opt);
             },
             bindItemEvent: function () {
@@ -453,12 +468,14 @@
                         lazyLoadingInPrevNext: true,
                         onClick: function () {
                             myPhotoBrowserStandalone.close();
+                            isPhotoOpen = false;
                         },
                         navbarTemplate: '<header class="bar bar-nav">' +
                         '<h1 class="title" style="float: left;"><div class="center sliding"><span class="photo-browser-current"></span> <span class="photo-browser-of">/</span> <span class="photo-browser-total"></span></div></h1>' +
                         '</header>'
                     });
                     myPhotoBrowserStandalone.open();
+                    isPhotoOpen = true;
                 });
 
 
@@ -488,12 +505,14 @@
                         lazyLoadingInPrevNext: true,
                         onClick: function () {
                             myPhotoBrowserStandalone.close();
+                            isPhotoOpen = false;
                         },
                         navbarTemplate: '<header class="bar bar-nav">' +
                         '<h1 class="title" style="float: left;"><div class="center sliding"><span class="photo-browser-current"></span> <span class="photo-browser-of">/</span> <span class="photo-browser-total"></span></div></h1>' +
                         '</header>'
                     });
                     myPhotoBrowserStandalone.open();
+                    isPhotoOpen = true;
                 });
                 $(document).off('change', '.add-file').on('change', '.add-file', function () {
                     var $addImg = $(this).prev();
@@ -680,16 +699,20 @@
                     $.toast('上传的图片最多不能超过' + maxImgNum + '张');
                     return;
                 }
-                if (!this.bo.deptId && this.bo.isOpen == 0) {
-                    $.toast('请选择一个门店');
-                    return;
-                }
                 var _this = this;
                 Vue.http.options.emulateJSON = false;
                 this.bo.deptId = Constant.shopInfo.id;
                 this.bo.reminders = getUserIds(this.userlist);
                 this.bo.isAtAll = Constant.bo.isAtAll;
+                if (typeof(this.bo.moudleType) == 'undefined') {
+                    this.bo.moudleType = null;
+                    this.bo.moudleId = null;
+                }
                 if (!this.bo.moudleType || this.bo.moudleType == 0) {//0为交接本、日志等基本类型
+                    if (!this.bo.deptId && this.bo.isOpen == 0) {
+                        $.toast('请选择一个门店');
+                        return;
+                    }
                     if (!this.bo.deptId) {
                         this.bo.deptId = 0;
                         this.bo.isOpen = 1;
@@ -733,6 +756,11 @@
                     } else {
                         $.toast('提交失败');
                     }
+                }, function () {
+                    _this.submiting = false;
+                    Vue.http.options.emulateJSON = true;
+                    $.hidePreloader();
+                    $.toast('提交失败');
                 });
             },
             /**

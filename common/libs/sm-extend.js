@@ -3339,7 +3339,7 @@
       navbar: true,
       toolbar: true,
       theme: 'light',
-      swipeToClose: true,
+      swipeToClose: false,
       backLinkText: 'Close',
       ofText: 'of',
       loop: false,

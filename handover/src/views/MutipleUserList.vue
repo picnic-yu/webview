@@ -42,9 +42,9 @@
                 <div class="items-list">
                     <ul>
                         <li v-on:click="atall()" v-show="$route.params.type == 0">
-                            <span class="item-icon icon-square"></span>
+                            <!--<span class="item-icon icon-square" v-bind:class="!!item.checked?'icon-square-checked':'icon-square'"></span>-->
 
-                            <div class="item-left">
+                            <div class="item-left all-marginleft">
                                 <div class="default-header">
                                     <span class="user-icon"></span></div>
                             </div>
@@ -539,5 +539,9 @@
 
     .mutiple-users .dialog {
         z-index: 3002;
+    }
+
+    .all-marginleft {
+        margin-left: 26px;
     }
 </style>

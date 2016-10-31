@@ -1,7 +1,7 @@
-var path = require('path')
-var config = require('../config')
-var utils = require('./utils')
-var projectRoot = path.resolve(__dirname, '../')
+var path = require('path');
+var config = require('../config');
+var utils = require('./utils');
+var projectRoot = path.resolve(__dirname, '../');
 var webpack = require('webpack');
 module.exports = {
   entry: {
@@ -15,7 +15,7 @@ module.exports = {
   },
   resolve: {
     extensions: ['', '.js', '.vue'],
-    fallback: [path.join(__dirname, '../node_modules')],
+    fallback: [path.join(__dirname, '../../node_modules')],
     alias: {
       'src': path.resolve(__dirname, '../src'),
       'assets': path.resolve(__dirname, '../src/assets'),
@@ -23,7 +23,7 @@ module.exports = {
     }
   },
   resolveLoader: {
-    fallback: [path.join(__dirname, '../node_modules')]
+    fallback: [path.join(__dirname, '../../node_modules')]
   },
   module: {
     preLoaders: [
@@ -92,4 +92,4 @@ module.exports = {
   vue: {
     loaders: utils.cssLoaders()
   }
-}
+};

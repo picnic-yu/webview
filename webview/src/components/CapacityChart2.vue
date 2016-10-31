@@ -53,7 +53,7 @@
               <span class="cell-value" v-on:click="okDetails(report2.okNum,report2.reportType)">{{report2.okNum}}</span>
 
               <div class="toast-tip help24 help2">
-                计算方式：[(检查门店点检项数/(门店数*点检项数))*50%+(自己发现的问题数/门店数)*50%]超过{{report.levelMid*100}}%的督导人数
+                计算方式：[(检查门店点检项数/(门店数*点检项数))*50%+(自己发现的问题数/门店数)*50%]大于等于{{report.levelMid*100}}%的督导人数
               </div>
             </div>
           </div>
@@ -489,8 +489,6 @@
       }
     }
   };
-  ;
-
   function bindTouchStart(id,targetSelector){
     document.getElementById(id).addEventListener('touchstart', function(){
       $(targetSelector).show();

@@ -155,5 +155,9 @@ header .title{
 .bar a.icon.icon-cross{
   color: #333;
 }
+
+.wrap-line {
+  white-space: pre-wrap;
+}
 header.bar1{background: #fff;padding-left:30px;}
 </style>

@@ -39,6 +39,9 @@ var router = new VueRouter(
 );
 Router(router);
 window.router = router;
+//定义一个全局变量用来表示图片控件是否已经打开
+window.isPhotoOpen = false;
+window.myPhotoBrowserStandalone = null;
 /**
  * 提供Android和iOS调用返回功能
  * @returns {boolean}
@@ -51,6 +54,14 @@ window.goBack = function () {
      window.webview　&& window.webview.goBack(true);
      return true;
      }*/
+    if (isPhotoOpen && myPhotoBrowserStandalone) {
+        try {
+            myPhotoBrowserStandalone.close();
+            isPhotoOpen = false;
+        } catch (e) {
+        }
+        return false;
+    }
     if (curPathName == 'shoplist') {//特殊处理，这个门店界面返回的时候有两个地方
         if (Constant.curRoute.path.indexOf('/shoplist/1') > -1) {//创建界面，选择门店时，返回到创建界面
             router.go({name: 'create', params: {deptId: Constant.shopInfo.id ? Constant.shopInfo.id : 0}});

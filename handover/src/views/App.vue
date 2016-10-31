@@ -19,7 +19,7 @@
                         </li>
                         <!--<li class="search-li" v-bind:style="{width:layout.searchBarWidth+'px'}"
                             v-on:click="goToSearchDate()">
-                            <span class="search-label" v-show="!search.dateTime">日期</span>
+                            <span class="search-label" v-show="!sear.ch.dateTime">日期</span>
                             <span class="search-value search-time"
                                   v-show="search.dateTime">{{search.dateTime|getdate}}</span>
                             <span class="icon-detail_down search-icon"></span>
@@ -132,7 +132,7 @@
                                                       v-show="item.reminderList && item.reminderList.length==item.remindersReadCount">全部已读</span>
                                             </label>
                                         </div>
-                                        <div class="af-delete" v-if="curUser.id == item.userId">
+                                        <div class="af-delete" v-if="item.canDelete==1">
                                             <span class="delete-text" @click="deleteItem(item.id)">删除</span>
                                         </div>
                                         <div class="view-details" v-on:click="viewDetail(item)">详情</div>
@@ -235,7 +235,7 @@
                 <header class="dialog-header" slot="header">
                     <div class="buttons-tab head-tab">
                         <a class="button  tab-link active" v-on:click="selectPassedTabIndex(0)"
-                           v-bind:class="currentPassedTabIndex==0?'active':''">未完成的({{unreadUsers.length}})</a>
+                           v-bind:class="currentPassedTabIndex==0?'active':''">未完成的({{unpassedUsers.length}})</a>
                         <a class="button  tab-link" v-on:click="selectPassedTabIndex(1)"
                            v-bind:class="currentPassedTabIndex==1?'active':''">已完成的({{passedUsers.length}})</a>
                     </div>
@@ -350,7 +350,7 @@
                     atMe: Constant.atMe,
                     isMe: Constant.isMe,
                     page: {
-                        index: 0,
+                        index: Constant.needRefresh ? 0 : this.page.index,//防止查看详情返回后页面不刷新却清除了index
                         num: num
                     },
                     shopInfo: Constant.shopInfo
@@ -509,7 +509,7 @@
             showVersion: function () {
                 clearTimeout(clickTimer);
                 if (clickShowVesionNum >= 2) {
-                    $.toast('当前工作圈版本V2.1.4');
+                    $.toast('当前工作圈版本V2.1.5');
                     clickShowVesionNum = 0;
                 } else {
                     clickShowVesionNum++;
@@ -671,7 +671,7 @@
                     var parentIndex = $(this).attr('parentIndex');//当前选择查看的图片组的索引
                     photos = _this.items[parentIndex].cmtPics;
                     //获取当前点击的记录的图片信息
-                    var myPhotoBrowserStandalone = $.photoBrowser({
+                    myPhotoBrowserStandalone = $.photoBrowser({
                         photos: photos,
                         initialSlide: index,
                         toolbar: false,
@@ -681,12 +681,14 @@
                         lazyLoadingInPrevNext: true,
                         onClick: function () {
                             myPhotoBrowserStandalone.close();
+                            isPhotoOpen = false;
                         },
                         navbarTemplate: '<header class="bar bar-nav">' +
                         '<h1 class="title" style="float: left;"><div class="center sliding"><span class="photo-browser-current"></span> <span class="photo-browser-of">/</span> <span class="photo-browser-total"></span></div></h1>' +
                         '</header>'
                     });
                     myPhotoBrowserStandalone.open();
+                    isPhotoOpen = true;
                     e.stopPropagation();
                     return false;
                 });
@@ -696,7 +698,7 @@
                     var parentIndex = $(this).parents('.item-images').attr('index');//当前选择查看的图片组的索引
                     photos = _this.items[parentIndex].showPicPaths;
                     //获取当前点击的记录的图片信息
-                    var myPhotoBrowserStandalone = $.photoBrowser({
+                    myPhotoBrowserStandalone = $.photoBrowser({
                         photos: photos,
                         initialSlide: index,
                         toolbar: false,
@@ -706,12 +708,14 @@
                         lazyLoadingInPrevNext: true,
                         onClick: function () {
                             myPhotoBrowserStandalone.close();
+                            isPhotoOpen = false;
                         },
                         navbarTemplate: '<header class="bar bar-nav">' +
                         '<h1 class="title" style="float: left;"><div class="center sliding"><span class="photo-browser-current"></span> <span class="photo-browser-of">/</span> <span class="photo-browser-total"></span></div></h1>' +
                         '</header>'
                     });
                     myPhotoBrowserStandalone.open();
+                    isPhotoOpen = true;
                     e.stopPropagation();
                     return false;
                 });
@@ -722,7 +726,7 @@
                     var itemIndex = $(this).attr('itemIndex');
                     photos = _this.items[itemIndex].comment[parentIndex].filePaths;
                     //获取当前点击的记录的图片信息
-                    var myPhotoBrowserStandalone = $.photoBrowser({
+                    myPhotoBrowserStandalone = $.photoBrowser({
                         photos: photos,
                         initialSlide: index,
                         toolbar: false,
@@ -732,12 +736,14 @@
                         lazyLoadingInPrevNext: true,
                         onClick: function () {
                             myPhotoBrowserStandalone.close();
+                            isPhotoOpen = false;
                         },
                         navbarTemplate: '<header class="bar bar-nav">' +
                         '<h1 class="title" style="float: left;"><div class="center sliding"><span class="photo-browser-current"></span> <span class="photo-browser-of">/</span> <span class="photo-browser-total"></span></div></h1>' +
                         '</header>'
                     });
                     myPhotoBrowserStandalone.open();
+                    isPhotoOpen = true;
                     e.stopPropagation();
                     return false;
                 });
@@ -1003,6 +1009,7 @@
              */
             doCmt: function (item, cmt) {
                 if (cmt && this.curUser && this.curUser.id == cmt.userId) {
+                    if (cmt.canDelete == 0) return;
                     //Vue.set(cmt,'showDelete',!cmt.showDelete);
                     this.popActions(cmt.id, item.comment);
                     return;
@@ -1105,6 +1112,8 @@
                             _this.page.index = 0;
                             _this.items = [];
                             _this.getData();
+                        } else if (ret.data.result == 'EXPIRE') {
+                            $.toast('当前记录发表时间已经超过5分钟，不能被删除');
                         } else {
                             $.toast('删除失败');
                         }
@@ -1122,6 +1131,8 @@
                     }).then(function (ret) {
                         if (ret.ok && ret.data && ret.data.result == 'ok') {
                             removeCmt(cmts, id);
+                        } else if (ret.data.result == 'EXPIRE') {
+                            $.toast('当前评论发表时间已经超过5分钟，不能被删除');
                         } else {
                             $.toast('删除失败');
                         }

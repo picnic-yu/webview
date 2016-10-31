@@ -145,6 +145,8 @@
           return "告警";
         }else if(sourcetype == 8){
           return "现场巡店";
+        } else if (sourcetype == 9) {
+          return "远程巡店";
         }
       },
       whichstatus:function(status){
