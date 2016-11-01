@@ -73,7 +73,7 @@
                 </div>
                 <!--<div class="item-rate" v-bind:class="'state-'+item.belongRegion">{{item.completionRate | ratefilter}}</div>-->
               </div>
-              <div class="item-container item-container1" v-if="reportType==2">
+              <div class="item-container item-container1" v-if="reportType==2" v-on:click="detailShop(item)">
                 <div class="item-left">
                   <div class="item-name">{{item.name}}</div>
                   <!--<div class="item-des">v-on:click="detailItem(item)"
@@ -353,6 +353,14 @@
       detailItem:function(item){
         Constant.capacityParam.itemsPage.title = item.name+'的点检项列表';
         router.go({name:'capacityitems',params:{userId:item.id}});
+      },
+      /**
+       * 进入下一层级，点检门店列表
+       * @param item
+       */
+      detailShop:function(item){
+        Constant.capacityParam.itemsPage.title = item.name+'的点检门店列表';
+        router.go({name:'capacityshops',params:{userId:item.id}});
       }
     }
   };
