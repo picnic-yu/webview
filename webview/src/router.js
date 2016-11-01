@@ -81,6 +81,12 @@ module.exports = function(router){
       component:function(resolve){
         require(['./views/CapacityItems'],resolve);
       }
+    },
+    '/capacityshops/:userId':{
+      name:'capacityshops',
+      component:function(resolve){
+        require(['./views/CapacityShops'],resolve);
+      }
     }
   });
 /*
