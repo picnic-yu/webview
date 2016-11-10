@@ -33,6 +33,9 @@ var paths = [{
   },
   {
     name: 'capacityitems', parent: 'capacityusers'
+  },
+  {
+    name: 'capacityshops',parent:'capacityusers'
   }
 ];
 module.exports.getBackPath = function (name) {
