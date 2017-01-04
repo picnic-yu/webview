@@ -24,11 +24,9 @@
                                     {{ic.content}}
                                 </div>
                                 <div class="f-panel">
-                                    <div class="fp-left" v-for="path in ic.filePaths">
-                                        <a class="ic-pic pb-standalone" index="{{$index}}"
-                                           parentIndex="{{$parent.$index}}"
-                                                >
-                                            <img width="60" height="60" v-bind:src="path"/>
+                                    <div class="fp-left images-li" v-for="pic in ic.showPics" v-bind:style="whichChildImgContainerSize(ic,pic)">
+                                        <a class="ic-pic pb-standalone" index="{{$index}}"  parentIndex="{{$parent.$index}}">
+                                            <img v-bind:style="whichChildImgSize(ic,pic)" v-bind:src="pic.url+'_'" />
                                         </a>
                                     </div>
                                     <div class="clearboth"></div>
@@ -73,16 +71,16 @@
 
                 <div class="img-content">
                     <div class="uploadimg-container">
-                        <div class="fp-left" v-for="path in obj.filePaths" track-by="$index">
+                        <div class="fp-left cmt-pic-local" v-for="pic in obj.showPics" track-by="$index">
                             <a class="itemos-pic pb-standalone" index="{{$index}}">
-                                <img width="60" height="60" v-bind:src="path" class="p-img p-img-{{$index}}"/>
+                                <img v-bind:style="whichCmtImgSize(pic)" v-bind:src="pic.url" class="p-img p-img-{{$index}}"/>
                             </a>
                             <span class="delete-img icon-cross" v-on:click="deleteImg($index)"></span>
                         </div>
                     </div>
                     <div class="fp-add" @click="beforeUpload($event)">
                         <img width="60" height="60" src="../../../common/assets/imgs/add.png"/>
-                        <input class="add-file0" type="file" name="upload0" multiple accept="image/*"/>
+                        <input class="add-file0" v-show="!isAndroid" type="file" name="upload0" multiple accept="image/*"/>
                     </div>
                     <div class="clearboth"></div>
                 </div>
@@ -124,6 +122,7 @@
                         }, 200, 'ease-out');
                     }, 0);
                 }
+	            this.registGalleryEvent();
                 this.$nextTick(function () {
                     transition.next({
                         item: Constant.itemOpt,
@@ -141,6 +140,7 @@
                 this.obj = {
                     content: '',
                     filePaths: [],
+	                showPics:[],
                     pid: ''
                 };
                 transition.next();
@@ -149,6 +149,7 @@
         data: function () {
             return {
                 transitionName: 'right',
+                isAndroid:$.device.android&&Constant.gallery==1,
                 title: '亮点推广',
                 submitTitle: '',
                 item: Constant.itemOpt,
@@ -173,6 +174,7 @@
                 obj: {
                     content: '',
                     filePaths: [],
+	                showPics:[],
                     pid: ''
                 },
                 done: false,//是否完成创建
@@ -236,6 +238,66 @@
                 dragula([$('.img-content .uploadimg-container')[0]]);
                 this.bindItemEvent();
             },
+            /**
+             * 计算subItem里面每张图片容器的大小
+             * */
+            whichChildImgContainerSize: function (item,pic) {
+                var defaultWidth = this.layout.width - 70 - 30,
+                        defaultWidthX = this.layout.width - 70 - 10;
+                var size;
+                if (!item.showPics) {
+                    return 0;
+                }else{
+                    size = utils.computeImgWH(pic.width,pic.height,9,defaultWidthX);
+                }
+                return {
+                    width:size.pw+'px',
+                    height:size.ph+'px'
+                };
+            },
+            /**
+             * 计算subItem里面图片的大小
+             * */
+            whichChildImgSize: function (item,pic) {
+                var defaultWidth = this.layout.width - 70 - 30,
+                        defaultWidthX = this.layout.width - 70 - 10;
+                var size;
+                if (!item.showPics) {
+                    return 0;
+                } else {
+                    size = utils.computeImgWH(pic.width,pic.height,9,defaultWidthX);
+                }
+                return {
+                    width:size.w+'px',
+                    height:size.h+'px',
+                    webkitTransform:'translate('+size.offsetX+'px,'+size.offsetY+'px)'
+                };
+            },
+	        whichCmtImgSize:function(pic){
+		        var totalWidth = 190;
+		        var size = utils.computeImgWH(pic.width,pic.height,9,totalWidth);
+		        return {
+			        width:size.w+'px',
+			        height:size.h+'px',
+			        webkitTransform:'translate('+size.offsetX+'px,'+size.offsetY+'px)'
+		        };
+	        },
+	        //注册安卓相册事件
+	        registGalleryEvent:function(){
+		        var _this = this;
+		        //安卓选完相册后的回调
+		        window.receiveGalleryData = function (base64,width,height) {
+			        base64 = 'data:image/png;base64,'+base64;
+			        if (!_this.obj.filePaths) _this.obj.filePaths = [];
+			        _this.obj.filePaths.push(base64);
+			        if (!_this.obj.showPics) _this.obj.showPics = [];
+			        _this.obj.showPics.push({
+				        url:base64,
+				        width:width,
+				        height:height
+			        });
+		        };
+	        },
             bindItemEvent: function () {
                 var _this = this;
                 $(document).off('change', '.add-file0').on('change', '.add-file0', function () {
@@ -256,11 +318,17 @@
                                 before: function (file) {
                                     //console.log('多张: ' + i + ' 压缩前...');
                                 },
-                                done: function (file, base64) { // 这里是异步回调，done中i的顺序不能保证
+                                done: function (file, base64,img) { // 这里是异步回调，done中i的顺序不能保证
                                     //console.log('多张: ' + i + ' 压缩成功...'+file.length+","+base64.length);
                                     successNum++;
                                     if (!_this.obj.filePaths) _this.obj.filePaths = [];
                                     _this.obj.filePaths.push(base64);
+	                                if (!_this.obj.showPics) _this.obj.showPics = [];
+	                                _this.obj.showPics.push({
+		                                url:base64,
+		                                width:img.width,
+		                                height:img.height
+	                                });
                                     if (successNum == fileNum) {
                                         $(_file).remove();
                                         //上传成功之后重置input
@@ -354,6 +422,7 @@
             },
             deleteImg: function (index) {
                 this.obj.filePaths.splice(index, 1);
+	            this.obj.showPics.splice(index, 1);
             },
             doOpt: function (whichopt, flag) {
                 if (whichopt == 1) {//通过
@@ -457,7 +526,15 @@
                     $.toast('上传的图片最多不能超过' + maxImgNum + '张');
                     event.preventDefault();
                     event.stopPropagation();
-
+                }
+                //调用安卓相册
+                if(this.isAndroid){
+                    try{
+                        window.webview && window.webview.openGallery(maxImgNum,$('.handover-opt .itemos-pic.pb-standalone').length);
+                    }catch(e){
+                        $.toast('error');
+                    }
+                    return;
                 }
             },
             initAllSearch: function () {
@@ -622,6 +699,7 @@
         height: 60px;
         float: left;
         position: relative;
+	    margin-bottom: 5px;
     }
 
     .handover-opt .delete-img {
@@ -744,6 +822,7 @@
     .handover-opt .doer-ct {
         font-size: 15px;
         color: #666;
+	    white-space: pre-line;
     }
 
     .handover-opt .doer-content {
@@ -793,6 +872,24 @@
         border-radius: 18px;
     }
 
+    .handover-opt .images-li{
+        overflow: hidden;
+        margin-right: 5px;
+        margin-top: 5px;
+    }
+    .handover-opt .item-images li.images-li{
+        padding: 0px;
+        margin-top: 0px;
+    }
+    .cmt-pic-local{
+        
+    }
+    .itemos-pic{
+        overflow: hidden;
+        width: 60px;
+        height: 60px;
+        display: inline-block;
+    }
     @media all and (max-width: 360px) {
         .timebox .date-time {
             font-size: 12px;

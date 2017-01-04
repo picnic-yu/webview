@@ -148,11 +148,10 @@
         handler: function (action, canvas, img, fileURL, base64, file) {
             // 释放内存
             canvas = null;
-            img = null;
             URL.revokeObjectURL(fileURL);
-
-            this.options[action](file, base64);
+            this.options[action](file, base64,img);
             this.options['complate'](file);
+            img = null;
         },
         /**
          * 图片最大高宽校正（方向和比例）

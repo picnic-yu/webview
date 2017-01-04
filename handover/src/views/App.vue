@@ -12,29 +12,17 @@
                 <div class="search-bar">
                     <ul>
                         <li v-if="!hasSigleDep" class="search-li" v-bind:style="{width:layout.searchBarWidth+'px'}"
-                            v-on:click="goToShoplist()">
-                            <span class="search-label" v-show="!shopInfo.id">门店</span>
-                            <span class="search-value" v-show="shopInfo.id">{{shopInfo.name}}</span>
-                            <span class="icon-detail_down search-icon"></span>
-                        </li>
-                        <!--<li class="search-li" v-bind:style="{width:layout.searchBarWidth+'px'}"
-                            v-on:click="goToSearchDate()">
-                            <span class="search-label" v-show="!sear.ch.dateTime">日期</span>
-                            <span class="search-value search-time"
-                                  v-show="search.dateTime">{{search.dateTime|getdate}}</span>
-                            <span class="icon-detail_down search-icon"></span>
-                        </li>-->
-                        <li class="search-li" v-bind:style="{width:layout.searchBarWidth+'px'}"
-                            v-on:click="goToUserlist()">
-                            <span class="search-label" v-show="!userInfo.id">创建人</span>
-                            <span class="search-value" v-show="userInfo.id">{{userInfo.name}}</span>
-                            <span class="icon-detail_down search-icon"></span>
+                            v-on:click="searchUnDo()">
+                            <i class="icon-square" v-show="!isMeUnsolve"></i>
+                            <i class="icon-square-checked" v-show="!!isMeUnsolve"><label class="path1"></label><label class="path2"></label></i>
+                            <span class="search-label todo-label">待办</span>
+                            <span class="notdo-num" v-show="notdoNumber > 0">{{notdoNumber}}</span>
                         </li>
                         <li class="search-li" v-bind:style="{width:layout.searchBarWidth+'px'}"
-                            v-on:click="whichTemplate()">
-                            <span class="search-label" v-show="!module.id">类型</span>
-                            <span class="search-value" v-show="module.id">{{module.name}}</span>
-                            <span class="icon-detail_down search-icon"></span>
+                            v-on:click="searchIsMe()" >
+                            <i class="icon-square" v-show="!isMe"></i>
+                            <i class="icon-square-checked" v-show="!!isMe"><label class="path1"></label><label class="path2"></label></i>
+                            <span class="search-label todo-label">我创建的</span>
                         </li>
                         <li class="search-li search-li-other" v-bind:class="display.searchOther?'active':''"
                             v-bind:style="{width:layout.searchBarWidth+'px'}" v-on:click="toggleSearchPanel()">
@@ -67,19 +55,24 @@
                                     <span class="time-name">{{item.createTime.replace('T',' ')}}</span>
                                 </div>
                                 <div class="item-content">
-                                    <div class="item-text">
+                                    <div class="item-text" v-show="item.contentFormatFlag==0">
                                         {{item.content&&item.content.length>140?(item.content.substring(0,140))+'...':item.content}}
+                                    </div>
+                                    <div class="item-text" v-show="item.contentFormatFlag==1">
+                                        <span v-for="cf in item.contentFormatArray" class="content-format" track-by="$index">
+                                            <span v-if="cf.indexOf('WDZ_HREF')>-1" class="inner-format"><a @click.stop="openLink(cf)" href="javascript:void(0)">{{cf.replace("WDZ_HREF",'')}}</a></span>
+                                            <span v-else>{{cf}}</span>
+                                        </span>
                                     </div>
                                     <div class="item-images" index="{{$index}}">
                                         <ul>
-                                            <li v-for="path in item.showPicPaths?item.showPicPaths:[] | limitBy 9"
+                                            <li v-for="pic in item.showPics?item.showPics:[] | limitBy 9"
                                                 v-bind:class="(item.isAtMe==1 && !item.isRead)?'active':''">
                                                 <div class="img-bg"
-                                                     v-bind:style="{width:whichItemImgWidth(item)+'px',height:whichItemImgWidth(item)+'px'}">
+                                                     v-bind:style="whichImgContainerSize(item,pic)">
                                                     <a class="pb-standalone listitem-pic" index="{{$index}}"> <img
-                                                            class="not-view" v-bind:src="path+'_'"
-                                                            width="{{whichItemImgWidth(item)}}px"
-                                                            height="{{whichItemImgWidth(item)}}px"/></a></div>
+                                                            class="not-view" v-bind:src="pic.url+'_'"
+                                                            v-bind:style="whichImgSize(item,pic)"/></a></div>
                                             </li>
                                         </ul>
                                     </div>
@@ -100,7 +93,7 @@
                                                       v-show="item.performerPassList && item.performerPassList.length==item.performerPassCount">全部完成</span>
                                                 </label>
                                             </div>
-                                            <div class="spot-state state-{{item.spotState}}">
+                                            <div class="spot-state state-{{item.spotState}}" v-show="!(item.performerPassList && item.performerPassList.length==item.performerPassCount)">
                                                 {{item.spotState|whichstate}}
                                             </div>
                                         </div>
@@ -111,7 +104,7 @@
                                     </div>
                                     <div class="item-footer confirm-footer" v-show="item.isRead == 0">
                                         <button class="button button-link button-nav button-fill button-orange btn-confirm"
-                                                v-on:click="viewDetail(item)">
+                                                v-on:click="viewDetail(item,$index)">
                                             点击确认已读
                                         </button>
                                     </div>
@@ -135,7 +128,7 @@
                                         <div class="af-delete" v-if="item.canDelete==1">
                                             <span class="delete-text" @click="deleteItem(item.id)">删除</span>
                                         </div>
-                                        <div class="view-details" v-on:click="viewDetail(item)">详情</div>
+                                        <div class="view-details" v-on:click="viewDetail(item,$index)">详情</div>
                                         <div class="cmt-label not-view" @click="doCmt(item)">
                                             <span class="icon-comment not-view"></span>
                                             <span class="cmt-num not-view">{{item.comment && item.comment.length || 0}}</span>
@@ -148,14 +141,20 @@
                                                 <span class="cmt-user not-view">{{cmt.userName}}</span>
                                                 <span class="not-view" v-show="cmt.replyUserId">回复</span>
                                                 <span v-show="cmt.replyUserId" class="cmt-user not-view">{{cmt.replyUserName}}</span>
-                                                ：{{cmt.content}}
+                                                <span v-show="cmt.contentFormatFlag==0">：{{cmt.content}}</span>
+                                                <span class="" v-show="cmt.contentFormatFlag==1">
+                                                    ：<span v-for="cf in cmt.contentFormatArray" class="content-format" track-by="$index">
+                                                        <span v-if="cf.indexOf('WDZ_HREF')>-1" class="inner-format"><a @click.stop="openLink(cf)" href="javascript:void(0)">{{cf.replace("WDZ_HREF",'')}}</a></span>
+                                                        <span v-else>{{cf}}</span>
+                                                    </span>
+                                                </span>
                                                 <span v-if="cmt.showDelete" class="delete-text-cmt">删除</span>
                                             </div>
-                                            <div class="cmt-pic" v-for="pic in cmt.filePaths">
+                                            <div class="cmt-pic" v-for="pic in cmt.showPics">
                                                 <a class="app-cmted-pic pb-standalone" index="{{$index}}"
                                                    parentIndex="{{$parent.$index}}"
                                                    itemIndex="{{$parent.$parent.$index}}">
-                                                    <img width="40" height="40" v-bind:src="pic"/>
+                                                    <img v-bind:style="whichCmtImgSize(pic)" v-bind:src="pic.url+'_'"/>
                                                 </a>
                                             </div>
                                             <div class="clearboth"></div>
@@ -166,7 +165,7 @@
                                         <button class="not-view button button-link button-nav button-light btn-addpic"
                                                 @click="beforeUpload($index,$event)">
                                             <span class="icon-image"></span>
-                                            <input class="add-pic" index="{{$index}}" type="file" name="upload0"
+                                            <input class="add-pic" index="{{$index}}" type="file" name="upload0" v-show="!isAndroid"
                                                    multiple accept="image/*"/>
                                         </button>
                                         <textarea class="cmt-textarea not-view cmt-textarea-{{item.id}}"
@@ -177,13 +176,13 @@
                                             发送
                                         </button>
                                         <div class="cmtpic-container" v-show="item.cmtPics && item.cmtPics.length>0">
-                                            <div class="cmt-pic" v-for="pic in item.cmtPics" track-by="$index">
+                                            <div class="cmt-pic cmt-pic-local" v-for="pic in item.cmtShowPics" track-by="$index">
                                                 <a class="app-cmt-pic pb-standalone" index="{{$index}}"
                                                    parentIndex="{{$parent.$index}}">
-                                                    <img v-bind:src="pic" width="40" height="40">
+                                                    <img v-bind:src="pic.url" v-bind:style="whichCmtImgSize(pic)">
                                                 </a>
                                                 <span class="delete-img icon-cross"
-                                                      v-on:click="deleteImg(item.cmtPics,$index)"></span>
+                                                      v-on:click="deleteImg(item,$index)"></span>
                                             </div>
                                         </div>
                                         <div class="clearboth"></div>
@@ -263,34 +262,25 @@
                 </div>
             </modal-dialog>
         </div>
-        <!--<div class="dlgs-cmt">
-            <div class="dlg-cmt" v-show="showCommentModal" v-bind:class="{ 'active': showCommentModal}">
-                <div class="cmt-bottom">
-                    <textarea class="cmt-textarea" placeholder="回复" id="cmtInput" v-model="cmtContent"></textarea>
-                    <button class="button button-link button-nav button-fill button-orange btn-send"
-                            v-on:click="submitCmt()">
-                        发送
-                    </button>
-                </div>
-            </div>
-            <div class="overlay-cmt" @click="closeCmtDialog()"></div>
-        </div>-->
         <div class="search-panel popup popup-search">
             <div class="sp-item" v-on:click="searchAll()" v-bind:class="!isMe && !atMe?'active':''">
                 <label class="sp-label">全部</label>
             </div>
-            <!--<div class="sp-item" v-on:click="searchIsMe()" v-bind:class="!!isMe?'active':''">
-                <label class="sp-label">我创建的</label>
-            </div>-->
-            <div class="sp-item" v-on:click="searchAtMe()" v-bind:class="!!atMe?'active':''">
-                <label class="item-title label">提到我的</label>
+            <div v-if="!hasSigleDep" class="sp-item"  v-on:click="goToShoplist()">
+                <span class="search-label" v-show="!shopInfo.id">门店</span>
+                <span class="search-value panel-value" v-show="shopInfo.id">{{shopInfo.name}}</span>
+                <span class="icon-pre"></span>
             </div>
-            <!--<div class="sp-item" v-on:click="searchAtMe()">
-                <label class="item-title label sp-time" v-bind:class="!!atMe?'active':''">本周</label><label
-                    class="item-title label sp-time" v-bind:class="!!atMe?'active':''">上周</label>
-                <label class="item-title label sp-time" v-bind:class="!!atMe?'active':''">本月</label><label
-                    class="item-title label sp-time" v-bind:class="!!atMe?'active':''">上月</label>
-            </div>-->
+            <div class="sp-item" v-on:click="goToUserlist()">
+                <span class="search-label" v-show="!userInfo.id">创建人</span>
+                <span class="search-value panel-value" v-show="userInfo.id">{{userInfo.name}}</span>
+                <span class="icon-pre"></span>
+            </div>
+            <div class="sp-item" v-on:click="whichTemplate()">
+                <span class="search-label" v-show="!module.id">类型</span>
+                <span class="search-value panel-value" v-show="module.id">{{module.name}}</span>
+                <span class="icon-pre"></span>
+            </div>
         </div>
     </div>
 </template>
@@ -302,12 +292,14 @@
     require('../../../common/libs/drag/dragula.css');
     var dragula = require('dragula');
     var commonutils = require('../../../common/assets/js/commonutils');
+    var utils = require('../utils');
     var FastClick = require('../../../common/libs/fastclick');
     var num = 10;//每页显示的条数
     var clickShowVesionNum = 0;//点击多少次标题栏，用于查看版本
     var clickTimer = null;
     var maxCmtImgNum = 3;//上传的评论图片max value
     var Vue = require('vue');
+    var clickIndex = -1;//当前点击的记录index
     module.exports = {
         route: {
             data: function (transition) {
@@ -316,31 +308,21 @@
                     $('#dataContent').scroller({
                         type: 'native'
                     });
+                    this.getUnsolveCount();//每次回到该页面时刷新以下代办的个数
                     if (Constant.needRefresh) {
+                        Constant.atMe = 0;
                         this.$nextTick(function () {
                             $.pullToRefreshTrigger('#dataContent');
+                            $('.popup-search').hide();//隐藏pop对话框
                         });
-                        /*_this.getData('',{
-                         page:{
-                         index:0,
-                         num:num
-                         },
-                         atMe:Constant.atMe,
-                         isMe:Constant.isMe,
-                         search:Constant.search,
-                         shopInfo:Constant.shopInfo,
-                         userInfo:Constant.userInfo
-                         });*/
                     } else {
                         setTimeout(function(){
+                            //滚动到原来的地方
                             $('#dataContent')[0].scrollTop=Constant.layout.srcollTop;
                             $.locScroll($('#dataContent'));
+                            _this.refreshCmts();
+                            $('.popup-search').hide();//隐藏pop对话框
                         }, 0);
-                        /*this.$nextTick(function () {
-                         setTimeout(function(){
-                         document.getElementById('dataContent').scrollTo(0,Constant.layout.srcollTop);
-                         },3000);
-                         })*/
                     }
                 }
                 transition.next({
@@ -349,6 +331,7 @@
                     module: Constant.module,
                     atMe: Constant.atMe,
                     isMe: Constant.isMe,
+                    isMeUnsolve:Constant.isMeUnsolve,
                     page: {
                         index: Constant.needRefresh ? 0 : this.page.index,//防止查看详情返回后页面不刷新却清除了index
                         num: num
@@ -357,6 +340,7 @@
                 });
             },
             activate: function (transition) {
+                this.registGalleryEvent();
                 if (!transition.from.name) {
                     this.transitionName = 'show';
                 } else {
@@ -378,10 +362,10 @@
             canDeactivate: function (transition) {
                 var _this = this;
                 if (this.display.searchOther) {
-                    this.hideSearchPanel();
                     setTimeout(function () {
                         _this.$nextTick(function () {
                             transition.next();
+                            _this.hideSearchPanel();
                         })
                     }, 410);
                 } else {
@@ -393,12 +377,15 @@
                 //this.unbindInfinite();
                 //this.clearData();
                 Constant.layout.srcollTop = $('#dataContent').scrollTop();
+                Constant.detail.id = '';
+                Constant.detail.hasSubmitCmt = false;
                 transition.next();
             }
         },
         data: function () {
             return {
                 transitionName: 'show',
+                isAndroid:$.device.android&&Constant.gallery==1,
                 page: {
                     index: 0,
                     num: num,
@@ -431,6 +418,7 @@
                 },
                 atMe: 0,
                 isMe: 0,
+                isMeUnsolve:0,
                 hasSigleDep: true,
                 display: {
                     nodata: false,
@@ -454,6 +442,7 @@
                 itemImgWidth: 60,
                 loading: false,
                 refreshInit: false,
+                notdoNumber:0,//代办记录数
                 showBackBtn: Constant.showBackBtn
             }
         },
@@ -461,6 +450,16 @@
             'progress': require('../components/Progress.vue'),
             'modal-dialog': require('../components/ReadUserDialog.vue'),
             'userhead': require('../components/UserHead.vue')
+        },
+        watch:{
+            notdoNumber:function(newValue,oldValue){
+                if(newValue != oldValue){
+                    if(this.isMeUnsolve){//如果待办数变了，切选择了代办的条件，则刷新列表
+                        $('#dataContent')[0].scrollTop = 0;
+                        $.pullToRefreshTrigger('#dataContent');
+                    }
+                }
+            },
         },
         created: function () {
 
@@ -486,6 +485,9 @@
                 if (state == 1) return "待审批";
                 if (state == 2) return "未通过";
                 if (state == 3) return "已完成";
+            },
+            'formatcontent':function(item){
+                
             }
         },
         ready: function () {
@@ -495,21 +497,58 @@
             /**
              * 计算每张图片的大小
              * */
-            whichItemImgWidth: function (item) {
-                if (!item.showPicPaths) {
+            whichImgContainerSize: function (item,pic) {
+                var defaultWidth = this.layout.width - 70 - 30,
+                        defaultWidthX = this.layout.width - 70 - 10,
+                        defaultWidthL = (this.layout.width - 70)/ 2;
+                var size;
+                if (!item.showPics) {
                     return 0;
-                } else if (item.showPicPaths.length == 1) {
-                    return (this.layout.width - 70) / 2;
-                } else if (item.showPicPaths.length == 4 || item.showPicPaths.length == 2) {
-                    return (this.layout.width - 100) / 2 - 10;
+                } else if (item.showPics.length == 1) {
+                    size = utils.computeSigleImgWH(pic.width,pic.height,defaultWidth,defaultWidthX,defaultWidthL);
+                } else if (item.showPics.length == 4 || item.showPics.length == 2) {
+                    size = utils.computeImgWH(pic.width,pic.height,4,defaultWidth-30);
                 } else {
-                    return (this.layout.width - 80) / 3 - 10;
+                    size = utils.computeImgWH(pic.width,pic.height,9,defaultWidthX);
                 }
+                return {
+                    width:size.pw+'px',
+                    height:size.ph+'px'
+                };
+            },
+            whichImgSize: function (item,pic) {
+                var defaultWidth = this.layout.width - 70 - 30,
+                        defaultWidthX = this.layout.width - 70 - 10,
+                        defaultWidthL = (this.layout.width - 70)/ 2;
+                var size;
+                if (!item.showPics) {
+                    return 0;
+                } else if (item.showPics.length == 1) {
+                    size = utils.computeSigleImgWH(pic.width,pic.height,defaultWidth,defaultWidthX,defaultWidthL);
+                } else if (item.showPics.length == 4 || item.showPics.length == 2) {
+                    size = utils.computeImgWH(pic.width,pic.height,4,defaultWidth-30);
+                } else {
+                    size = utils.computeImgWH(pic.width,pic.height,9,defaultWidthX);
+                }
+                return {
+                    width:size.w+'px',
+                    height:size.h+'px',
+                    webkitTransform:'translate('+size.offsetX+'px,'+size.offsetY+'px)'
+                };
+            },
+            whichCmtImgSize:function(pic){
+                var totalWidth = 130;
+                var size = utils.computeImgWH(pic.width,pic.height,9,totalWidth);
+                return {
+                    width:size.w+'px',
+                    height:size.h+'px',
+                    webkitTransform:'translate('+size.offsetX+'px,'+size.offsetY+'px)'
+                };
             },
             showVersion: function () {
                 clearTimeout(clickTimer);
                 if (clickShowVesionNum >= 2) {
-                    $.toast('当前工作圈版本V2.1.5');
+                    $.toast('当前工作圈版本V2.2.1');
                     clickShowVesionNum = 0;
                 } else {
                     clickShowVesionNum++;
@@ -581,10 +620,47 @@
                         if (this.scrollHeight > 30) {
                             this.style.height = this.scrollHeight + 'px';
                         }
-                    })
+                    });
                 }
+                
                 this.bindInfiniteEvent();
+                this.getUnsolveCount();
                 this.getData('', opt);
+            },
+            //注册安卓相册事件
+            registGalleryEvent:function(){
+                var _this = this;
+                window.receiveGalleryData = function (base64,width,height) {
+                    base64 = 'data:image/png;base64,'+base64;
+                    if(clickIndex >= 0){
+                        var item = _this.items[clickIndex];
+                        if (!item.cmtPics) item.cmtPics = [];
+                        item.cmtPics.push(base64);
+                        if (!item.cmtShowPics) item.cmtShowPics = [];
+                        item.cmtShowPics.push({
+                            url:base64,
+                            width:width,
+                            height:height
+                        });
+                    }
+                };
+            },
+            refreshCmts:function () {
+                var index = Constant.detail.index;
+                if(!Constant.detail.hasSubmitCmt) return;
+                if(!this.items[index]) return;
+                if(this.items[index].id != Constant.detail.id) return;
+                var _this = this;
+                this.$http.post('/service/getCommentsByHandoverBookId.action?token=' + Constant.token,{
+                    handoverBookId:Constant.detail.id
+                }).then(function (ret) {
+                    if (ret.ok && ret.data && ret.data.result == 'ok') {
+                        var data = ret.data.data;
+                        _this.items[index].comment = data.data;
+
+                    }
+                    Constant.detail.hasSubmitCmt = false;
+                });
             },
             reInitScroll: function () {
                 this.unbindInfinite();
@@ -632,11 +708,17 @@
                                 before: function (file) {
                                     //console.log('多张: ' + i + ' 压缩前...');
                                 },
-                                done: function (file, base64) { // 这里是异步回调，done中i的顺序不能保证
+                                done: function (file, base64,img) { // 这里是异步回调，done中i的顺序不能保证
                                     //console.log('多张: ' + i + ' 压缩成功...'+file.length+","+base64.length);
                                     successNum++;
                                     if (!item.cmtPics) item.cmtPics = [];
                                     item.cmtPics.push(base64);
+                                    if (!item.cmtShowPics) item.cmtShowPics = [];
+                                    item.cmtShowPics.push({
+                                        url:base64,
+                                        width:img.width,
+                                        height:img.height
+                                    });
                                     if (successNum == fileNum) {
                                         $(_file).remove();
                                         //上传成功之后重置input
@@ -689,6 +771,7 @@
                     });
                     myPhotoBrowserStandalone.open();
                     isPhotoOpen = true;
+                    utils.longTapEvent.bind($('.photo-browser')[0]);
                     e.stopPropagation();
                     return false;
                 });
@@ -716,6 +799,7 @@
                     });
                     myPhotoBrowserStandalone.open();
                     isPhotoOpen = true;
+                    utils.longTapEvent.bind($('.photo-browser')[0]);
                     e.stopPropagation();
                     return false;
                 });
@@ -744,6 +828,7 @@
                     });
                     myPhotoBrowserStandalone.open();
                     isPhotoOpen = true;
+                    utils.longTapEvent.bind($('.photo-browser')[0]);
                     e.stopPropagation();
                     return false;
                 });
@@ -757,16 +842,23 @@
                             _this.onlyShop.id = Constant.shopInfo.id = _this.shopInfo.id = data.dept.id;
                             _this.onlyShop.name = Constant.shopInfo.name = _this.shopInfo.name = data.dept.name;
                             _this.hasSigleDep = true;
-                            _this.layout.searchBarWidth = _this.layout.width / 3;
                         } else if (!data.hasAuth) {
                             _this.hasSigleDep = false;
-                            _this.layout.searchBarWidth = _this.layout.width / 4;
                         }
+                        _this.layout.searchBarWidth = _this.layout.width / 3;
                         Constant.curUser = _this.curUser = data.user;
                     }
                     Constant.hasGetAuth = true;
                     Constant.hasSigleDep = _this.hasSigleDep;
                     callback && callback();
+                });
+            },
+            getUnsolveCount: function (callback, searchData) {
+                var _this = this;
+                this.$http.post('/service/getUnsolveCount.action?token='+Constant.token).then(function (ret) {
+                    if (ret.ok && ret.data && ret.data.result == 'ok') {
+                        _this.notdoNumber = ret.data.data.data;
+                    }
                 });
             },
             getData: function (callback, searchData) {
@@ -780,6 +872,7 @@
                     deptIds: this.hasSigleDep ? '' : searchData.shopInfo.id,
                     isAtMe: searchData.atMe,
                     isMe: searchData.isMe,
+                    isMeUnsolve:searchData.isMeUnsolve,
                     moudleId: searchData.module.id,
                     index: searchData.page.index,
                     num: searchData.page.num,
@@ -787,6 +880,16 @@
                 }).then(function (ret) {
                     _this.loading = false;
                     if (ret.ok && ret.data && ret.data.result == 'ok') {
+                        var resData = ret.data.data.data;
+                        //格式化文本中的超连接
+                        for(var i=0;i<resData.length;i++){
+                            utils.formatHyperLink(resData[i],resData[i].content);
+                            if(resData[i].comment && resData[i].comment.length > 0){
+                                for(var j=0;j<resData[i].comment.length;j++){
+                                    utils.formatHyperLink(resData[i].comment[j],resData[i].comment[j].content);
+                                }
+                            }
+                        }
                         if (_this.page.index == 0) {
                             _this.items = ret.data.data.data;
                         } else {
@@ -860,29 +963,63 @@
                     this.display.searchOther = false;
                 }
             },
-            searchAll: function () {
-                this.page.index = 0;
+            clearSearch:function () {
                 Constant.atMe = this.atMe = 0;
                 Constant.isMe = this.isMe = 0;
-                this.userInfo.id = '';
-                this.userInfo.name = '';
+                Constant.isMeUnsolve = this.isMeUnsolve = 0;
+                Constant.userInfo.id = this.userInfo.id = '';
+                Constant.userInfo.name = this.userInfo.name = '';
+                Constant.shopInfo.id = this.shopInfo.id = '';
+                Constant.shopInfo.name = this.shopInfo.name = '';
+                Constant.module.id = this.module.id = '';
+                Constant.module.name = this.module.name = '';
+            },
+            searchAll: function () {
+                if(this.loading){
+                    return;
+                }
+                this.page.index = 0;
+                this.clearSearch();
                 this.toggleSearchPanel();
                 $.pullToRefreshTrigger('#dataContent');
             },
             searchIsMe: function () {
+                if(this.loading){
+                    return;
+                }
                 this.page.index = 0;
                 if (this.isMe == 0) {
+                    this.clearSearch();
                     Constant.isMe = this.isMe = 1;
                     Constant.atMe = this.atMe = 0;
                 } else {
+                    this.clearSearch();
                     Constant.isMe = this.isMe = 0;
                 }
                 this.userInfo.id = '';
                 this.userInfo.name = '';
-                this.toggleSearchPanel();
+                $('#dataContent')[0].scrollTop = 0;
+                $.pullToRefreshTrigger('#dataContent');
+            },
+            searchUnDo:function(){
+                if(this.loading){
+                    return;
+                }
+                this.page.index = 0;
+                if (this.isMeUnsolve == 0) {
+                    this.clearSearch();
+                    Constant.isMeUnsolve = this.isMeUnsolve = 1;
+                } else {
+                    this.clearSearch();
+                    Constant.isMeUnsolve = this.isMeUnsolve = 0;
+                }
+                $('#dataContent')[0].scrollTop = 0;
                 $.pullToRefreshTrigger('#dataContent');
             },
             searchAtMe: function () {
+                if(this.loading){
+                    return;
+                }
                 this.page.index = 0;
                 if (this.atMe == 0) {
                     Constant.atMe = this.atMe = 1;
@@ -909,7 +1046,7 @@
                     }
                 }
             },
-            viewDetail: function (item, $event) {
+            viewDetail: function (item,index) {
                 //点击用户名、用户头像、图片，不会触发查看详情
                 /*if($event && $event.srcElement.className.indexOf('not-view') > -1){
                  return false;
@@ -929,6 +1066,8 @@
                     }
                 }
                 //查看详情
+                Constant.detail.id = item.id;
+                Constant.detail.index = index;
                 router.go({name: 'detail', params: {id: item.id}});
             },
             /**
@@ -1004,6 +1143,20 @@
                     $('#passtab1').removeClass('active');
                 }
             },
+            openLink:function(cf){
+                try{
+                    var link = cf.replace('WDZ_HREF','');
+                    if ($.device.android) {
+                        window.webview.openBrowser(link);
+                    } else if ($.device.ios) {
+                        window.webkit.messageHandlers.openBrowser.postMessage(link);
+                    }else{
+                        window.location.href = link;
+                    }
+                }catch(e){
+                    $.toast('即将支持通过浏览器打开该链接');
+                }
+            },
             /**
              * 评论
              */
@@ -1028,14 +1181,15 @@
                 }
                 Vue.set(item, 'cmtContent', '');
                 Vue.set(item, 'cmtPics', []);
+                Vue.set(item, 'cmtShowPics', []);
                 $('.cmt-textarea-' + item.id).attr('placeholder', placeholderStr);
                 if (item.showCmtArea) {
                     $('.cmt-textarea-' + item.id).height(30);
-                    setTimeout(function () {
+                    /*setTimeout(function () {
                         var cmtHeight = $('.footer-cmt-' + item.id).height();//评论框区域的高度
                         $('#dataContent')[0].scrollTop = $('#dataContent')[0].scrollTop + cmtHeight + 35;
                         $.locScroll($('#dataContent'));
-                    }, 0);
+                    }, 0);*/
                 }
                 /* window.webview &&　window.webview.input("cmtInput");*/
                 /*setTimeout(function(){
@@ -1070,13 +1224,8 @@
                         $.toast('发表成功');
                         if (!item.comment) item.comment = [];
                         var data = ret.data.data.data;
-                        //后台目前没有返回给我评论的图片，自己深拷贝一把
-                        if (item.cmtPics && item.cmtPics.length > 0 && !data.filePaths) {
-                            data.filePaths = [];
-                            for (var i = 0; i < item.cmtPics.length; i++) {
-                                data.filePaths.push(item.cmtPics[i]);
-                            }
-                        }
+                        //格式化文本中的超连接
+                        utils.formatHyperLink(data,data.content);
                         item.comment.push(data);
                         item.cmtContent = '';
                         item.cmtPid = null;
@@ -1163,14 +1312,24 @@
                     $.toast('上传的图片最多不能超过' + maxCmtImgNum + '张');
                     event.preventDefault();
                     event.stopPropagation();
-
+                }
+                //调用安卓相册
+                if(this.isAndroid){
+                    try{
+                        clickIndex = index;
+                        window.webview && window.webview.openGallery(maxCmtImgNum,$('.footer-textarea-' + index + ' .cmt-pic').length);
+                    }catch(e){
+                        $.toast('error');
+                    }
+                    return;
                 }
             },
             /**
              * 删除评论图片
              * */
-            deleteImg: function (cmtPics, index) {
-                cmtPics.splice(index, 1);
+            deleteImg: function (item, index) {
+                item.cmtPics.splice(index, 1);
+                item.cmtShowPics.splice(index, 1);
             },
             closeCmtDialog: function () {
                 this.showCommentModal = false;
@@ -1306,6 +1465,10 @@
     .search-label {
         color: #666;
     }
+    .todo-label{
+        margin-left:2px;
+    }
+    
 
     .search-value {
         color: #666;
@@ -1313,6 +1476,13 @@
         text-overflow: ellipsis;
         white-space: nowrap;
         width: 100%;
+    }
+    .notdo-num{
+        background: red;
+        color: #fff;
+        line-height: 20px;
+        width: 20px;
+        border-radius: 10px;
     }
 
     .search-li span {
@@ -1391,8 +1561,17 @@
     #dataContent .item-text {
         word-wrap: break-word;
         font-size: 16px;
+        white-space: pre-line;
     }
 
+    .content-format{
+        word-break: break-all;
+        white-space: initial;
+    }
+    .inner-format{
+        
+    }
+    
     #dataContent .user-name {
         font-size: 14px;
 
@@ -1568,10 +1747,22 @@
         background: #fcfcfc;
         height: auto;
     }
+    .search-panel .icon-pre{
+        float: right;
+        margin-top: 9px;
+    }
 
+    .panel-value{
+        width:calc(100% - 40px);
+        display: inline-block;
+    }
+    
     .handover .sp-item {
-        padding: 10px;
+        padding: 0px 10px;
         border-bottom: 1px solid #eee;
+        width: 100%;
+        height: 36px;
+        line-height: 36px;
     }
 
     .handover .sp-item input[type=checkbox] {
@@ -1810,6 +2001,16 @@
         height: 40px;
         margin-top: 5px;
         position: relative;
+        overflow: hidden;
+    }
+    .cmt-pic.cmt-pic-local{
+        overflow: inherit;
+    }
+    .handover .app-cmt-pic{
+        overflow: hidden;
+        width: 40px;
+        height: 40px;
+        display: inline-block;
     }
 
     .handover .icon-image {
@@ -1848,6 +2049,7 @@
 
     .handover .img-bg {
         background: #eee;
+        overflow: hidden;
     }
 
     .clearboth {

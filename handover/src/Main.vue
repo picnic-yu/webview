@@ -615,4 +615,7 @@
     .state-3 {
         color: #8acc47;
     }
+    .photo-browser .swiper-slide{
+        overflow: auto;
+    }
 </style>

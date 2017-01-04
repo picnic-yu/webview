@@ -26,6 +26,7 @@ Constant.shopInfo.name = decodeURIComponent(commonutils.getPageUrlParam('name'))
 Constant.source = commonutils.getPageUrlParam('source');
 Constant.showBackBtn = commonutils.getPageUrlParam('showBackBtn');//是否需要我显示返回按钮，主要用于兼容过去返回按钮全部由app做的问题
 Constant.isWKWebView = commonutils.getPageUrlParam('isWKWebView');//ios专有参数，表示使用的webview框架,0代表UIWebview,1代表WKWebview
+Constant.gallery = commonutils.getPageUrlParam('gallery') || 0;//Android专有参数，表示使用安卓自带相册
 Vue.filter('istoday', Filters.isToday);
 Vue.filter('percent', Filters.percent);
 
@@ -50,10 +51,10 @@ window.goBack = function () {
     var curPathName = Constant.curRoute.pathName;
     var backInfo = utils.getBackPath(curPathName);
     //从APP门店界面跳转过来的，返回时直接返回到APP界面
-    /*if(Constant.source == 1 && backInfo.parent == 'default'){
-     window.webview　&& window.webview.goBack(true);
-     return true;
-     }*/
+    if(Constant.source == 1){
+        window.webview　&& window.webview.goBack(true);
+        return true;
+     }
     if (isPhotoOpen && myPhotoBrowserStandalone) {
         try {
             myPhotoBrowserStandalone.close();

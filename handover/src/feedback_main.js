@@ -14,7 +14,7 @@ Vue.use(require('vue-resource'));
 //设置url传递过来的参数
 Vue.http.options.emulateJSON = true;
 Vue.http.headers.common['authenticator'] = Constant.token = commonutils.getPageUrlParam('token');
-
+Constant.gallery = commonutils.getPageUrlParam('gallery') || 0;//Android专有参数，表示使用安卓自带相册
 
 var router = new VueRouter({
         hashbang: true,

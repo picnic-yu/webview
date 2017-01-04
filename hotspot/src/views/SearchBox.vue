@@ -1,5 +1,6 @@
 <template>
-  <div class="page" id="search">
+  <div class="page-group">
+  <div class="page page-current container" id="search">
     <header class="bar bar-nav">
       <h1 class='title' onclick="goBack()">选择日期</h1>
     </header>
@@ -28,6 +29,7 @@
       <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="othertime()">统计</a></p>
     </div>
   </div>
+</div>
 </template>
 
 <script>

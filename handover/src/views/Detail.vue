@@ -22,16 +22,20 @@
                             <span class="time-name">{{bo.createTime && bo.createTime.replace('T',' ')}}</span>
                         </div>
                         <div class="item-content">
-                            <div class="item-text">
+                            <div class="item-text" v-show="bo.contentFormatFlag==0">
                                 {{bo.content}}
+                            </div>
+                            <div class="item-text" v-show="bo.contentFormatFlag==1">
+                                        <span v-for="cf in bo.contentFormatArray" class="content-format" track-by="$index">
+                                            <span v-if="cf.indexOf('WDZ_HREF')>-1" class="inner-format"><a @click.stop="openLink(cf)" href="javascript:void(0)">{{cf.replace("WDZ_HREF",'')}}</a></span>
+                                            <span v-else>{{cf}}</span>
+                                        </span>
                             </div>
                             <div class="item-images" index="{{$index}}">
                                 <ul>
-                                    <li v-for="path in bo.showPicPaths">
+                                    <li class="images-li" v-for="pic in bo.showPics" v-bind:style="whichImgContainerSize(bo,pic)">
                                         <a class="pb-standalone ditem-pic" index="{{$index}}">
-                                            <img class="not-view" v-bind:src="path+'_'"
-                                                 width="{{whichItemImgWidth(bo)}}px"
-                                                 height="{{whichItemImgWidth(bo)}}px"/></a>
+                                            <img class="not-view" v-bind:src="pic.url+'_'" v-bind:style="whichImgSize(bo,pic)" /></a>
                                     </li>
                                 </ul>
                             </div>
@@ -64,12 +68,12 @@
                                                                 </div>
                                                             </div>
                                                             <div class="f-panel">
-                                                                <div class="fp-left" v-for="path in subItem.filePaths">
+                                                                <div class="fp-left images-li" v-for="pic in subItem.showPics" v-bind:style="whichChildImgContainerSize(subItem,pic)">
                                                                     <a class="item-pic pb-standalone sub-item-pic"
                                                                        index="{{$index}}"
                                                                        subItemIndex="{{$parent.$index}}"
                                                                        itemIndex="{{$parent.$parent.$index}}">
-                                                                        <img width="60" height="60" v-bind:src="path"/>
+                                                                        <img v-bind:style="whichChildImgSize(subItem,pic)" v-bind:src="pic.url+'_'"/>
                                                                     </a>
                                                                 </div>
                                                                 <div class="clearboth"></div>
@@ -187,12 +191,18 @@
                                             <span class="cmt-user not-view">{{cmt.userName}}</span>
                                             <span class="not-view" v-show="cmt.replyUserId">回复</span>
                                             <span v-show="cmt.replyUserId" class="cmt-user not-view">{{cmt.replyUserName}}</span>
-                                            ：{{cmt.content}}
+                                            <span v-show="cmt.contentFormatFlag==0">：{{cmt.content}}</span>
+                                            <span class="" v-show="cmt.contentFormatFlag==1">
+                                                    ：<span v-for="cf in cmt.contentFormatArray" class="content-format" track-by="$index">
+                                                        <span v-if="cf.indexOf('WDZ_HREF')>-1" class="inner-format"><a @click.stop="openLink(cf)" href="javascript:void(0)">{{cf.replace("WDZ_HREF",'')}}</a></span>
+                                                        <span v-else>{{cf}}</span>
+                                                    </span>
+                                                </span>
                                         </div>
-                                        <div class="cmt-pic" v-for="pic in cmt.filePaths">
+                                        <div class="cmt-pic" v-for="pic in cmt.showPics">
                                             <a class="detail-cmted-pic pb-standalone" index="{{$index}}"
                                                parentIndex="{{$parent.$index}}">
-                                                <img width="40" height="40" v-bind:src="pic"/>
+                                                <img  v-bind:src="pic.url" v-bind:style="whichCmtImgSize(pic)" />
                                             </a>
                                         </div>
                                         <div class="clearboth"></div>
@@ -208,7 +218,7 @@
                     <button class="not-view button button-link button-nav button-light btn-addpic"
                             @click="beforeUpload($event)">
                         <span class="icon-image"></span>
-                        <input class="add-pic" index="{{$index}}" type="file" name="upload0" multiple accept="image/*"/>
+                        <input class="add-pic" v-show="!isAndroid" index="{{$index}}" type="file" name="upload0" multiple accept="image/*"/>
                     </button>
                     <textarea class="cmt-textarea" placeholder="回复" id="cmtInput2"
                               v-model="cmtContent"></textarea>
@@ -217,9 +227,9 @@
                         发送
                     </button>
                     <div class="cmtpic-container" v-show="cmtPics && cmtPics.length>0">
-                        <div class="cmt-pic" v-for="pic in cmtPics" track-by="$index">
+                        <div class="cmt-pic cmt-pic-local" v-for="pic in cmtShowPics" track-by="$index">
                             <a class="detail-cmt-pic pb-standalone" index="{{$index}}" parentIndex="{{$parent.$index}}">
-                                <img v-bind:src="pic" width="40" height="40">
+                                <img v-bind:src="pic.url"  v-bind:style="whichCmtImgSize(pic)">
                             </a>
                             <span class="delete-img icon-cross" v-on:click="deleteCmtImg(cmtPics,$index)"></span>
                         </div>
@@ -365,6 +375,7 @@
     require('../../../common/libs/drag/dragula.css');
     var dragula = require('dragula');
     var commonutils = require('../../../common/assets/js/commonutils');
+    var utils = require('../utils');
     var Vue = require('vue');
     var maxCmtImgNum = 3;
     module.exports = {
@@ -375,10 +386,11 @@
                     this.$nextTick(function () {
                         $.pullToRefreshTrigger('#hdetailContent');
                     });
-                    if (Constant.needReadMessage || Constant.source == 1) {
+                    if (Constant.needReadMessage || Constant.source == 1 || Constant.source == 2) {
                         this.hasReadCertainBook();
                     }
                 }
+                this.registGalleryEvent();
                 transition.next({
                     bo: Constant.bo,
                     items: (Constant.bo && Constant.bo.subItems) ? Constant.bo.subItems : []
@@ -412,6 +424,7 @@
         data: function () {
             return {
                 transitionName: 'right',
+                isAndroid:$.device.android&&Constant.gallery==1,
                 shopInfo: {
                     id: '',
                     name: ''
@@ -460,6 +473,7 @@
                 cmtContent: '',//评论内容
                 cmtPid: '',//评论的父id
                 cmtPics: [],//评论时上传的图片
+                cmtShowPics:[],
                 selectItem: {},//当前操作的记录
                 loading: false,
                 refreshInit: false,
@@ -495,6 +509,26 @@
         },
         methods: {
             backTo: function () {
+                if(Constant.source == 2){//来源于掌讯界面的返回到掌讯界面
+                    if ($.device.android) {
+                        window.webview && window.webview.closeCurrentInterface();
+                    } else if ($.device.ios) {
+                        if (Constant.isWKWebView == 1) {
+                            try {
+                                window.webkit.messageHandlers.closeCurrentInterface.postMessage(1);
+                            } catch (e) {
+                            }
+                        } else {
+                            try {
+                                closeCurrentInterface();
+                            } catch (e) {
+                            }
+                        }
+                    } else {
+        
+                    }
+                    return;
+                }
                 var curPathName = Constant.curRoute.pathName;
                 var backInfo = utils.getBackPath(curPathName);
                 router.go({name: backInfo.parent, params: backInfo.params});
@@ -524,14 +558,88 @@
             /**
              * 计算每张图片的大小
              * */
-            whichItemImgWidth: function (item) {
-                if (!item.showPicPaths) {
+            whichImgContainerSize: function (item,pic) {
+                var defaultWidth = this.layout.width - 70 - 30,
+                        defaultWidthX = this.layout.width - 70 - 10,
+                        defaultWidthL = (this.layout.width - 70)/ 2;
+                var size;
+                if (!item.showPics) {
                     return 0;
-                } else if (item.showPicPaths.length == 1) {
-                    return (this.layout.width - 70) / 2;
+                } else if (item.showPics.length == 1) {
+                    size = utils.computeSigleImgWH(pic.width,pic.height,defaultWidth,defaultWidthX,defaultWidthL);
+                } else if (item.showPics.length == 4 || item.showPics.length == 2) {
+                    size = utils.computeImgWH(pic.width,pic.height,4,defaultWidth-30);
                 } else {
-                    return (this.layout.width - 80) / 3 - 10;
+                    size = utils.computeImgWH(pic.width,pic.height,9,defaultWidthX);
                 }
+                return {
+                    width:size.pw+'px',
+                    height:size.ph+'px'
+                };
+            },
+            whichImgSize: function (item,pic) {
+                var defaultWidth = this.layout.width - 70 - 30,
+                        defaultWidthX = this.layout.width - 70 - 10,
+                        defaultWidthL = (this.layout.width - 70)/ 2;
+                var size;
+                if (!item.showPics) {
+                    return 0;
+                } else if (item.showPics.length == 1) {
+                    size = utils.computeSigleImgWH(pic.width,pic.height,defaultWidth,defaultWidthX,defaultWidthL);
+                } else if (item.showPics.length == 4 || item.showPics.length == 2) {
+                    size = utils.computeImgWH(pic.width,pic.height,4,defaultWidth-30);
+                } else {
+                    size = utils.computeImgWH(pic.width,pic.height,9,defaultWidthX);
+                }
+                return {
+                    width:size.w+'px',
+                    height:size.h+'px',
+                    webkitTransform:'translate('+size.offsetX+'px,'+size.offsetY+'px)'
+                };
+            },
+            /**
+             * 计算subItem里面每张图片容器的大小
+             * */
+            whichChildImgContainerSize: function (item,pic) {
+                var defaultWidth = this.layout.width - 70 - 30,
+                        defaultWidthX = this.layout.width - 70 - 10;
+                var size;
+                if (!item.showPics) {
+                    return 0;
+                }else{
+                    size = utils.computeImgWH(pic.width,pic.height,9,defaultWidthX);
+                }
+                return {
+                    width:size.pw+'px',
+                    height:size.ph+'px'
+                };
+            },
+            /**
+             * 计算subItem里面图片的大小
+             * */
+            whichChildImgSize: function (item,pic) {
+                var defaultWidth = this.layout.width - 70 - 30,
+                        defaultWidthX = this.layout.width - 70 - 10;
+                var size;
+                if (!item.showPics) {
+                    return 0;
+                } else {
+                    size = utils.computeImgWH(pic.width,pic.height,9,defaultWidthX);
+                }
+                return {
+                    width:size.w+'px',
+                    height:size.h+'px',
+                    webkitTransform:'translate('+size.offsetX+'px,'+size.offsetY+'px)'
+                };
+            },
+            whichCmtImgSize:function(pic){
+                var totalWidth = 130;
+                var size = utils.computeImgWH(pic.width,pic.height,9,totalWidth);
+                return {
+                    width:size.w+'px',
+                    height:size.h+'px',
+                    webkitTransform:'translate('+size.offsetX+'px,'+size.offsetY+'px)'
+                };
             },
             init: function () {
                 this.webviewReady();
@@ -567,6 +675,21 @@
             },
             bind: function () {
                 this.bindPicEvent();
+            },
+            //注册安卓相册事件
+            registGalleryEvent:function(){
+                var _this = this;
+                window.receiveGalleryData = function (base64,width,height) {
+                    base64 = 'data:image/png;base64,'+base64;
+                    if (!_this.cmtPics) _this.cmtPics = [];
+                    _this.cmtPics.push(base64);
+                    if (!_this.cmtShowPics) _this.cmtShowPics = [];
+                    _this.cmtShowPics.push({
+                        url:base64,
+                        width:width,
+                        height:height
+                    });
+                };
             },
             bindPicEvent: function () {
                 //点击时打开图片浏览器
@@ -689,11 +812,17 @@
                                 before: function (file) {
                                     //console.log('多张: ' + i + ' 压缩前...');
                                 },
-                                done: function (file, base64) { // 这里是异步回调，done中i的顺序不能保证
+                                done: function (file, base64,img) { // 这里是异步回调，done中i的顺序不能保证
                                     //console.log('多张: ' + i + ' 压缩成功...'+file.length+","+base64.length);
                                     successNum++;
                                     if (!_this.cmtPics) _this.cmtPics = [];
                                     _this.cmtPics.push(base64);
+                                    if (!_this.cmtShowPics) _this.cmtShowPics = [];
+                                    _this.cmtShowPics.push({
+                                        url:base64,
+                                        width:img.width,
+                                        height:img.height
+                                    });
                                     if (successNum == fileNum) {
                                         $(_file).remove();
                                         //上传成功之后重置input
@@ -733,6 +862,13 @@
                     _this.display.loading = false;
                     if (ret.ok && ret.data && ret.data.result == 'ok') {
                         var data = ret.data.data.data;
+                        //格式化文本中的超连接
+                        utils.formatHyperLink(data,data.content);
+                        if(data.comment && data.comment.length > 0){
+                            for(var j=0;j<data.comment.length;j++){
+                                utils.formatHyperLink(data.comment[j],data.comment[j].content);
+                            }
+                        }
                         Constant.bo = _this.bo = data;
                         _this.user = {
                             id: _this.bo.userId,
@@ -785,6 +921,20 @@
                     });
                 }, 500);
             },
+            openLink:function(cf){
+                try{
+                    var link = cf.replace('WDZ_HREF','');
+                    if ($.device.android) {
+                        window.webview.openBrowser(link);
+                    } else if ($.device.ios) {
+                        window.webkit.messageHandlers.openBrowser.postMessage(link);
+                    }else{
+                        window.location.href = link;
+                    }
+                }catch(e){
+                    $.toast('即将支持通过浏览器打开该链接');
+                }
+            },
             clearData: function () {
                 //Constant.bo = this.bo = '';
                 //this.items = [];
@@ -798,6 +948,8 @@
                 this.selectItem = {};//当前操作的记录
                 this.pics = [];
                 Constant.needRefresh = false;//返回到主页时不需要刷新
+                this.cmtShowPics = [];
+                this.cmtPics = [];
             },
             hasReadCertainBook: function () {
                 this.$http.post('/service/hasReadCertainBook.action?token=' + Constant.token, {
@@ -958,17 +1110,15 @@
                         $('.cmt-bottom0').height('auto');
                         if (!_this.bo.comment) _this.bo.comment = [];
                         var data = ret.data.data.data;
-                        //后台目前没有返回给我评论的图片，自己深拷贝一把
-                        if (_this.cmtPics && _this.cmtPics.length > 0 && !data.filePaths) {
-                            data.filePaths = [];
-                            for (var i = 0; i < _this.cmtPics.length; i++) {
-                                data.filePaths.push(_this.cmtPics[i]);
-                            }
-                        }
+                        //格式化文本中的超连接
+                        utils.formatHyperLink(data,data.content);
+                        Constant.detail.hasSubmitCmt = true;
+                        Constant.detail.id = _this.bo.id;
                         _this.bo.comment.push(data);
                         _this.cmtContent = '';
                         _this.cmtPid = null;
                         _this.cmtPics = [];
+                        _this.cmtShowPics = [];
                         _this.closeCmtDialog();
                     } else {
                         $.toast('发表失败');
@@ -1027,13 +1177,22 @@
              * 删除评论图片*/
             deleteCmtImg: function (cmtPics, index) {
                 cmtPics.splice(index, 1);
+                this.cmtShowPics.splice(index, 1);
             },
             beforeUpload: function (event) {
                 if ($('.cmt-bottom0 .cmt-pic').length >= maxCmtImgNum) {
                     $.toast('上传的图片最多不能超过' + maxCmtImgNum + '张');
                     event.preventDefault();
                     event.stopPropagation();
-
+                }
+                //调用安卓相册
+                if(this.isAndroid){
+                    try{
+                        window.webview && window.webview.openGallery(maxCmtImgNum,$('.cmt-bottom0 .cmt-pic').length);
+                    }catch(e){
+                        $.toast('error');
+                    }
+                    return;
                 }
             },
             popActions: function (id, cmts) {
@@ -1218,7 +1377,7 @@
     }
 
     .handover-detail .item-li {
-        padding: 0px 10px 5px 10px;
+        padding: 0px 0px 5px 0px;
         display: block;
     }
 
@@ -1276,6 +1435,7 @@
         width: 100%;
         font-size: 16px;
         color: #666;
+        white-space: pre-line;
     }
 
     .handover-detail .sub-content {
@@ -1320,7 +1480,7 @@
     }
 
     .handover-detail .item-container-top {
-        padding: 10px 10px 0px 0px;
+        padding: 10px 0px 0px 0px;
     }
 
     .handover-detail .item-container-bottom {
@@ -1339,6 +1499,7 @@
     .handover-detail .item-text {
         word-wrap: break-word;
         font-size: 16px;
+        white-space: pre-line;
     }
 
     .handover-detail .c-item-content {
@@ -1785,7 +1946,18 @@
         height: 40px;
         margin-top: 5px;
         position: relative;
+        overflow: hidden;
     }
+    .cmt-pic.cmt-pic-local{
+        overflow: inherit;
+    }
+    .handover-detail .detail-cmt-pic{
+        overflow: hidden;
+        width: 40px;
+        height: 40px;
+        display: inline-block;
+    }
+
 
     .handover-detail .icon-image {
         font-size: 20px;
@@ -1946,7 +2118,20 @@
         line-height: 30px;
         text-align: center;
     }
+    .handover-detail .images-li{
+        overflow: hidden;
+        margin-right: 5px;
+        margin-top: 5px;
+    }
+    .handover-detail .item-images li.images-li{
+        padding: 0px;
+        margin-top: 0px;
+    }
 
+    .content-format{
+        word-break: break-all;
+        white-space: initial;
+    }
     @media all and (max-width: 360px) {
         .handover-detail .mt-info {
             display: block;

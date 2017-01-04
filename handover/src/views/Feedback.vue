@@ -16,7 +16,7 @@
                             </div>
                             <div class="fp-add" @click="beforeUpload($event)">
                                 <img width="60" height="60" src="../../../common/assets/imgs/add.png"/>
-                                <input class="add-file0" type="file" name="upload0" multiple accept="image/*"/>
+                                <input class="add-file0" v-show="!isAndroid" type="file" name="upload0" multiple accept="image/*"/>
                             </div>
                         </div>
                         <div class="clearboth"></div>
@@ -59,6 +59,7 @@
     module.exports = {
         data: function () {
             return {
+                isAndroid:$.device.android&&Constant.gallery==1,
                 layout: {
                     width: $('body').width()
                 },
@@ -113,6 +114,12 @@
             },
             bindItemEvent: function () {
                 var _this = this;
+                //安卓选完相册后的回调
+                window.receiveGalleryData = function (base64,width,height) {
+                    base64 = 'data:image/png;base64,'+base64;
+                    if (!_this.bo.showPicPaths) _this.bo.showPicPaths = [];
+                    _this.bo.showPicPaths.push(base64);
+                };
                 $(document).off('change', '.add-file0').on('change', '.add-file0', function () {
                     var $addImg = $(this).prev();
                     var _file = this;
@@ -272,7 +279,15 @@
                     $.toast('上传的图片最多不能超过' + maxImgNum + '张');
                     event.preventDefault();
                     event.stopPropagation();
-
+                }
+                //调用安卓相册
+                if(this.isAndroid){
+                    try{
+                        window.webview && window.webview.openGallery(maxImgNum,$('.handover-create .pb-standalone').length);
+                    }catch(e){
+                        $.toast('error');
+                    }
+                    return;
                 }
             },
             close: function () {

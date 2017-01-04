@@ -15,15 +15,15 @@
 
                     <div class="img-content">
                         <div class="uploadimg-container">
-                            <div class="fp-left" v-for="path in bo.showPicPaths" track-by="$index">
+                            <div class="fp-left" v-for="pic in bo.showPics" track-by="$index">
                                 <a class="item-pic pb-standalone" index="{{$index}}">
-                                    <img width="60" height="60" v-bind:src="path" class="p-img p-img-{{$index}}"/>
+                                    <img v-bind:style="whichCmtImgSize(pic)" v-bind:src="pic.url" v-bind:src="path" class="p-img p-img-{{$index}}"/>
                                 </a>
                                 <span class="delete-img icon-cross" v-on:click="deleteItemImg($index)"></span>
                             </div>
-                            <div class="fp-add" @click="beforeUpload($event)">
+                            <div class="fp-add" @click="beforeUpload($event,-1)">
                                 <img width="60" height="60" src="../../../common/assets/imgs/add.png"/>
-                                <input class="add-file0" type="file" name="upload0" multiple accept="image/*"/>
+                                <input class="add-file0" v-show="!isAndroid" type="file" name="upload0" multiple accept="image/*"/>
                             </div>
                         </div>
                         <div class="clearboth"></div>
@@ -54,11 +54,11 @@
                                         <div class="sub-title"><span>{{$index+1}}、{{subItem.confName}}</span></div>
                                         <!--类型中填写文字以及拍照-->
                                         <div class="sub-content" v-if="subItem.contentType == 0">
-                                            <div class="capture-img" @click="beforeUpload($event)"
+                                            <div class="capture-img" @click="beforeUpload($event,subItem.confId)"
                                                  v-if="subItem.hasPic == 1">
                                                 <img src="../../../common/assets/imgs/capture.png" width="40px"
                                                      height="40px"/>
-                                                <input class="add-file capture-img-file add-{{subItem.confId}}"
+                                                <input class="add-file capture-img-file add-{{subItem.confId}}" v-show="!isAndroid"
                                                        typeId="{{subItem.confId}}" type="file" name="upload" multiple
                                                        accept="image/*"/>
                                             </div>
@@ -70,20 +70,20 @@
                                         <div class="f-panel sub-panel"
                                              v-show="subItem.showPicPanel && subItem.hasPic == 1">
                                             <div class="uploadimg-container uploadimg-container-{{$index}}">
-                                                <div class="fp-left" v-for="path in subItem.filePaths"
+                                                <div class="fp-left" v-for="pic in subItem.showPics"
                                                      track-by="$index">
                                                     <a class="subitem-pic pb-standalone" index="{{$index}}"
                                                        subItemIndex="{{$parent.$index}}"
                                                        itemIndex="{{$parent.$parent.$index}}">
-                                                        <img width="60" height="60" v-bind:src="path"/>
+                                                        <img v-bind:style="whichCmtImgSize(pic)" v-bind:src="pic.url"/>
                                                     </a>
                                                 <span class="delete-img icon-cross"
                                                       v-on:click="deleteImg(subItem,subItem.confId,$index)"></span>
                                                 </div>
-                                                <div class="fp-add" @click="beforeUpload($event)">
+                                                <div class="fp-add" @click="beforeUpload($event,subItem.confId)">
                                                     <img width="60" height="60"
                                                          src="../../../common/assets/imgs/add.png"/>
-                                                    <input class="add-file add-{{subItem.confId}}"
+                                                    <input class="add-file add-{{subItem.confId}}" v-show="!isAndroid"
                                                            typeId="{{subItem.confId}}" type="file" name="upload"
                                                            multiple
                                                            accept="image/*"/>
@@ -193,6 +193,7 @@
     var Vue = require('vue');
     var num = 20;//每页显示的条数
     var maxImgNum = 12;//最多可以上传的图片数目
+    var targetSubItemId;
     module.exports = {
         route: {
             data: function (transition) {
@@ -235,6 +236,7 @@
                         Vue.set(this.bo.subItems[Constant.create.mUserInfo.parentIndex].childs[Constant.create.mUserInfo.index], 'contentStr', Constant.create.mUserInfo.names);
                     }
                 }
+                this.registGalleryEvent();
                 transition.next({
                     done: false,
                     userlist: Constant.selectedUsers,
@@ -292,6 +294,7 @@
         data: function () {
             return {
                 transitionName: 'right',
+                isAndroid:$.device.android&&Constant.gallery==1,
                 page: {
                     index: 0,
                     num: num,
@@ -397,6 +400,44 @@
                 });
                 this.getData('', opt);
             },
+            whichCmtImgSize:function(pic){
+                var totalWidth = 190;
+                var size = utils.computeImgWH(pic.width,pic.height,9,totalWidth);
+                return {
+                    width:size.w+'px',
+                    height:size.h+'px',
+                    webkitTransform:'translate('+size.offsetX+'px,'+size.offsetY+'px)'
+                };
+            },
+            //注册安卓相册事件
+            registGalleryEvent:function(){
+                var _this = this;
+                //安卓选完相册后的回调
+                window.receiveGalleryData = function (base64,width,height) {
+                    base64 = 'data:image/png;base64,'+base64;
+                    if(targetSubItemId == -1){
+                        if (!_this.bo.showPicPaths) _this.bo.showPicPaths = [];
+                        _this.bo.showPicPaths.push(base64);
+                        if (!_this.bo.showPics) _this.bo.showPics = [];
+                        _this.bo.showPics.push({
+                            url:base64,
+                            width:width,
+                            height:height
+                        });
+                    }else if(targetSubItemId >= 0){
+                        var subItem = getChildType(_this.items, targetSubItemId);
+                        if (!subItem.filePaths) subItem.filePaths = [];
+                        subItem.filePaths.push(base64);
+                        if (!subItem.showPics) subItem.showPics = [];
+                        subItem.showPics.push({
+                            url:base64,
+                            width:width,
+                            height:height
+                        });
+                        _this.showPicPanel(subItem);
+                    }
+                };
+            },
             bindItemEvent: function () {
                 var _this = this;
                 $(document).off('change', '.add-file0').on('change', '.add-file0', function () {
@@ -417,11 +458,17 @@
                                 before: function (file) {
                                     //console.log('多张: ' + i + ' 压缩前...');
                                 },
-                                done: function (file, base64) { // 这里是异步回调，done中i的顺序不能保证
+                                done: function (file, base64,img) { // 这里是异步回调，done中i的顺序不能保证
                                     //console.log('多张: ' + i + ' 压缩成功...'+file.length+","+base64.length);
                                     successNum++;
                                     if (!_this.bo.showPicPaths) _this.bo.showPicPaths = [];
                                     _this.bo.showPicPaths.push(base64);
+                                    if (!_this.bo.showPics) _this.bo.showPics = [];
+                                    _this.bo.showPics.push({
+                                        url:base64,
+                                        width:img.width,
+                                        height:img.height
+                                    });
                                     if (successNum == fileNum) {
                                         $(_file).remove();
                                         //上传成功之后重置input
@@ -534,11 +581,17 @@
                                 before: function (file) {
                                     //console.log('多张: ' + i + ' 压缩前...');
                                 },
-                                done: function (file, base64) { // 这里是异步回调，done中i的顺序不能保证
+                                done: function (file, base64,img) { // 这里是异步回调，done中i的顺序不能保证
                                     //console.log('多张: ' + i + ' 压缩成功...'+file.length+","+base64.length);
                                     successNum++;
                                     if (!subItem.filePaths) subItem.filePaths = [];
                                     subItem.filePaths.push(base64);
+                                    if (!subItem.showPics) subItem.showPics = [];
+                                    subItem.showPics.push({
+                                        url:base64,
+                                        width:img.width,
+                                        height:img.height
+                                    });
                                     if (successNum == fileNum) {
                                         $(_file).remove();
                                         //上传成功之后重置input
@@ -659,9 +712,11 @@
             },
             deleteItemImg: function (index) {
                 this.bo.showPicPaths.splice(index, 1);
+                this.bo.showPics.splice(index, 1);
             },
             deleteImg: function (sitem, id, index) {
                 sitem.filePaths.splice(index, 1);
+                sitem.showPics.splice(index, 1);
             },
             atWho: function () {
                 router.go({name: 'mutipleuserlist', params: {type: 0}});
@@ -752,6 +807,13 @@
                         Constant.needRefresh = true;
                         Constant.selectedUsers = [];
                         Constant.selectedGroups = [];
+                        //清除所有查询条件，创建成功之后返回到列表界面时能够查询到ALL
+                        Constant.module = {id:'',name:''};
+                        Constant.userInfo = {id:'',name:''};
+                        Constant.shopInfo = {id:'',name:''};
+                        Constant.atMe = 0;
+                        Constant.isMe = 0;
+                        Constant.isMeUnsolve = 0;
                         router.go({name: 'default'});
                     } else {
                         $.toast('提交失败');
@@ -789,12 +851,22 @@
                     }
                 }
             },
-            beforeUpload: function (event) {
+            beforeUpload: function (event,id) {
                 if ($('.handover-create .pb-standalone').length >= maxImgNum) {
                     $.toast('上传的图片最多不能超过' + maxImgNum + '张');
                     event.preventDefault();
                     event.stopPropagation();
 
+                }
+                //调用安卓相册
+                if(this.isAndroid){
+                    try{
+                        targetSubItemId = id; //记下是从哪儿点击的
+                        window.webview && window.webview.openGallery(maxImgNum,$('.handover-create .pb-standalone').length);
+                    }catch(e){
+                        $.toast('error');
+                    }
+                    return;
                 }
             },
             initAllSearch: function () {
@@ -1011,6 +1083,8 @@
         width: 70px;
         float: left;
         position: relative;
+        margin-bottom: 5px;
+        overflow: hidden;
     }
 
     .delete-img {
@@ -1112,6 +1186,12 @@
 
     .handover-create .item-li:last-child ul {
         border-bottom: none;
+    }
+    .handover-create .item-pic,.handover-create .subitem-pic{
+        overflow: hidden;
+        width: 60px;
+        height: 60px;
+        display: inline-block;
     }
     @media all and (max-width: 360px) {
         .timebox .date-time {
