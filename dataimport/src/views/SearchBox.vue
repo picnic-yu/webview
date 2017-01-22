@@ -1,5 +1,6 @@
 <template>
-  <div class="page" id="search">
+  <div class="page" id="search" :transition="transitionName">
+    <div class="container">
     <header class="bar bar-nav">
       <h1 class='title' onclick="goBack()">选择日期</h1>
     </header>
@@ -27,6 +28,7 @@
       </div>
       <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="othertime()">统计</a></p>
     </div>
+    </div>
   </div>
 </template>
 
@@ -45,6 +47,11 @@
         if(_ec) _ec.close();
         transition.next();
       }
+    },
+    data:function(){
+      return {
+        transitionName:'right'
+      };
     },
     props:{
       search:{

@@ -1,6 +1,6 @@
 <template>
-    <div class="page-group">
-      <div class="page page-current" id="index">
+    <div class="page-group" :transition="transitionName">
+      <div class="container page page-current" id="index">
         <header class="bar bar-nav">
           <h1 class='title'>POS数据录入</h1>
           <a class="right-menu" v-on:click="goHistorys()">历史</a>
@@ -71,10 +71,15 @@ module.exports =  {
      transition.next({
        shopInfo:Constant.shopInfo
      });
-   }
+   },
+    deactivate:function(transition){
+      this.transitionName = 'left';
+      transition.next();
+    }
   },
   data:function(){
     return {
+      transitionName : 'right',
       shopInfo:{
         id:'',
         name:''

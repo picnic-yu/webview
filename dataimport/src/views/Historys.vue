@@ -1,6 +1,6 @@
 <template>
-  <div class="page-group">
-    <div class="page page-current" id="index">
+  <div class="page-group" :transition="transitionName">
+    <div class="container page page-current" id="index">
       <header class="bar bar-nav">
         <h1 class='title'>POS数据历史记录</h1>
         <a class="right-menu" v-on:click="goAdd()">录入</a>
@@ -103,6 +103,7 @@
         });
       },
       deactivate:function(transition){
+        this.transitionName = 'left';
         this.unbindInfinite();
         this.clearData();
         transition.next();
@@ -110,6 +111,7 @@
     },
     data:function(){
       return {
+        transitionName : 'right',
         search:{
           startTime:'',
           endTime:''
