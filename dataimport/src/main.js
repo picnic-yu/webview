@@ -26,8 +26,10 @@ Vue.filter('percent',Filters.percent);
 
 var router = new VueRouter(
   {
-    hashbang:true,
-    history:false
+    hashbang: true,
+    history: false,
+    initialTransition: 'show',
+    saveScrollPosition: true
   }
 );
 Router(router);
