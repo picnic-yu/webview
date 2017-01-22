@@ -1,6 +1,6 @@
 <template>
-  <div class="page-group">
-    <div class="page page-current" id="index">
+  <div class="page-group" :transition="transitionName">
+    <div class="page page-current container" id="index">
       <header class="bar bar-nav">
         <h1 class='title'>选择门店</h1>
       </header>
@@ -69,6 +69,7 @@
     },
     data:function(){
       return {
+        transitionName:'right',
         page:{
           index:0,
           num:num,

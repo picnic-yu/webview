@@ -1,6 +1,6 @@
 <template>
-  <div class="page-group">
-    <div class="page page-current" id="index">
+  <div class="page-group" :transition="transitionName">
+    <div class="page page-current container" id="index">
       <header class="bar bar-nav">
         <h1 class='title'>设备列表</h1>
         <a class="right-menu" v-on:click="goAdd()">添加</a>
@@ -112,6 +112,7 @@
         });
       },
       deactivate:function(transition){
+        this.transitionName = 'left';
         this.clearData();
         transition.next();
       }
@@ -142,6 +143,7 @@
     },
     data:function(){
       return {
+        transitionName:'right',
         search:{
           startTime:'',
           endTime:'',
