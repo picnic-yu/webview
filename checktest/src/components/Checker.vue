@@ -85,7 +85,7 @@
                             var _this = this;
                             this.loading = true;
                             searchData = searchData?searchData:this;
-                            this.$http.post('/service/getUsersByPrivilege.action?token='+Constant.token,{
+                            this.$http.post('/sysmanager/getUsersByPrivileges.action?token='+Constant.token,{
                               privilegeNames:'CHECK',
                               index:searchData.page.index,
                               num:searchData.page.num

@@ -107,7 +107,7 @@
                                       <div class="item-inner">
                                           <div class="item-title label">门店名称</div>
                                           <div class="item-input">
-                                              <input type="text" v-model="deptName" v-on:click="goToShoplist()"/>
+                                              <input type="text" readonly="readonly" v-model="deptName" v-on:click="goToShoplist()"/>
                                           </div>
                                       </div>
                                   </div>
@@ -117,7 +117,7 @@
                                      <div class="item-inner">
                                          <div class="item-title label">点检人</div>
                                          <div class="item-input">
-                                             <input type="text" v-model="checkerName" v-on:click="goToCheckerlist()"/>
+                                             <input type="text" readonly="readonly" v-model="checkerName" v-on:click="goToCheckerlist()"/>
                                          </div>
                                      </div>
                                  </div>
@@ -131,6 +131,16 @@
                                          </div>
                                      </div>
                                  </div>
+                            </li>
+                            <li>
+                                <div class="item-content">
+                                    <div class="item-inner" style="color:#333;">
+                                        <div class="item-title label">联动抓拍</div>
+                                        <div class="item-input" v-on:click="selectCapture()">
+                                            <span class="item-icon" v-bind:class="isCapture==1?'icon-square-check':'icon-square'"></span>
+                                        </div>
+                                    </div>
+                                </div>
                             </li>
                     </ul>
             </div>
@@ -174,6 +184,7 @@
                 selectchecker:[],
                 checkerName:'',
                 invalidDays:'',
+                isCapture:0,
                 status:'',
                 doing:false,
                 taskName:''
@@ -429,7 +440,8 @@
                         'checktask.presetNos':presetNos,
                         'checktask.dbViewShopIds' : itemIds,
                         'checktask.checker' : this.selectchecker[0].id,
-                        'checktask.validDay':this.invalidDays
+                        'checktask.validDay':this.invalidDays,
+                        'checktask.iscapture':this.isCapture
                 }).then(function(ret){
                     _this.doing = false;
                     if(ret.ok && ret.data && ret.data.result == 'ok'){
@@ -441,6 +453,13 @@
                         $.toast("保存失败");
                     }
                 });
+            },
+            selectCapture:function(){
+                if(this.isCapture==1){
+                    this.isCapture = 0;
+                }else{
+                    this.isCapture = 1;
+                }
             },
             resetRecord:function(){
                 this.taskName = "";
@@ -463,6 +482,7 @@
                 this.selectchecker = [];
                 this.checkerName = "";
                 this.invalidDays = 3;
+                this.isCapture = 0;
                 this.status = 1;
                 this.selectevals=[];
                 this.evalName='';
@@ -483,13 +503,13 @@
                    var weekArr = cronArr[5].split(",");
                    this.weekDateName = "";
                    this.selectweeks = [];
-                   for(var i=0;i<this.$children[3].weeks.length;i++){
-                       this.$children[3].weeks[i].checked=false;
+                   for(var i=0;i<this.$children[2].weeks.length;i++){
+                       this.$children[2].weeks[i].checked=false;
                        for(var j=0;j<weekArr.length;j++){
-                            if(this.$children[3].weeks[i].id==weekArr[j]){
-                                this.weekDateName = this.weekDateName + this.$children[3].weeks[i].name+",";
-                                this.$children[3].weeks[i].checked = true;
-                                this.selectweeks.push(this.$children[3].weeks[i]);
+                            if(this.$children[2].weeks[i].id==weekArr[j]){
+                                this.weekDateName = this.weekDateName + this.$children[2].weeks[i].name+",";
+                                this.$children[2].weeks[i].checked = true;
+                                this.selectweeks.push(this.$children[2].weeks[i]);
                                 break;
                             }
                        }
@@ -499,17 +519,17 @@
                     }
                     this.selectmonths = [];
                     this.monthDateName = "";
-                    for(var i=0;i<this.$children[2].colDates.length;i++){
-                        this.$children[2].colDates[i].display=false;
+                    for(var i=0;i<this.$children[3].colDates.length;i++){
+                        this.$children[3].colDates[i].display=false;
                     }
                 }else if(frequency == 2){
                     this.monthDateName = cronArr[3];
                     this.selectmonths = cronArr[3].split(",");
-                    for(var i=0;i<this.$children[2].colDates.length;i++){
-                        this.$children[2].colDates[i].display=false;
+                    for(var i=0;i<this.$children[3].colDates.length;i++){
+                        this.$children[3].colDates[i].display=false;
                         for(var j=0;j<this.selectmonths.length;j++){
-                            if(this.$children[2].colDates[i].id==this.selectmonths[j]){
-                                this.$children[2].colDates[i].display = true;
+                            if(this.$children[3].colDates[i].id==this.selectmonths[j]){
+                                this.$children[3].colDates[i].display = true;
                                 break;
                             }
                         }
@@ -517,8 +537,8 @@
                     this.selectweeks = [];
                     this.weekDateName = "";
                     this.weekDateIds = "";
-                    for(var i=0;i<this.$children[3].weeks.length;i++){
-                        this.$children[3].weeks[i].display=false;
+                    for(var i=0;i<this.$children[2].weeks.length;i++){
+                        this.$children[2].weeks[i].display=false;
                     }
                 }
 
@@ -536,6 +556,7 @@
                     this.selectchecker = [{id:this.record.checker,showName:this.record.checkerName}];
                     this.checkerName = this.record.checkerName;
                     this.invalidDays = this.record.validDay;
+                    this.isCapture = this.record.iscapture;
                     this.status = this.record.isProcessing;
                     var _this = this;
                     this.$http.post('/service/getDeptsAndDbViewShops.action?token='+Constant.token,{
