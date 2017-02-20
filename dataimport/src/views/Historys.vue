@@ -1,6 +1,6 @@
 <template>
-  <div class="page-group" :transition="transitionName">
-    <div class="container page page-current" id="index">
+  <div class="page-group">
+    <div class="page page-current" id="index">
       <header class="bar bar-nav">
         <h1 class='title'>POS数据历史记录</h1>
         <a class="right-menu" v-on:click="goAdd()">录入</a>
@@ -32,242 +32,239 @@
           </div>
         </div>
       </div>
-    <div id="historysContent" class="content content-items pull-to-refresh-content infinite-scroll"  data-ptr-distance="55" data-distance="240">
-      <div class="pull-to-refresh-layer">
-        <div class="preloader"></div>
-        <div class="pull-to-refresh-arrow"></div>
-      </div>
-      <div class="items-list">
-        <ul>
-          <li v-for="item in items" v-on:click="detail(item)">
-            <div class="item-des">
-              <!--<span class="item-name">{{item.depName}}</span>-->
-              <span class="item-time">{{item.create_time.substring(0,10)}}</span>
-              <span class="item-user">{{item.creater.showName}}</span>
-            </div>
-            <div class="item-des item-br">
-              <!--<label class="item-label">销售单数</label><span class="item-num">{{item.dealPersonNum}}</span>
-              <label class="item-label">销售件数</label><span class="item-num">{{item.dealNum}}</span>
-              <label class="item-label">总销售额</label><span class="item-num item-num-large">{{item.total}}</span>-->
-              <label class="item-num"><span class="person-value">{{item.dealPersonNum}}</span>单</label>
-              <label class="item-num"><span class="deal-value">{{item.dealNum}}</span>件</label>
-              <label class="item-num item-num-large"><span class="total-value">{{item.total}}</span>元</label>
-            </div>
-          </li>
-        </ul>
-      </div>
-      <div class="items-list no-data" v-show="nodata">
-        没有任何历史记录
-      </div>
-      <div class="infinite-scroll-preloader">
-        <div class="preloader"></div>
+      <div id="historysContent" class="content content-items pull-to-refresh-content infinite-scroll"  data-ptr-distance="55" data-distance="240">
+        <div class="pull-to-refresh-layer">
+          <div class="preloader"></div>
+          <div class="pull-to-refresh-arrow"></div>
+        </div>
+        <div class="items-list">
+          <ul>
+            <li v-for="item in items" v-on:click="detail(item)">
+              <div class="item-des">
+                <!--<span class="item-name">{{item.depName}}</span>-->
+                <span class="item-time">{{item.create_time.substring(0,10)}}</span>
+                <!--<span class="item-user">{{item.creater.showName}}</span>-->
+              </div>
+              <div class="item-des item-br">
+                <!--<label class="item-label">销售单数</label><span class="item-num">{{item.dealPersonNum}}</span>
+                <label class="item-label">销售件数</label><span class="item-num">{{item.dealNum}}</span>
+                <label class="item-label">总销售额</label><span class="item-num item-num-large">{{item.total}}</span>-->
+                <label class="item-num"><span class="person-value">{{item.dealPersonNum}}</span>单</label>
+                <!--<label class="item-num"><span class="deal-value">{{item.dealNum}}</span>件</label>-->
+                <label class="item-num item-num-large"><span class="total-value">{{item.total}}</span>元</label>
+              </div>
+            </li>
+          </ul>
+        </div>
+        <div class="items-list no-data" v-show="nodata">
+          没有任何历史记录
+        </div>
+        <div class="infinite-scroll-preloader">
+          <div class="preloader"></div>
+        </div>
       </div>
     </div>
-  </div>
-    <detail></detail>
   </div>
 </template>
 
 <script>
-  require('../../../common/assets/font.css');
-  var commonutils = require('../../../common/assets/js/commonutils');
-  var num = 20;//每页显示的条数
-  module.exports =  {
-    route:{
-      data:function(transition){
-        if(Constant.shopInfo.id || Constant.search.startTime){
-          var _this = this;
-          if(this.refreshInit){
-            this.getData(function(){
-              if(_this.page.total <= _this.items.length){
-                _this.unbindInfinite();
-              }
-              $.refreshScroller();
-            },{
-              page:{
-                index:0,
-                num:num
-              },
-              search:Constant.search,
-              shopInfo:Constant.shopInfo
-            });
-          }
-        }
-        transition.next({
-          search:Constant.search,
-          shopInfo:Constant.shopInfo,
-          page:{
-            index:0,
-            num:num
-          }
-        });
-      },
-      deactivate:function(transition){
-        this.transitionName = 'left';
-        this.unbindInfinite();
-        this.clearData();
-        transition.next();
-      }
-    },
-    data:function(){
-      return {
-        transitionName : 'right',
-        search:{
-          startTime:'',
-          endTime:''
+    require('../../../common/assets/font.css');
+    var Vue = require('vue');
+    var commonutils = require('../../../common/assets/js/commonutils');
+    var num = 20;//每页显示的条数
+    module.exports =  {
+        route:{
+            data:function(transition){
+                if(Constant.shopInfo.id || Constant.search.startTime){
+                    var _this = this;
+                    if(this.refreshInit){
+                        this.getData(function(){
+                            if(_this.page.total <= _this.items.length){
+                                _this.unbindInfinite();
+                            }
+                            $.refreshScroller();
+                        },{
+                            page:{
+                                index:0,
+                                num:num
+                            },
+                            search:Constant.search,
+                            shopInfo:Constant.shopInfo
+                        });
+                    }
+                }
+                transition.next({
+                    search:Constant.search,
+                    shopInfo:Constant.shopInfo,
+                    page:{
+                        index:0,
+                        num:num
+                    }
+                });
+            },
+            deactivate:function(transition){
+                this.reInitScroll();
+                this.clearData();
+                transition.next();
+            }
         },
-        shopInfo:{
-          id:'',
-          name:''
+        data:function(){
+            return {
+                search:{
+                    startTime:'',
+                    endTime:''
+                },
+                shopInfo:{
+                    id:'',
+                    name:''
+                },
+                page:{
+                    index:0,
+                    num:num,
+                    total:0
+                },
+                loading:false,
+                nodata:false,
+                items:[],
+                scrollInit:false,
+                refreshInit:false
+            }
         },
-        page:{
-          index:0,
-          num:num,
-          total:0
-        },
-        loading:false,
-        nodata:false,
-        items:[],
-        scrollInit:false,
-        refreshInit:false
-      }
-    },
-    components: {
-      detail: require('./../components/Detail.vue')
-    },
-    created:function(){
+        created:function(){
 
-    },
-    ready:function(){
-      Constant.search = this.search;
-      this.initData();
-      this.init();
-    },
-    methods:{
-      initData:function(){
-        var time = commonutils.getThisWeekTime();
-        this.search.startTime = time.startTime;
-        this.search.endTime = time.endTime;
-      },
-      init:function(){
-        var _this = this;
-        if(!this.refreshInit){
-          $('#historysContent').scroller({
-            type: 'native'
-          });
-          $.initPullToRefresh('#historysContent');
-          $(document).on('refresh','#historysContent',function(e){
-            _this.refresh();
-          });
-          this.refreshInit = true;
-        }
-        this.bindInfiniteEvent();
-        var _this = this;
-        this.getData(function(){
-          if(_this.page.total <= _this.items.length){
-            _this.unbindInfinite();
-          }
-          $.refreshScroller();
-        });
-      },
-      reInitScroll:function(){
-        this.unbindInfinite();
-        this.bindInfiniteEvent();
-      },
-      unbindInfinite:function(){
-        if ($('#historysContent').length > 0) {
-          $.detachInfiniteScroll($('#historysContent'));
-          $('#historysContent .infinite-scroll-preloader').hide();
-        }
-      },
-      bindInfiniteEvent:function(){
-        var _this = this;
-        $.attachInfiniteScroll($('#historysContent'));
-        $('#historysContent .infinite-scroll-preloader').show();
-        var func = function(e){
-          if(_this.loading) return;
-          _this.page.index += _this.page.num;
-          _this.getData(function(){
-            if(_this.page.total <= _this.items.length){
-              _this.unbindInfinite();
+        },
+        ready:function(){
+            Constant.search = this.search;
+            this.initData();
+            this.init();
+        },
+        methods:{
+            initData:function(){
+                var time = commonutils.getThisWeekTime();
+                this.search.startTime = time.startTime;
+                this.search.endTime = time.endTime;
+            },
+            init:function(){
+                var _this = this;
+                if(!this.refreshInit){
+                    $('#historysContent').scroller({
+                        type: 'native'
+                    });
+                    $.initPullToRefresh('#historysContent');
+                    $(document).on('refresh','#historysContent',function(e){
+                        if(_this.items.length == 0){
+                            $.pullToRefreshDone('#historysContent');
+                            return;
+                        }
+                        _this.refresh();
+                    });
+                    this.refreshInit = true;
+                }
+                this.bindInfiniteEvent();
+                var _this = this;
+                this.getData(function(){
+                    if(_this.page.total <= _this.items.length){
+                        _this.unbindInfinite();
+                    }
+                    $.refreshScroller();
+                });
+            },
+            reInitScroll:function(){
+                this.unbindInfinite();
+                this.bindInfiniteEvent();
+            },
+            unbindInfinite:function(){
+                $.detachInfiniteScroll($('#historysContent'));
+                $('#historysContent .infinite-scroll-preloader').hide();
+            },
+            bindInfiniteEvent:function(){
+                var _this = this;
+                $.attachInfiniteScroll($('#historysContent'));
+                $('#historysContent .infinite-scroll-preloader').show();
+                var func = function(e){
+                    if(_this.loading) return;
+                    _this.page.index += _this.page.num;
+                    _this.getData(function(){
+                        if(_this.page.total <= _this.items.length){
+                            _this.unbindInfinite();
+                        }
+                        $.refreshScroller();
+                    });
+                };
+                $(document).off('infinite','#historysContent',func).on('infinite','#historysContent',func);
+            },
+            getData:function(callback,searchData){
+                var _this = this;
+                this.loading = true;
+                searchData = searchData?searchData:this;
+                if (!searchData.shopInfo.id) {
+                    this.unbindInfinite();
+                    $.refreshScroller();
+                    return;
+                }
+                Vue.http.options.emulateJSON = false;
+                this.$http.post('/service/getSaleList.action?token='+Constant.token,{
+                    dep_id:searchData.shopInfo.id,
+                    start_time:searchData.search.startTime+" 00:00:00",
+                    end_time:searchData.search.endTime+" 23:59:59",
+                    pageNumber:searchData.page.index/searchData.page.num+1,
+                    pageSize:searchData.page.num
+                }).then(function(ret){
+                    _this.loading = false;
+                    Vue.http.options.emulateJSON = true;
+                    if(ret.ok && ret.data && ret.data.result == 'ok'){
+                        if(_this.page.index == 0){
+                            _this.items = ret.data.data.data;
+                        }else{
+                            _this.items = _this.items.concat(ret.data.data.data);
+                        }
+                        _this.page.total = ret.data.data.total;
+                        if(_this.page.total > 0){
+                            _this.nodata = false;
+                        }else{
+                            _this.nodata = true;
+                        }
+                        callback && callback();
+                    }
+                });
+            },
+            clearData:function(){
+                this.page.index = 0;
+                this.items = [];
+                this.searchName = '';
+            },
+            refresh:function(){
+                if (!this.shopInfo.id) {
+                    $.pullToRefreshDone('#historysContent');
+                    return;
+                }
+                this.page.index = 0;
+                this.items = [];
+                this.reInitScroll();
+                var _this = this;
+                this.getData(function(){
+                    if(_this.page.total <= _this.items.length){
+                        _this.unbindInfinite();
+                    }
+                    $.pullToRefreshDone('#historysContent');
+                });
+            },
+            detail: function (item) {
+                Constant.currentDate = item.create_time.substring(0,10);
+                router.go({path:'/saledetail'});
+            },
+            searchMore:function(){
+                Constant.search = this.search;
+                router.go({path:'/search'});
+            },
+            goToShoplist:function(){
+                router.go({path:'/shoplist'});
+            },
+            goAdd:function(){
+                window.location.href = 'index.html?token='+Constant.token+'&name='+encodeURIComponent(Constant.shopInfo.name)+'&id='+Constant.shopInfo.id;
             }
-            $.refreshScroller();
-          });
-        };
-        $(document).off('infinite','#historysContent').on('infinite','#historysContent',func);
-      },
-      getData:function(callback,searchData){
-        var _this = this;
-        this.loading = true;
-        searchData = searchData?searchData:this;
-        if (!searchData.shopInfo.id) {
-          this.unbindInfinite();
-          $.refreshScroller();
-          return;
         }
-        this.$http.post('/service/getSaleList.action?token='+Constant.token,{
-          dep_id:searchData.shopInfo.id,
-          start_time:searchData.search.startTime+" 00:00:00",
-          end_time:searchData.search.endTime+" 23:59:59",
-          pageNumber:searchData.page.index/searchData.page.num+1,
-          pageSize:searchData.page.num
-        }).then(function(ret){
-          _this.loading = false;
-          if(ret.ok && ret.data && ret.data.result == 'ok'){
-            if(_this.page.index == 0){
-              _this.items = ret.data.data.data;
-            }else{
-              _this.items = _this.items.concat(ret.data.data.data);
-            }
-            _this.page.total = ret.data.data.total;
-            if(_this.page.total > 0){
-              _this.nodata = false;
-            }else{
-              _this.nodata = true;
-            }
-            callback && callback();
-          }
-        });
-      },
-      clearData:function(){
-        this.page.index = 0;
-        this.items = [];
-        this.searchName = '';
-      },
-      refresh:function(){
-        if (!this.shopInfo.id) {
-          $.pullToRefreshDone('#historysContent');
-          return;
-        }
-        this.page.index = 0;
-        this.items = [];
-        this.reInitScroll();
-        var _this = this;
-        this.getData(function(){
-          if(_this.page.total <= _this.items.length){
-            _this.unbindInfinite();
-          }
-          $.pullToRefreshDone('#historysContent');
-        });
-      },
-      detail: function (item) {
-        this.$broadcast('popup', {
-          name: 'detail',
-          item: item
-        });
-      },
-      searchMore:function(){
-        Constant.search = this.search;
-        router.go({path:'/search'});
-      },
-      goToShoplist:function(){
-        router.go({path:'/shoplist'});
-      },
-      goAdd:function(){
-          window.location.href = 'index.html?token='+Constant.token+'&name='+encodeURIComponent(Constant.shopInfo.name)+'&id='+Constant.shopInfo.id;
-      }
-    }
-  };
+    };
 </script>
 
 <style>
@@ -394,7 +391,7 @@
     color:#333;
     font-size: 12px;
     display: inline-block;
-    width: 80px;
+    width: 100px;
     overflow: hidden;
     text-overflow:ellipsis;
     -o-text-overflow:ellipsis;

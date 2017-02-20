@@ -7,29 +7,29 @@ var Vue = require('vue'),
     VueRouter = require('vue-router');
 Router = require('./history_router');
 Main = require('./Main.vue'),
-Filters = require('./filters'),
-utils = require('./utils'),
+    Filters = require('./filters'),
+    utils = require('./utils'),
     commonutils = require('../../common/assets/js/commonutils'),
-Constant = require('./constant'),
-VueTap = require('vue-tap');
+    Constant = require('./constant'),
+    VueTap = require('vue-tap');
 Vue.use(VueRouter);
 Vue.use(VueTap);
 Vue.use(require('vue-resource'));
 //设置url传递过来的参数
+Vue.http.options.emulateJSON = false;
 Vue.http.headers.common['authenticator'] = Constant.token = commonutils.getPageUrlParam('token');
 Constant.shopInfo.id = commonutils.getPageUrlParam('id');
 Constant.shopInfo.name = decodeURIComponent(commonutils.getPageUrlParam('name'));
-
 Vue.filter('istoday',Filters.isToday);
 Vue.filter('percent',Filters.percent);
 
 var router = new VueRouter(
-  {
-    hashbang: true,
-    history: false,
-    initialTransition: 'show',
-    saveScrollPosition: true
-  }
+    {
+        hashbang: true,
+        history: false,
+        initialTransition: 'show',
+        saveScrollPosition: true
+    }
 );
 Router(router);
 window.router = router;
@@ -38,16 +38,19 @@ window.router = router;
  * @returns {boolean}
  */
 window.goBack = function(){
-  var curPathName = Constant.curRoute.pathName;
-  var backInfo = utils.getBackPath(curPathName);
-  if(backInfo.parent){
-    router.go({name:backInfo.parent,params:backInfo.params});
-    window.webview &&　window.webview.goBack(false);
-    return false;
-  } else {
+    var curPathName = Constant.curRoute.pathName;
+    if(curPathName == 'saledetail'){
+        $.closeModal('.popup-detail');
+    }
+    var backInfo = utils.getBackPath(curPathName);
+    if(backInfo.parent){
+        router.go({name:backInfo.parent,params:backInfo.params});
+        window.webview &&　window.webview.goBack(false);
+        return false;
+    } else {
 
-  }
-  window.webview　&& window.webview.goBack(true);
-  return true;
+    }
+    window.webview　&& window.webview.goBack(true);
+    return true;
 };
 router.start(Main,'#app');
