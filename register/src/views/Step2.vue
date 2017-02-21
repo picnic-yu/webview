@@ -6,20 +6,33 @@
                 <!--<a v-show="!device" class="login-button pull-right" href="http://www.wandianzhang.com">登录</a>
                 <a v-show="device" class="login-button pull-right" v-on:click="openApp()">登录</a>-->
             </header>
-            <div v-bind:class="isApp==1?'register-wrap1':'register-wrap'">
+            <div v-bind:class="isApp==1?'register-wrap21':'register-wrap'">
                 <div class="register-container">
-                    <div class="register-title">
-                        <span>{{tag}}</span>
-                    </div>
                     <div class="enterprise-bg">
-                        <div class="user-wrap">
+                        <div class="inputwrap" style="background-color:#fafafa;">
+                            <table  class="label-table"><tr>
+                                <td><span style="padding:0 15px;font-size:16px;">企业名：{{tag}}</span></td>
+                            </tr></table>
+                        </div>
+                        <div class="inputwrap" style="background-color:#fafafa;">
+                            <table  class="label-table"><tr>
+                                <td><span style="padding:0 15px;font-size:16px;">推荐人：{{fromUser.showName}}</span></td>
+                            </tr></table>
+                        </div>
+                        <div class="inputwrap">
+                            <table  class="label-table"><tr>
+                                <td><input type="text" placeholder="用户名" v-model="userName" v-on:blur="checkUser()"></td>
+                                <td class="read-label">*</td>
+                            </tr></table>
+                        </div>
+                        <!--<div class="user-wrap">
                             <div class="inputwrap authcode">
                                 <table  class="label-table"><tr>
                                     <td><input type="text" placeholder="用户名" v-model="userName"></td>
                                     <td class="read-label">*</td></tr></table>
                             </div>
                             <a class="getauthcode" v-on:click="checkUser()">检查用户名</a>
-                        </div>
+                        </div>-->
                         <div class="usertip-span" v-show="errorshowName">
                             <span v-bind:class="errorInfoNameCan?'greenName':'redName'">{{errorInfoName}}</span>
                         </div>
@@ -97,7 +110,8 @@
                 errorshowName:false,
                 errorInfoName:'',
                 errorInfoNameCan:false,
-                userinfo:null
+                userinfo:null,
+                fromUser:{}
             }
         },
         ready: function () {
@@ -123,6 +137,7 @@
                         if(group){
                             this.tag = group.name;
                             this.enterpriseId = group.id;
+                            this.fromUser = ret.data.data.fromUser;
                         }
                     }else{
                         this.tag = "";
@@ -151,6 +166,10 @@
                         this.pwd = "";
                         this.phone = signUser.phone;
                         this.email = signUser.email;
+                        this.fromUser = {
+                            id:signUser.fromUserId,
+                            showName:signUser.fromUserName
+                        }
                         this.errorshow1 = true;
                         if(signUser.reason){
                             this.errorInfo1 = "由于"+signUser.reason+",导致审核失败";
@@ -232,7 +251,8 @@
                     'registerVo.password':password,
                     'registerVo.phone':this.phone,
                     'registerVo.email':this.email,
-                    'registerVo.activateCode':this.authorcode
+                    'registerVo.activateCode':this.authorcode,
+                    'registerVo.fromUserId':this.fromUser.id
                 }).then(function(ret){
                     this.registerFlag = false;
                     if(ret.data){
@@ -266,7 +286,18 @@
                             }else{
                                 this.errorshow1 = false;
                                 this.resetData();
-                                window.location.href="http://www.ovopark.com/loginsuccess.html";
+                                var strFullpath = window.location.href;
+                                var strPath = window.location.pathname;
+                                var pos = strFullpath.indexOf(strPath);
+                                var prePath = strFullpath.substring(0,pos);
+                                var preIndex = prePath.lastIndexOf(":8");//如果含有8开头的端口则改成8080端口
+                                var rootPath = prePath;
+                                if(preIndex>0){
+                                    rootPath = prePath.substring(0,preIndex);
+                                    rootPath = rootPath + ":8080";
+                                }
+                                window.location.href = rootPath + "/loginsuccess.html";
+                                //window.location.href="http://www.ovopark.com/loginsuccess.html";
                             }
                             //如果是从app里面点进来的注册，则调用app的方法跳转到登录界面
                             /*if(this.isApp){
@@ -291,6 +322,7 @@
             checkUser:function(){
                 if(!this.userName){
                     this.errorshowName = true;
+                    this.errorInfoNameCan = false;
                     this.errorInfoName = "请输入用户名";
                     return;
                 }
@@ -379,7 +411,11 @@
                 this.tag = "";
                 Constant.currentTab = 1;
                 Constant.signUserId = null;
-                window.location = "index.html";
+                if(Constant.app == 1){
+                    window.location = "index.html?app=1";
+                }else{
+                    window.location = "index.html";
+                }
             },
             openApp:function(){
                 if(this.isWeixin()){
@@ -461,9 +497,9 @@
         background: #f90;
         color:#fff;
     }
-    .register-wrap1{
+    .register-wrap21{
         margin:10px auto 10px auto;
-        padding:0px 15px 20px;
+        padding:30px 15px 20px;
         min-width:290px;
         max-width:440px;
     }

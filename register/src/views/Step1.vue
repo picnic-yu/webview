@@ -16,14 +16,20 @@
                         <a v-on:click="selectTab(2)"><span class="enterhas" v-bind:class="currentTab==2?'select-tab':''">加入已有企业</span></a>
                     </div>
                     <div class="enterprise-bg" v-show="currentTab==1">
-                        <div class="user-wrap">
+                        <div class="inputwrap">
+                            <table  class="label-table"><tr>
+                                <td><input type="text" placeholder="用户名" v-model="userName" v-on:blur="checkUser()"></td>
+                                <td class="read-label">*</td>
+                            </tr></table>
+                        </div>
+                        <!--<div class="user-wrap">
                             <div class="inputwrap authcode">
                                 <table class="label-table"><tr><td>
                                     <input type="text" placeholder="用户名" v-model="userName">
                                 </td>
                                     <td class="read-label">*</td></tr></table>
                             </div><a class="getauthcode" v-on:click="checkUser()">检查用户名</a>
-                        </div>
+                        </div>-->
                         <div class="usertip-span" v-show="errorshowName">
                             <span v-bind:class="errorInfoNameCan?'greenName':'redName'">{{errorInfoName}}</span>
                         </div>
@@ -253,6 +259,7 @@
             checkUser:function(){
                 if(!this.userName){
                     this.errorshowName = true;
+                    this.errorInfoNameCan = false;
                     this.errorInfoName = "请输入用户名";
                     return;
                 }

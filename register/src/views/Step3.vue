@@ -279,7 +279,8 @@
                             //如果是从app里面点进来的注册，则调用app的方法跳转到登录界面
                             this.webviewReady();
                         }else{
-                            window.location.href="http://www.ovopark.com/uploadsuccess.html";
+                            window.location.href = getRootPath() + "/loginsuccess.html";
+                            //window.location.href="http://www.ovopark.com/uploadsuccess.html";
                         }
                     } else {
                         $.toast('上传营业执照失败');
@@ -329,7 +330,8 @@
                             },3000);
                         }
                     }else{
-                        window.location.href="http://www.ovopark.com";
+                        window.location.href = getRootPath();
+                        //window.location.href="http://www.ovopark.com";
                     }
                 }
             },
@@ -351,6 +353,19 @@
                 }catch(e){
                     $.toast("暂不支持");
                 }
+            },
+            getRootPath:function(){
+                var strFullpath = window.location.href;
+                var strPath = window.location.pathname;
+                var pos = strFullpath.indexOf(strPath);
+                var prePath = strFullpath.substring(0,pos);
+                var preIndex = prePath.lastIndexOf(":8");//如果含有8开头的端口则改成8080端口
+                var rootPath = prePath;
+                if(preIndex>0){
+                    rootPath = prePath.substring(0,preIndex);
+                    rootPath = rootPath + ":8080";
+                }
+                return rootPath;
             }
         }
     };
