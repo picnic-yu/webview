@@ -75,7 +75,7 @@
     module.exports =  {
         route:{
             data:function(transition){
-                if(Constant.shopInfo.id || Constant.search.startTime){
+                if(Constant.shopInfo.id && Constant.search.startTime){
                     var _this = this;
                     if(this.refreshInit){
                         this.getData(function(){
@@ -92,6 +92,11 @@
                             shopInfo:Constant.shopInfo
                         });
                     }
+                }else{
+                    setTimeout(function(){
+                        $.detachInfiniteScroll($('#historysContent'));
+                        $('#historysContent .infinite-scroll-preloader').hide();
+                    },500);
                 }
                 transition.next({
                     search:Constant.search,

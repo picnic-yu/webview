@@ -37,7 +37,7 @@
                 <div class="item-content">
                   <div class="item-inner">
                     <div class="item-title label">销售单数</div>
-                    <div class="item-input"><input type="text" pattern="[0-9]{1,10}" placeholder="请输入销售单数"
+                    <div class="item-input"><input type="number" placeholder="请输入销售单数"
                                                    v-model="dealPersonNum" @input="istoolong0()"/></div>
                   </div>
                 </div>
@@ -55,7 +55,7 @@
                 <div class="item-content">
                   <div class="item-inner">
                     <div class="item-title label">总销售额</div>
-                    <div class="item-input"><input type="number" pattern="[0-9]{1,10}" placeholder="请输入总销售额(元)"
+                    <div class="item-input"><input type="number" placeholder="请输入总销售额(元)"
                                                    v-model="total" maxlength="9" @input="istoolong2()"/></div>
                   </div>
                 </div>
@@ -115,8 +115,12 @@
                 var curDate = commonutils.formatDateTime(new Date(), 1);
                 var curTime = commonutils.formatDateTime(new Date(), 2);
                 var timeArr = curTime.substring(0,5).split(':');
+                var _this = this;
                 $('#saleDate').calendar({
-                    maxDate:curDate.replace(/-/g,'/')
+                    maxDate:curDate.replace(/-/g,'/'),
+                    onClose:function(){
+                        _this.setValidTime();
+                    }
                 });
                 var arr1 = [];
                 for(var i=0;i<24;i++){
@@ -148,6 +152,9 @@
                     value:timeArr,
                     formatValue:function(picker,value,displayValue){
                         return value[0]+":"+value[1];
+                    },
+                    onClose:function(){
+                        _this.setValidTime();
                     }
                 });
             },
@@ -156,6 +163,23 @@
             },
             goHistorys:function(){
                 window.location.href = 'historys.html?token='+Constant.token+'&name='+encodeURIComponent(Constant.shopInfo.name)+'&id='+Constant.shopInfo.id;
+            },
+            setValidTime:function(){
+                var _this = this;
+                var tempDate = commonutils.formatDateTime(new Date(), 1);
+                //如果是当天，则要判断选中的时间不能超过当前时间
+                if(_this.saleDate == tempDate){
+                    var tempTime = commonutils.formatDateTime(new Date(), 2);
+                    var tempArr = tempTime.split(":");
+                    if(_this.saleTime){
+                        var timeArr = _this.saleTime.split(":");
+                        if(timeArr[0]>tempArr[0]||(timeArr[0]==tempArr[0]&&timeArr[1]>tempArr[1])){
+                            _this.saleTime = tempArr[0]+":"+tempArr[1];
+                            $("#saleTime").data("picker").params.value = [tempArr[0],tempArr[1]];
+                            $("#saleTime").picker("setValue",[tempArr[0],tempArr[1]]);
+                        }
+                    }
+                }
             },
             clearData:function(){
                 this.doing = false;
@@ -171,8 +195,6 @@
             },
             clearData0: function () {
                 this.doing = false;
-                this.saleTime = '';
-                this.saleDate = '';
                 this.total = '';
                 this.dealNum = '';
                 this.dealPersonNum = '';
@@ -223,8 +245,8 @@
                     $.toast("请输入销售单数");
                     return;
                 }
-                if (this.dealPersonNum.length > 9 || this.dealPersonNum < 0 || !utils.isInteger(this.dealPersonNum)) {
-                    $.toast("销售单数不合法");
+                if (this.dealPersonNum.length > 9 || this.dealPersonNum <= 0 || !utils.isInteger(this.dealPersonNum)) {
+                    $.toast("销售单数为至少大于0的合法数字");
                     return;
                 }
 

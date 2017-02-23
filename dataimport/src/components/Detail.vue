@@ -32,7 +32,7 @@
                             <div class="item-inner">
                                 <div class="item-title label">销售单数</div>
                                 <div class="item-input">
-                                    <input type="number" pattern="[0-9]{1,10}"  placeholder="请输入销售单数" v-model="dealPearsonNum" maxlength="9"/>
+                                    <input type="number" placeholder="请输入销售单数" v-model="dealPearsonNum" maxlength="9"/>
                                 </div>
                             </div>
                         </div>
@@ -59,6 +59,7 @@
 </template>
 <script>
     var utils = require('../utils');
+    var commonutils = require('../../../common/assets/js/commonutils');
     module.exports = {
         data: function () {
             return {
@@ -94,6 +95,7 @@
         methods: {
             init: function () {
                 var arr1 = [];
+                var _this = this;
                 for(var i=0;i<24;i++){
                     if(i<10){
                         arr1.push("0"+i);
@@ -122,6 +124,9 @@
                     ],
                     formatValue:function(picker,value,displayValue){
                         return value[0]+":"+value[1];
+                    },
+                    onClose:function(){
+                        _this.setValidTime();
                     }
                 });
             },
@@ -155,14 +160,31 @@
                 this.dealPearsonNum = '';
                 this.total = '';
             },
+            setValidTime:function(){
+                var _this = this;
+                var tempDate = commonutils.formatDateTime(new Date(), 1);
+                //如果是当天，则要判断选中的时间不能超过当前时间
+                if(_this.currentDate == tempDate){
+                    var tempTime = commonutils.formatDateTime(new Date(), 2);
+                    var tempArr = tempTime.split(":");
+                    if(_this.currentTime){
+                        var timeArr = _this.currentTime.split(":");
+                        if(timeArr[0]>tempArr[0]||(timeArr[0]==tempArr[0]&&timeArr[1]>tempArr[1])){
+                            _this.currentTime = tempArr[0]+":"+tempArr[1];
+                            $("#saledetailtime").data("picker").params.value = [tempArr[0],tempArr[1]];
+                            $("#saledetailtime").picker("setValue",[tempArr[0],tempArr[1]]);
+                        }
+                    }
+                }
+            },
             submitData:function(){
                 if(this.doing) return;
-                if(!this.dealPearsonNum){
+                if(this.dealPearsonNum == ''){
                     $.toast("请输入销售单数");
                     return;
                 }
-                if(this.dealPearsonNum.length > 9 || this.dealPearsonNum < 0 || !utils.isInteger(this.dealPearsonNum)){
-                    $.toast("销售单数不合法");
+                if (this.dealPearsonNum.length > 9 || this.dealPearsonNum <= 0 || !utils.isInteger(this.dealPearsonNum)) {
+                    $.toast("销售单数为至少大于0的合法数字");
                     return;
                 }
 
