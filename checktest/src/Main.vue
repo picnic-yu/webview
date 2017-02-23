@@ -54,13 +54,13 @@ header .title{
 }
 .page-from-right-to-center,.slide-enter {
   opacity: 0;
-  -webkit-animation: pageFromRightToCenter 400ms 100ms forwards;
-  animation: pageFromRightToCenter 400ms 100ms forwards;
+  -webkit-animation: pageFromRightToCenter 100ms 100ms forwards;
+  animation: pageFromRightToCenter 100ms 100ms forwards;
   z-index: 2002;
 }
 .page-from-center-to-right {
-  -webkit-animation: pageFromCenterToRight 400ms forwards;
-  animation: pageFromCenterToRight 400ms forwards;
+  -webkit-animation: pageFromCenterToRight 100ms forwards;
+  animation: pageFromCenterToRight 100ms forwards;
   z-index: 2002;
 }
 @-webkit-keyframes pageFromRightToCenter {
@@ -112,13 +112,13 @@ header .title{
   }
 }
 .page-from-center-to-left,.slide-leave {
-  -webkit-animation: pageFromCenterToLeft 400ms forwards;
-  animation: pageFromCenterToLeft 400ms forwards;
+  -webkit-animation: pageFromCenterToLeft 100ms forwards;
+  animation: pageFromCenterToLeft 100ms forwards;
   z-index: 2002;
 }
 .page-from-left-to-center {
-  -webkit-animation: pageFromLeftToCenter 9000ms forwards;
-  animation: pageFromLeftToCenter 9000ms forwards;
+  -webkit-animation: pageFromLeftToCenter 100ms forwards;
+  animation: pageFromLeftToCenter 100ms forwards;
   z-index: 2002;
 }
 @-webkit-keyframes pageFromCenterToLeft {
@@ -205,5 +205,16 @@ ul{list-style: none}
 }
 .bar a.icon.icon-cross{
   color: #333;
+}
+.bar .icon-back {
+  font-size: 1.3rem;
+  color: #f90;
+  width: 2rem;
+  height: 2.2rem;
+  line-height: 2.2rem;
+  text-align: center;
+  display: inline-block;
+  position: absolute;
+  left: 0px;
 }
 </style>

@@ -2,8 +2,9 @@
     <div class="page-group">
        <div class="page page-current" id="index">
            <header class="bar bar-nav">
-               <h1 class='title'>点检任务列表</h1>
+               <span class='title'>点检任务列表</span>
                <button class="button pull-right cancel-button" v-on:click="addCheckTask()">添加</button>
+               <span class="pull-left icon-back" v-on:click="backTo()"></span>
            </header>
            <div id="checkListContent" class="content content-items pull-to-refresh-content infinite-scroll"  data-ptr-distance="55" data-distance="240">
                <div class="pull-to-refresh-layer">
@@ -94,6 +95,22 @@
                  }
                $.refreshScroller();
                });
+            },
+            backTo: function () {
+                if ($.device.android) {
+                    try{
+                        window.webview && window.webview.closeCurrentInterface();
+                    } catch (e) {
+                    }
+                } else if ($.device.ios) {
+                    try {
+                        $.alert("gggg");
+                        window.webkit.messageHandlers.closeCurrentInterface.postMessage(1);
+                    } catch (e) {
+                    }
+                } else {
+
+                }
             },
             getData:function(callback,searchData){
                     var _this = this;

@@ -162,6 +162,8 @@
                     _this.$dispatch('dept', {
                        selectdepts : _this.selectdepts
                     });
+                    this.unbindInfinite();
+                    this.clearData();
                     $.closeModal('.popup-dept');
                 },
                 close:function(){
@@ -169,6 +171,8 @@
                     this.$dispatch('dept', {
                           selectdepts : this.selectdeptscopy
                     });
+                    this.unbindInfinite();
+                    this.clearData();
                     $.closeModal('.popup-dept');
                 },
                 selectDept:function(id){
@@ -209,7 +213,6 @@
 <style scoped>
 
 .content{
-    bottom:95px;
     background:#fff;
 }
 .child-container{

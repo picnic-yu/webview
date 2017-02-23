@@ -117,7 +117,6 @@
 <style scoped>
 
 .content{
-    bottom:95px;
     background:#fff;
 }
 .child-container{

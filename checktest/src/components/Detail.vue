@@ -1,7 +1,7 @@
 <template>
     <div class="popup popup-detail">
         <header class="bar bar-nav">
-                <button class="button pull-left cancel-button" v-on:click="close()">返回</button>
+                <button class="button pull-left cancel-button" v-on:click="close()">取消</button>
                 <h1 class='title'>点检任务配置</h1>
         </header>
         <div class="content">

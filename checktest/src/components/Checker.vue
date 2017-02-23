@@ -1,7 +1,7 @@
 <template>
     <div class="popup popup-checker">
         <header class="bar bar-nav">
-                <button class="button pull-left cancel-button" v-on:click="close()">返回</button>
+                <button class="button pull-left cancel-button" v-on:click="close()">取消</button>
                 <h1 class='title'>点检人</h1>
         </header>
         <div id="checkerListContent"  class="content content-items pull-to-refresh-content infinite-scroll" data-ptr-distance="55" data-distance="240">
@@ -131,6 +131,8 @@
                          this.items = [];
                 },
                 close:function(){
+                    this.unbindInfinite();
+                    this.clearData();
                     $.closeModal('.popup-checker');
                 },
                 refresh:function(){
@@ -151,6 +153,8 @@
                         this.$dispatch('checker', {
                               selectchecker : [this.items[i]]
                         });
+                        this.unbindInfinite();
+                        this.clearData();
                         $.closeModal('.popup-checker');
                        }
                    }
@@ -162,7 +166,6 @@
 <style scoped>
 
 .content{
-    bottom:95px;
     background:#fff;
 }
 .child-container{
