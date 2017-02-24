@@ -12,8 +12,8 @@
       </div>
       <div id="itemPage2Content" class="content content-items pull-to-refresh-content infinite-scroll"  data-ptr-distance="55" data-distance="100">
         <div class="pull-to-refresh-layer">
-            <div class="preloader"></div>
-            <div class="pull-to-refresh-arrow"></div>
+          <div class="preloader"></div>
+          <div class="pull-to-refresh-arrow"></div>
         </div>
         <div class="items-list">
           <ul>
@@ -38,176 +38,176 @@
 </template>
 
 <script>
-  var num = 20;//每页显示的条数
-  module.exports =  {
-    route:{
-      data:function(transition){
-        var _this = this;
-        if(this.refreshInit){
-          this.getData(function(){
-            if(_this.page.total <= _this.items.length){
-              _this.unbindInfinite();
-            }
-            $.refreshScroller();
-          },{
-            key:Constant.itemParam.itemsPage.key,
-            page:{
-              index:0,
-              num:num
+    var num = 20;//每页显示的条数
+    module.exports =  {
+        route:{
+            data:function(transition){
+                var _this = this;
+                if(this.refreshInit){
+                    this.getData(function(){
+                        if(_this.page.total <= _this.items.length){
+                            _this.unbindInfinite();
+                        }
+                        $.refreshScroller();
+                    },{
+                        key:Constant.itemParam.itemsPage.key,
+                        page:{
+                            index:0,
+                            num:num
+                        },
+                        search:Constant.search
+                    });
+                }
+                transition.next({
+                    title:Constant.itemParam.itemsPage.title,
+                    state:Constant.itemParam.itemsPage.state,
+                    key:Constant.itemParam.itemsPage.key,
+                    search:Constant.search,
+                    page:{
+                        index:0,
+                        num:num
+                    }
+                });
             },
-            search:Constant.search
-          });
-        }
-        transition.next({
-          title:Constant.itemParam.itemsPage.title,
-          state:Constant.itemParam.itemsPage.state,
-          key:Constant.itemParam.itemsPage.key,
-          search:Constant.search,
-          page:{
-            index:0,
-            num:num
-          }
-        });
-      },
-      deactivate:function(transition){
-        this.unbindInfinite();
-        this.clearData();
-        transition.next();
-      }
-    },
-    data:function(){
-      return {
-        search:'',
-        title:'',
-        state:'',
-        key:'',
-        page:{
-          index:0,
-          num:num,
-          total:0
+            deactivate:function(transition){
+                this.unbindInfinite();
+                this.clearData();
+                transition.next();
+            }
         },
-        loading:false,
-        items:[],
-        scrollInit:false,
-        refreshInit:false
-      };
-    },
-    ready:function(){
-      this.init();
-    },
-    filters:{
-      whichraterange:function(rate){
-        if(rate == 1){
-          return "best";
-        }else if(rate < 0.8){
-          return "bad";
-        }else{
-          return 'good';
-        }
-      }
-    },
-    methods:{
-      init:function(opt){
-        var _this = this;
-        if(!this.refreshInit){
-          $('#itemPage2Content').scroller({
-            type:'native'
-          });
-          $.initPullToRefresh('#itemPage2Content');
-          $(document).on('refresh','#itemPage2Content',function(e){
-            _this.refresh();
-          });
-          this.refreshInit = true;
-        }
-        this.bindInfiniteEvent();
-        var _this = this;
-        this.getData(function(total){
-          if(_this.page.total <= _this.items.length){
-            _this.unbindInfinite();
-          }
-          $.refreshScroller();
-        },opt);
-      },
-      reInitScroll:function(){
-        this.unbindInfinite();
-        this.bindInfiniteEvent();
-      },
-      unbindInfinite:function(){
-        $.detachInfiniteScroll($('#itemPage2Content'));
-        $('#itemPage2Content .infinite-scroll-preloader').hide();
-      },
-      bindInfiniteEvent:function(){
-        var _this = this;
-        $.attachInfiniteScroll($('#itemPage2Content'));
-        $('#itemPage2Content .infinite-scroll-preloader').show();
-        var func = function(e){
-          if(_this.loading) return;
-          _this.page.index += _this.page.num;
-          _this.getData(function(total){
-            if(_this.page.total <= _this.items.length){
-              _this.unbindInfinite();
+        data:function(){
+            return {
+                search:'',
+                title:'',
+                state:'',
+                key:'',
+                page:{
+                    index:0,
+                    num:num,
+                    total:0
+                },
+                loading:false,
+                items:[],
+                scrollInit:false,
+                refreshInit:false
+            };
+        },
+        ready:function(){
+            this.init();
+        },
+        filters:{
+            whichraterange:function(rate){
+                if(rate == 1){
+                    return "best";
+                }else if(rate < 0.8){
+                    return "bad";
+                }else{
+                    return 'good';
+                }
             }
-            $.refreshScroller();
-          });
-        };
-        $(document).off('infinite','#itemPage2Content',func).on('infinite','#itemPage2Content',func);
-      },
-      getData:function(callback,searchData){
-        var _this = this;
-        this.loading = true;
-        searchData = searchData?searchData:this;
-        this.$http.post('/service/getItemReports.action',{
-          startDate:searchData.search.startTime+" 00:00:00",
-          endDate:searchData.search.endTime+" 23:59:59",
-          region:searchData.key,
-          index:searchData.page.index,
-          num:searchData.page.num,
-          token:Constant.token
-        }).then(function(ret){
-          _this.loading = false;
-          if(ret.ok && ret.data && ret.data.result == 'ok'){
-            if(_this.page.index == 0){
-              _this.items = ret.data.data.data;
-            }else{
-              _this.items = _this.items.concat(ret.data.data.data);
+        },
+        methods:{
+            init:function(opt){
+                var _this = this;
+                if(!this.refreshInit){
+                    $('#itemPage2Content').scroller({
+                        type:'native'
+                    });
+                    $.initPullToRefresh('#itemPage2Content');
+                    $(document).on('refresh','#itemPage2Content',function(e){
+                        _this.refresh();
+                    });
+                    this.refreshInit = true;
+                }
+                this.bindInfiniteEvent();
+                var _this = this;
+                this.getData(function(total){
+                    if(_this.page.total <= _this.items.length){
+                        _this.unbindInfinite();
+                    }
+                    $.refreshScroller();
+                },opt);
+            },
+            reInitScroll:function(){
+                this.unbindInfinite();
+                this.bindInfiniteEvent();
+            },
+            unbindInfinite:function(){
+                $.detachInfiniteScroll($('#itemPage2Content'));
+                $('#itemPage2Content .infinite-scroll-preloader').hide();
+            },
+            bindInfiniteEvent:function(){
+                var _this = this;
+                $.attachInfiniteScroll($('#itemPage2Content'));
+                $('#itemPage2Content .infinite-scroll-preloader').show();
+                var func = function(e){
+                    if(_this.loading) return;
+                    _this.page.index += _this.page.num;
+                    _this.getData(function(total){
+                        if(_this.page.total <= _this.items.length){
+                            _this.unbindInfinite();
+                        }
+                        $.refreshScroller();
+                    });
+                };
+                $(document).off('infinite','#itemPage2Content',func).on('infinite','#itemPage2Content',func);
+            },
+            getData:function(callback,searchData){
+                var _this = this;
+                this.loading = true;
+                searchData = searchData?searchData:this;
+                this.$http.post('/service/getItemReports.action',{
+                    startDate:searchData.search.startTime+" 00:00:00",
+                    endDate:searchData.search.endTime+" 23:59:59",
+                    region:searchData.key,
+                    index:searchData.page.index,
+                    num:searchData.page.num,
+                    token:Constant.token
+                }).then(function(ret){
+                    _this.loading = false;
+                    if(ret.ok && ret.data && ret.data.result == 'ok'){
+                        if(_this.page.index == 0){
+                            _this.items = ret.data.data.data;
+                        }else{
+                            _this.items = _this.items.concat(ret.data.data.data);
+                        }
+                        _this.page.total = ret.data.data.total;
+                        callback && callback();
+                    }
+                });
+            },
+            clearData:function(){
+                this.page.index = 0;
+                this.items = [];
+            },
+            refresh:function(){
+                this.page.index = 0;
+                this.items = [];
+                this.reInitScroll();
+                var _this = this;
+                this.getData(function(){
+                    if(_this.page.total <= _this.items.length){
+                        _this.unbindInfinite();
+                    }
+                    $.pullToRefreshDone('#itemPage2Content');
+                });
+            },
+            detail:function(id,name,rate){
+                if(rate == -1) return;
+                Constant.itemParam.itemshopsPage.title = name;
+                router.go({name:'itemshops',params:{id:id}});
             }
-            _this.page.total = ret.data.data.total;
-            callback && callback();
-          }
-        });
-      },
-      clearData:function(){
-        this.page.index = 0;
-        this.items = [];
-      },
-      refresh:function(){
-        this.page.index = 0;
-        this.items = [];
-        this.reInitScroll();
-        var _this = this;
-        this.getData(function(){
-          if(_this.page.total <= _this.items.length){
-            _this.unbindInfinite();
-          }
-          $.pullToRefreshDone('#itemPage2Content');
-        });
-      },
-      detail:function(id,name,rate){
-        if(rate == -1) return;
-        Constant.itemParam.itemshopsPage.title = name;
-        router.go({name:'itemshops',params:{id:id}});
-      }
-    }
-  };
+        }
+    };
 </script>
 
 <style scoped>
-.top-panel{
-  z-index: 3;
-  width: 100%;
-  position: absolute;
-  top: 44px;
-}
+  .top-panel{
+    z-index: 3;
+    width: 100%;
+    position: absolute;
+    top: 44px;
+  }
   .content-items{
     top:31px;
     z-index: 2;

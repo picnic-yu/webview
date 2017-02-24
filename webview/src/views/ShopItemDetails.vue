@@ -5,23 +5,23 @@
         <h1 class='title'>详情</h1>
       </header>
       <div class="nav-content">
-          <h4 class="page4-depname">{{shareData.deptName}}</h4>
-          <div class="page4-itemname">{{shareData.itemName}}</div>
-          <span class="detail-tip" v-show="shareData.detailedRules&&shareData.detailedRules.length>0" v-on:click="toggleAllDetails">全部细则</span><a v-show="shareData.detailedRules&&shareData.detailedRules.length>0" class="icon-detail" v-on:click="toggleAllDetails" v-bind:class="display.showdetails?'icon-detail_up':'icon-detail_down'"></a>
-          <div class="details-panel" v-show="display.showdetails">
-            <ul class="details-ul">
-              <li v-for="rule in shareData.detailedRules">
-                <div class="item-rule">
-                  <span>{{$index+1}}、</span><span class="rule-name">{{rule.description}}</span>
-                </div>
-              </li>
-            </ul>
-          </div>
+        <h4 class="page4-depname">{{shareData.deptName}}</h4>
+        <div class="page4-itemname">{{shareData.itemName}}</div>
+        <span class="detail-tip" v-show="shareData.detailedRules&&shareData.detailedRules.length>0" v-on:click="toggleAllDetails">全部细则</span><a v-show="shareData.detailedRules&&shareData.detailedRules.length>0" class="icon-detail" v-on:click="toggleAllDetails" v-bind:class="display.showdetails?'icon-detail_up':'icon-detail_down'"></a>
+        <div class="details-panel" v-show="display.showdetails">
+          <ul class="details-ul">
+            <li v-for="rule in shareData.detailedRules">
+              <div class="item-rule">
+                <span>{{$index+1}}、</span><span class="rule-name">{{rule.description}}</span>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
       <div id="page4Content" class="content content-is pull-to-refresh-content infinite-scroll" v-bind:style="{top:pageAttr.navHeight+'px'}" data-ptr-distance="55" data-distance="100">
         <div class="pull-to-refresh-layer">
-            <div class="preloader"></div>
-            <div class="pull-to-refresh-arrow"></div>
+          <div class="preloader"></div>
+          <div class="pull-to-refresh-arrow"></div>
         </div>
         <div class="items-list">
           <ul>
@@ -61,259 +61,259 @@
         </div>
       </div>
     </div>
-    </div>
+  </div>
 </template>
 
 <script>
-  require('../../../common/assets/css/sm-extend.min.css');
-  require('../../../common/assets/font.css');
-  require('../../../common/libs/sm-extend.js');
-  var num = 20;//每页显示的条数
-  var myPhotoBrowserStandalone;
-  module.exports =  {
-    route:{
-      data:function(transition){
-        var _this = this;
-        if(this.refreshInit){
-          this.getData(function(){
-            if(_this.page.total <= _this.items.length){
-              _this.unbindInfinite();
+    require('../../../common/assets/css/sm-extend.min.css');
+    require('../../../common/assets/font.css');
+    require('../../../common/libs/sm-extend.js');
+    var num = 20;//每页显示的条数
+    var myPhotoBrowserStandalone;
+    module.exports =  {
+        route:{
+            data:function(transition){
+                var _this = this;
+                if(this.refreshInit){
+                    this.getData(function(){
+                        if(_this.page.total <= _this.items.length){
+                            _this.unbindInfinite();
+                        }
+                        $.refreshScroller();
+                    },{
+                        search:Constant.search,
+                        page:{
+                            index:0,
+                            num:num
+                        }
+                    });
+                }
+                transition.next({
+                    search:Constant.search
+                });
+            },
+            deactivate:function(transition){
+                this.reInitScroll();
+                this.clearData();
+                if(myPhotoBrowserStandalone){
+                    myPhotoBrowserStandalone.close();
+                }
+                transition.next();
             }
-            $.refreshScroller();
-          },{
-            search:Constant.search,
-            page:{
-              index:0,
-              num:num
-            }
-          });
-        }
-        transition.next({
-          search:Constant.search
-        });
-      },
-      deactivate:function(transition){
-        this.reInitScroll();
-        this.clearData();
-        if(myPhotoBrowserStandalone){
-          myPhotoBrowserStandalone.close();
-        }
-        transition.next();
-      }
-    },
-    data:function(){
-      return {
-        search:'',
-        page:{
-          index:0,
-          num:num,
-          total:0
         },
-        display:{
-          showdetails:false
+        data:function(){
+            return {
+                search:'',
+                page:{
+                    index:0,
+                    num:num,
+                    total:0
+                },
+                display:{
+                    showdetails:false
+                },
+                loading:false,
+                items:[],
+                shareData:{},
+                scrollInit:false,
+                refreshInit:false,
+                pageAttr:{
+                    navHeight:120
+                }
+            };
         },
-        loading:false,
-        items:[],
-        shareData:{},
-        scrollInit:false,
-        refreshInit:false,
-        pageAttr:{
-          navHeight:120
-        }
-      };
-    },
-    filters:{
-      whichcount:function(value){
-        if(value == 1) return '合格';
-        if(value == 0) return '不合格';
-        return '不适用';
-      },
-      whichchecktype: function (sourcetype) {
-        if (sourcetype == 1) {
-          return "图片点检";
-        } else if (sourcetype == 2) {
-          return "摇一摇";
-        } else if (sourcetype == 3) {
-          return "抓拍";
-        } else if (sourcetype == 4) {
-          return "手动创建";
-        } else if (sourcetype == 5) {
-          return "在线考评";
-        } else if (sourcetype == 6) {
-          return "快拍";
-        } else if (sourcetype == 7) {
-          return "告警";
-        } else if (sourcetype == 8) {
-          return "现场巡店";
-        } else if (sourcetype == 9) {
-          return "远程巡店";
-        }
-      }
-    },
-    ready:function(){
-      this.init();
-    },
-    methods:{
-      init:function(opt){
-        var _this = this;
-        if(!this.refreshInit){
-          $('#page4Content').scroller({
-            type:'native'
-          });
-          $.initPullToRefresh('#page4Content');
-          $(document).on('refresh','#page4Content',function(e){
-            _this.refresh();
-          });
-          this.refreshInit = true;
-        }
-        this.bindInfiniteEvent();
-        var _this = this;
-        this.getData(function(total){
-          if(_this.page.total <= _this.items.length){
-            _this.unbindInfinite();
-          }
-          $.refreshScroller();
-        },opt);
-      },
-      layout:function(){
-        this.pageAttr.navHeight = $('.nav-content').height();
-      },
-      initPicPlay:function(selector,data){
-        var myPhotoBrowserStandalone = $.photoBrowser({
-          photos : data,
-          toolbar: false,
-          theme: 'dark',
-          ofText: '/',
-          loop: false,
-          lazyLoading: true,
-          lazyLoadingInPrevNext: true
-        });
-        var fun = function () {
-          myPhotoBrowserStandalone.open();
-        };
-        //点击时打开图片浏览器
-        $(document).off('click',selector,fun).on('click',selector,fun);
-      },
-      bindPicEvent:function(){
-        //点击时打开图片浏览器
-        var _this = this;
-        $(document).off('click','.pb-standalone').on('click','.pb-standalone',function(){
-          var index = $(this).attr('index');
-          //获取当前点击的记录的图片信息
-          var photos = [];
-          var pics = _this.items[index].pics;
-          if(!pics || pics.length == 0) return;
-          for(var i=0;i<pics.length;i++){
-            photos.push(pics[i].picUrl);
-          }
-          myPhotoBrowserStandalone = $.photoBrowser({
-            photos : photos,
-            toolbar: false,
-            theme: 'dark',
-            loop: false,
-            lazyLoading: true,
-            lazyLoadingInPrevNext: true,
-            navbarTemplate:'<header class="bar bar-nav">' +
-            '<a class="icon icon-right pull-right photo-browser-close-link icon-cross"></a>' +
-            '<h1 class="title" style="float: left;"><div class="center sliding"><span class="photo-browser-current"></span> <span class="photo-browser-of">/</span> <span class="photo-browser-total"></span></div></h1>' +
-            '</header>'
-          });
-          myPhotoBrowserStandalone.open();
-        });
-      },
-      reInitScroll:function(){
-        this.unbindInfinite();
-        this.bindInfiniteEvent();
-      },
-      unbindInfinite:function(){
-        $.detachInfiniteScroll($('#page4Content'));
-        $('#page4Content .infinite-scroll-preloader').hide();
-      },
-      bindInfiniteEvent:function(){
-        var _this = this;
-        $.attachInfiniteScroll($('#page4Content'));
-        $('#page4Content .infinite-scroll-preloader').show();
-        var func = function(e){
-          if(_this.loading) return;
-          _this.page.index += _this.page.num;
-          _this.getData(function(total){
-            if(_this.page.total <= _this.items.length){
-              _this.unbindInfinite();
+        filters:{
+            whichcount:function(value){
+                if(value == 1) return '合格';
+                if(value == 0) return '不合格';
+                return '不适用';
+            },
+            whichchecktype: function (sourcetype) {
+                if (sourcetype == 1) {
+                    return "图片点检";
+                } else if (sourcetype == 2) {
+                    return "摇一摇";
+                } else if (sourcetype == 3) {
+                    return "抓拍";
+                } else if (sourcetype == 4) {
+                    return "手动创建";
+                } else if (sourcetype == 5) {
+                    return "在线考评";
+                } else if (sourcetype == 6) {
+                    return "快拍";
+                } else if (sourcetype == 7) {
+                    return "告警";
+                } else if (sourcetype == 8) {
+                    return "现场巡店";
+                } else if (sourcetype == 9) {
+                    return "远程巡店";
+                }
             }
-            $.refreshScroller();
-          });
-        };
-        $(document).off('infinite','#page4Content',func).on('infinite','#page4Content',func);
-      },
-      getData:function(callback,searchData){
-        var _this = this;
-        this.loading = true;
-        searchData = searchData?searchData:this;
-        this.$http.post('/service/getResultDetailedReports.action',{
-          startDate:searchData.search.startTime+" 00:00:00",
-          endDate:searchData.search.endTime+" 23:59:59",
-          itemId:_this.$route.params.itemId,
-          deptId:_this.$route.params.deptId,
-          index:searchData.page.index,
-          num:searchData.page.num,
-          token:Constant.token
-        }).then(function(ret){
-          _this.loading = false;
-          if(ret.ok && ret.data && ret.data.result == 'ok'){
-            _this.shareData = ret.data.data.shareData;
-            var data = ret.data.data.data;
-            //初始化showdetails，用于控制每条记录的细则是否显示
-            if(data){
-              for(var i=0;i<data.length;i++){
-                data[i].showdetails = false;
-              }
+        },
+        ready:function(){
+            this.init();
+        },
+        methods:{
+            init:function(opt){
+                var _this = this;
+                if(!this.refreshInit){
+                    $('#page4Content').scroller({
+                        type:'native'
+                    });
+                    $.initPullToRefresh('#page4Content');
+                    $(document).on('refresh','#page4Content',function(e){
+                        _this.refresh();
+                    });
+                    this.refreshInit = true;
+                }
+                this.bindInfiniteEvent();
+                var _this = this;
+                this.getData(function(total){
+                    if(_this.page.total <= _this.items.length){
+                        _this.unbindInfinite();
+                    }
+                    $.refreshScroller();
+                },opt);
+            },
+            layout:function(){
+                this.pageAttr.navHeight = $('.nav-content').height();
+            },
+            initPicPlay:function(selector,data){
+                var myPhotoBrowserStandalone = $.photoBrowser({
+                    photos : data,
+                    toolbar: false,
+                    theme: 'dark',
+                    ofText: '/',
+                    loop: false,
+                    lazyLoading: true,
+                    lazyLoadingInPrevNext: true
+                });
+                var fun = function () {
+                    myPhotoBrowserStandalone.open();
+                };
+                //点击时打开图片浏览器
+                $(document).off('click',selector,fun).on('click',selector,fun);
+            },
+            bindPicEvent:function(){
+                //点击时打开图片浏览器
+                var _this = this;
+                $(document).off('click','.pb-standalone').on('click','.pb-standalone',function(){
+                    var index = $(this).attr('index');
+                    //获取当前点击的记录的图片信息
+                    var photos = [];
+                    var pics = _this.items[index].pics;
+                    if(!pics || pics.length == 0) return;
+                    for(var i=0;i<pics.length;i++){
+                        photos.push(pics[i].picUrl);
+                    }
+                    myPhotoBrowserStandalone = $.photoBrowser({
+                        photos : photos,
+                        toolbar: false,
+                        theme: 'dark',
+                        loop: false,
+                        lazyLoading: true,
+                        lazyLoadingInPrevNext: true,
+                        navbarTemplate:'<header class="bar bar-nav">' +
+                        '<a class="icon icon-right pull-right photo-browser-close-link icon-cross"></a>' +
+                        '<h1 class="title" style="float: left;"><div class="center sliding"><span class="photo-browser-current"></span> <span class="photo-browser-of">/</span> <span class="photo-browser-total"></span></div></h1>' +
+                        '</header>'
+                    });
+                    myPhotoBrowserStandalone.open();
+                });
+            },
+            reInitScroll:function(){
+                this.unbindInfinite();
+                this.bindInfiniteEvent();
+            },
+            unbindInfinite:function(){
+                $.detachInfiniteScroll($('#page4Content'));
+                $('#page4Content .infinite-scroll-preloader').hide();
+            },
+            bindInfiniteEvent:function(){
+                var _this = this;
+                $.attachInfiniteScroll($('#page4Content'));
+                $('#page4Content .infinite-scroll-preloader').show();
+                var func = function(e){
+                    if(_this.loading) return;
+                    _this.page.index += _this.page.num;
+                    _this.getData(function(total){
+                        if(_this.page.total <= _this.items.length){
+                            _this.unbindInfinite();
+                        }
+                        $.refreshScroller();
+                    });
+                };
+                $(document).off('infinite','#page4Content',func).on('infinite','#page4Content',func);
+            },
+            getData:function(callback,searchData){
+                var _this = this;
+                this.loading = true;
+                searchData = searchData?searchData:this;
+                this.$http.post('/service/getResultDetailedReports.action',{
+                    startDate:searchData.search.startTime+" 00:00:00",
+                    endDate:searchData.search.endTime+" 23:59:59",
+                    itemId:_this.$route.params.itemId,
+                    deptId:_this.$route.params.deptId,
+                    index:searchData.page.index,
+                    num:searchData.page.num,
+                    token:Constant.token
+                }).then(function(ret){
+                    _this.loading = false;
+                    if(ret.ok && ret.data && ret.data.result == 'ok'){
+                        _this.shareData = ret.data.data.shareData;
+                        var data = ret.data.data.data;
+                        //初始化showdetails，用于控制每条记录的细则是否显示
+                        if(data){
+                            for(var i=0;i<data.length;i++){
+                                data[i].showdetails = false;
+                            }
+                        }
+                        if(_this.page.index == 0){
+                            _this.items = ret.data.data.data;
+                            setTimeout(_this.layout,1000);
+                        }else{
+                            _this.items = _this.items.concat(ret.data.data.data);
+                        }
+                        _this.bindPicEvent();
+                        _this.page.total = ret.data.data.total;
+                        callback && callback();
+                    }
+                });
+            },
+            clearData:function(){
+                this.page.index = 0;
+                this.page.num = num;
+                this.display.showdetails = false;
+                this.items = [];
+                this.pageAttr.navHeight = 120;
+            },
+            refresh:function(){
+                this.page.index = 0;
+                this.items = [];
+                this.reInitScroll();
+                var _this = this;
+                this.getData(function(){
+                    if(_this.page.total <= _this.items.length){
+                        _this.unbindInfinite();
+                    }
+                    $.pullToRefreshDone('#page4Content');
+                });
+            },
+            /**
+             * 切换显示全部细则
+             */
+            toggleAllDetails:function(){
+                this.display.showdetails = !this.display.showdetails;
+                var _this = this;
+                setTimeout(function(){
+                    _this.layout();//需要重新计算List 的top距离
+                },0);
+            },
+            toggleItemDetails:function(item){
+                item.showdetails = !item.showdetails;
             }
-            if(_this.page.index == 0){
-              _this.items = ret.data.data.data;
-              setTimeout(_this.layout,1000);
-            }else{
-              _this.items = _this.items.concat(ret.data.data.data);
-            }
-            _this.bindPicEvent();
-            _this.page.total = ret.data.data.total;
-            callback && callback();
-          }
-        });
-      },
-      clearData:function(){
-        this.page.index = 0;
-        this.page.num = num;
-        this.display.showdetails = false;
-        this.items = [];
-        this.pageAttr.navHeight = 120;
-      },
-      refresh:function(){
-        this.page.index = 0;
-        this.items = [];
-        this.reInitScroll();
-        var _this = this;
-        this.getData(function(){
-          if(_this.page.total <= _this.items.length){
-            _this.unbindInfinite();
-          }
-          $.pullToRefreshDone('#page4Content');
-        });
-      },
-      /**
-       * 切换显示全部细则
-       */
-      toggleAllDetails:function(){
-        this.display.showdetails = !this.display.showdetails;
-        var _this = this;
-        setTimeout(function(){
-          _this.layout();//需要重新计算List 的top距离
-        },0);
-      },
-      toggleItemDetails:function(item){
-        item.showdetails = !item.showdetails;
-      }
-    }
-  };
+        }
+    };
 </script>
 
 <style scoped>
