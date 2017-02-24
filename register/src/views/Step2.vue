@@ -222,7 +222,7 @@
                     this.errorInfo1 = "请输入手机号码";
                     return;
                 }
-                var phoneReg=/^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
+                var phoneReg=/^(0|86|17951)?(13[0-9]|15[012356789]|17[0-9]|18[0-9]|14[57])[0-9]{8}$/;
                 if(!phoneReg.test(this.phone)){
                     this.errorshow1 = true;
                     this.errorInfo1 = "手机号码不符合格式";
@@ -346,7 +346,7 @@
                     this.errorInfo1 = "请输入手机号码";
                     return;
                 }
-                var phoneReg=/^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
+                var phoneReg=/^(0|86|17951)?(13[0-9]|15[012356789]|17[0-9]|18[0-9]|14[57])[0-9]{8}$/;
                 if(!phoneReg.test(this.phone)){
                     this.errorshow1 = true;
                     this.errorInfo1 = "手机号码不符合格式";
