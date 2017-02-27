@@ -72,6 +72,7 @@
             detail: require('./../components/Detail.vue')
         },
         ready: function () {
+            this.webviewReady();
             this.init();
         },
         methods: {
@@ -185,7 +186,22 @@
                 item: {},
                 flag:false
             });
-        }
+        },
+            webviewReady: function () {
+                if ($.device.android) {
+                    try {
+                        window.webview && window.webview.loadSuccess_webview();
+                    } catch (e) {
+                    }
+                } else if ($.device.ios) {
+                    try {
+                        window.webkit.messageHandlers.loadSuccess_webview.postMessage(1);
+                    } catch (e) {
+                    }
+                } else {
+
+                }
+            }
        }
     };
 </script>
