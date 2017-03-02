@@ -48,5 +48,6 @@ module.exports = {
         itemsPage:{
             title:''
         }
-    }
+    },
+    language:''
 };

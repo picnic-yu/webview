@@ -1,5 +1,4 @@
-
-
+var vue = require('vue');
 //pie图表定义
 module.exports.getPieChartOption = function(){
     return {
@@ -77,7 +76,7 @@ module.exports.getNoDataPieChartOption = function(){
             animation:false,
             silent:false,
             data : [{
-                name:'暂无数据',
+                name:vue.prototype.$translate('common.nodata'),
                 value:1
             }]
         } ]
@@ -87,8 +86,8 @@ module.exports.getNoDataPieChartOption = function(){
 module.exports.getTopChartOption_item = function(){
     return {
         title: {
-            text: '五大落后点检项',
-            subtext: '合格率排名后五的点检项',
+            text: vue.prototype.$translate('checkreport.lastcheckitems'),
+            subtext: vue.prototype.$translate('checkreport.lastfivepassitems'),
             left:'center'
         },
         animation: false,
@@ -103,7 +102,7 @@ module.exports.getTopChartOption_item = function(){
             },
             //position:['0%','90%'],
             formatter: function(params){
-                if (typeof(params[0].value) == 'undefined') return '暂无数据';
+                if (typeof(params[0].value) == 'undefined') return vue.prototype.$translate('common.nodata');
                 var name = params[0].name;
                 var namestr = '', lastIndex = 0;
                 if (name.length > 10) {
@@ -156,11 +155,11 @@ module.exports.getTopChartOption_item = function(){
             axisLabel: {show: false},
             axisTick: {show: false},
             splitLine: {show: false},
-            data : ['点检项1', '点检项2', '点检项3', '点检项4', '点检项5']
+            data : [vue.prototype.$translate('checkreport.checkitems')+'1', vue.prototype.$translate('checkreport.checkitems')+'2', vue.prototype.$translate('checkreport.checkitems')+'3', vue.prototype.$translate('checkreport.checkitems')+'4', vue.prototype.$translate('checkreport.checkitems')+'5']
         },
         series : [
             {
-                name:'合格率',
+                name:vue.prototype.$translate('checkreport.passpercent'),
                 type:'bar',
                 label: {
                     normal: {
@@ -195,7 +194,7 @@ module.exports.getTopChartOption_shop = function(){
     return {
         animation: false,
         title: {
-            text: '得分排名后五的门店',
+            text: vue.prototype.$translate('checkreport.lastfivestore'),
             left:'center'
         },
         color:['#ff4d27'],
@@ -209,7 +208,7 @@ module.exports.getTopChartOption_shop = function(){
             },
             //position:['0%','90%'],
             formatter: function(params){
-                if (typeof(params[0].value) == 'undefined') return '暂无数据';
+                if (typeof(params[0].value) == 'undefined') return vue.prototype.$translate('common.nodata');
                 var name = params[0].name;
                 var namestr = '', lastIndex = 0;
                 if (name.length > 10) {
@@ -247,7 +246,7 @@ module.exports.getTopChartOption_shop = function(){
             //min:0.1,
             axisLabel: {
                 show: true,
-                formatter: '{value}分'
+                formatter: '{value}'+vue.prototype.$translate('common.sc')
             },
             splitLine: {show:false}
         },
@@ -257,11 +256,11 @@ module.exports.getTopChartOption_shop = function(){
             axisLabel: {show: false},
             axisTick: {show: false},
             splitLine: {show: false},
-            data : ['门店1', '门店2', '门店3', '门店4', '门店5']
+            data : [vue.prototype.$translate('common.store')+'1', vue.prototype.$translate('common.store')+'2', vue.prototype.$translate('common.store')+'3', vue.prototype.$translate('common.store')+'4', vue.prototype.$translate('common.store')+'5']
         },
         series : [
             {
-                name:'得分',
+                name:vue.prototype.$translate('common.scores'),
                 type:'bar',
                 label: {
                     normal: {
