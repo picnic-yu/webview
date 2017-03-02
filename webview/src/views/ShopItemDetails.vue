@@ -365,7 +365,7 @@
     white-space: pre-wrap;
   }
   .item-list .item-state{
-    width: 50px;
+    width: 70px;
     font-size:14px;
     text-align: left;
   }
