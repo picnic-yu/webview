@@ -4,6 +4,15 @@
                 <button class="button pull-left cancel-button" v-on:click="close()">取消</button>
                 <h1 class='title'>点检人</h1>
         </header>
+        <div class="bar bar-header-secondary">
+            <div class="searchbar">
+                <a class="searchbar-cancel" v-on:click="cancelSearch()">取消</a>
+                <div class="search-input">
+                    <label class="icon icon-search" for="search"></label>
+                    <input type="search" id="search" v-model="userName" placeholder="请输入用户显示名"/>
+                </div>
+            </div>
+        </div>
         <div id="checkerListContent"  class="content content-items pull-to-refresh-content infinite-scroll" data-ptr-distance="55" data-distance="240">
             <div class="pull-to-refresh-layer">
                    <div class="preloader"></div>
@@ -21,6 +30,7 @@
 <script>
     require('../../../common/assets/font.css');
     var num = 20;//每页显示的条数
+    var searchTimer = null;
     module.exports = {
         route:{
             data:function(transition){
@@ -39,8 +49,35 @@
                     scrollInit:false,
                     items:[],
                     selectcheckerId:'',
-                    refreshInit:false
+                    refreshInit:false,
+                    userName:''
                     };
+        },
+        watch:{
+            /**
+             * 监听搜索框的变化
+             * @param newValue
+             * @param oldValue
+             */
+            'userName':function(newValue,oldValue){
+                if(newValue != oldValue){
+                    if(searchTimer){
+                        clearTimeout(searchTimer);
+                        searchTimer = null;
+                    }
+                    var _this = this;
+                    searchTimer = setTimeout(function(){
+                        _this.userName = newValue;
+                        _this.page.index = 0;
+                        _this.getData(function(){
+                            if(_this.page.total <= _this.items.length){
+                                _this.unbindInfinite();
+                            }
+                            $.refreshScroller();
+                        },_this);
+                    },500);
+                }
+            }
         },
         events:{
                     'popup':function(param){
@@ -87,6 +124,7 @@
                             searchData = searchData?searchData:this;
                             this.$http.post('/sysmanager/getUsersByPrivileges.action?token='+Constant.token,{
                               privilegeNames:'CHECK',
+                              userName:searchData.userName,
                               index:searchData.page.index,
                               num:searchData.page.num
                             }).then(function(ret){
@@ -126,9 +164,14 @@
                         $.detachInfiniteScroll($('#checkerListContent'));
                         $('#checkerListContent .infinite-scroll-preloader').hide();
                 },
+                cancelSearch:function(){
+                    this.clearData();
+                    this.refresh();
+                },
                 clearData:function(){
                          this.page.index = 0;
                          this.items = [];
+                         this.userName = '';
                 },
                 close:function(){
                     this.unbindInfinite();

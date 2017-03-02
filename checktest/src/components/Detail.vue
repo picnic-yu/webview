@@ -22,7 +22,7 @@
                                 <div class="item-inner">
                                     <div class="item-title label">任务周期</div>
                                     <div class="item-input">
-                                        <select id="execute" v-on:change="selectExecute()">
+                                        <select id="execute" v-on:change="selectExecute()" style="-webkit-appearance: none;">
                                             <option value=1>周</option>
                                             <option value=2>月</option>
                                         </select>
@@ -159,6 +159,7 @@
 </template>
 <script>
     var utils = require('../utils');
+    var commonutils = require('../../../common/assets/js/commonutils');
     module.exports = {
         data: function () {
             return {
@@ -176,7 +177,7 @@
                 selectscenes:[],
                 sceneName:'',
                 deleteflag:true,
-                exeTime:'9:0',
+                exeTime:'09:00',
                 startTime:'',
                 endTime:'',
                 selectdepts:[],
@@ -240,6 +241,7 @@
                          this.evalName = this.evalName + ',';
                      }
                  }
+                 this.setValidData();
              },
               'scene':function(param){
                   this.selectscenes = [];
@@ -251,6 +253,7 @@
                           this.sceneName = this.sceneName + ',';
                       }
                   }
+                  this.setValidData();
               },
               'dept':function(param){
                     this.selectdepts = [];
@@ -262,6 +265,7 @@
                             this.deptName = this.deptName + ',';
                         }
                     }
+                    this.setValidData();
               },
               'checker':function(param){
                       this.selectchecker = [];
@@ -290,11 +294,19 @@
                 //定义执行时间
                 var hours = [];
                 for(var i=0;i<24;i++){
-                    hours.push(i);
+                    if(i<10){
+                        hours.push('0'+i);
+                    }else{
+                        hours.push(i);
+                    }
                 }
                 var mins = [];
                 for(var j=0;j<60;j++){
-                    mins.push(j);
+                    if(j<10){
+                        mins.push('0'+j);
+                    }else {
+                        mins.push(j);
+                    }
                 }
                 $("#timepicker").picker({
                     toolbarTemplate:'<header class="bar bar-nav"><button class="button-link pull-right close-picker">确定</button></header>',
@@ -305,19 +317,178 @@
                        textAlign:'center',
                        values:mins
                     }],
-                    value:["9","0"],
+                    value:["09","00"],
                     formatValue:function(picker,value,displayValue){
                         return value[0]+":"+value[1];
                     }
                 });
+                var curDate = commonutils.formatDateTime(new Date(), 1);
                 //定义开始日期
-                $("#startdate").calendar();
+                $("#startdate").calendar({
+                    minDate:curDate.replace(/-/g,'/')
+                });
                 //定义结束日期
-                $("#enddate").calendar();
+                $("#enddate").calendar({
+                    minDate:curDate.replace(/-/g,'/')
+                });
             },
             clearData:function(){
                 this.record = {};
                 this.recordCopy = {};
+            },
+            //Check department has storer and has config scene or evalution
+            setValidData:function(){
+                var depstr="";
+                if(this.selectdepts){
+                    for(var i=0;i<this.selectdepts.length;i++){
+                        depstr = depstr + this.selectdepts[i].id;
+                        if(i<this.selectdepts.length-1){
+                            depstr+=",";
+                        }
+                    }
+                }
+                //Evalution
+                if($("#selectType").val()==1){
+                    var checkitemstr = "";
+                    if(this.selectevals){
+                        for(var i=0;i<this.selectevals.length;i++){
+                            checkitemstr = checkitemstr + this.selectevals[i].id;
+                            if(i<this.selectevals.length-1){
+                                checkitemstr+=",";
+                            }
+                        }
+                    }
+                    //必须两个同时选择后才去判断
+                    if(checkitemstr && depstr){
+                        this.$http.post('/ajax/checkDeptHasDbViewShop.action?token='+Constant.token,{
+                            dbViewShopIds:checkitemstr,
+                            deptIds:depstr
+                        }).then(function(ret){
+                            if(ret.ok && ret.data && ret.data.result == 'ok'){
+                                var alertstr = "";
+                                //有门店没有配置点检项
+                                if(ret.data.data.hasExist){
+                                    var shops = ret.data.data.data;
+                                    if(shops&&shops.length>0){
+                                        var shopstr="";
+                                        for(var i=0;i<shops.length;i++){
+                                            for(var j=0;j<this.selectdepts.length;j++){
+                                                if(this.selectdepts[j].id==shops[i].id){
+                                                    this.selectdepts.splice(j,1);
+                                                    break;
+                                                }
+                                            }
+                                            shopstr = shopstr + shops[i].name;
+                                            if(i<shops.length-1){
+                                                shopstr = shopstr + ",";
+                                            }
+                                        }
+                                        alertstr = "检测到以下门店点检项未关联,将不能生成点检任务:"+shopstr+"<br>";
+                                    }
+                                }
+                                if(ret.data.data.hasManager){
+                                    var shops = ret.data.data.depts;
+                                    if(shops&&shops.length>0){
+                                        var shopstr="";
+                                        for(var i=0;i<shops.length;i++){
+                                            for(var j=0;j<this.selectdepts.length;j++){
+                                                if(this.selectdepts[j].id==shops[i].id){
+                                                    this.selectdepts.splice(j,1);
+                                                    break;
+                                                }
+                                            }
+                                            shopstr = shopstr + shops[i].name;
+                                            if(i<shops.length-1){
+                                                shopstr = shopstr + ",";
+                                            }
+                                        }
+                                        alertstr = alertstr + "检测到以下门店未配置店长,将不能生成点检任务:"+shopstr;
+                                    }
+                                }
+                                if(alertstr){
+                                    this.deptName = "";
+                                    for(var i=0;i<this.selectdepts.length;i++){
+                                        this.deptName = this.deptName + this.selectdepts[i].name;
+                                        if(i<this.selectdepts.length-1){
+                                            this.deptName = this.deptName + ',';
+                                        }
+                                    }
+                                    $.alert(alertstr);
+                                }
+                            }
+                        });
+                    }
+                }else{
+                    var presetitemstr = "";
+                    if(this.selectscenes){
+                        for(var i=0;i<this.selectscenes.length;i++){
+                            presetitemstr = presetitemstr + this.selectscenes[i].preId;
+                            if(i<this.selectscenes.length-1){
+                                presetitemstr+=",";
+                            }
+                        }
+                    }
+                    //必须两个同时选择后才去判断
+                    if(presetitemstr && depstr){
+                        this.$http.post('/ajax/checkDeptHasScene.action?token='+Constant.token,{
+                            sceneNos:presetitemstr,
+                            deptIds:depstr
+                        }).then(function(ret){
+                            if(ret.ok && ret.data && ret.data.result == 'ok'){
+                                var alertstr = "";
+                                //有门店没有配置点检项
+                                if(ret.data.data.hasExist){
+                                    var shops = ret.data.data.data;
+                                    if(shops&&shops.length>0){
+                                        var shopstr="";
+                                        for(var i=0;i<shops.length;i++){
+                                            for(var j=0;j<this.selectdepts.length;j++){
+                                                if(this.selectdepts[j].id==shops[i].id){
+                                                    this.selectdepts.splice(j,1);
+                                                    break;
+                                                }
+                                            }
+                                            shopstr = shopstr + shops[i].name;
+                                            if(i<shops.length-1){
+                                                shopstr = shopstr + ",";
+                                            }
+                                        }
+                                        alertstr = "检测到以下门店没有配置场景:"+shopstr+"<br>";
+                                    }
+                                }
+                                if(ret.data.data.hasManager){
+                                    var shops = ret.data.data.depts;
+                                    if(shops&&shops.length>0){
+                                        var shopstr="";
+                                        for(var i=0;i<shops.length;i++){
+                                            for(var j=0;j<this.selectdepts.length;j++){
+                                                if(this.selectdepts[j].id==shops[i].id){
+                                                    this.selectdepts.splice(j,1);
+                                                    break;
+                                                }
+                                            }
+                                            shopstr = shopstr + shops[i].name;
+                                            if(i<shops.length-1){
+                                                shopstr = shopstr + ",";
+                                            }
+                                        }
+                                        alertstr = alertstr + "检测到以下门店未配置店长,将不能生成点检任务:"+shopstr;
+                                    }
+                                }
+                                if(alertstr){
+                                    this.deptName = "";
+                                    for(var i=0;i<this.selectdepts.length;i++){
+                                        this.deptName = this.deptName + this.selectdepts[i].name;
+                                        if(i<this.selectdepts.length-1){
+                                            this.deptName = this.deptName + ',';
+                                        }
+                                    }
+                                    $.alert(alertstr);
+                                }
+                            }
+                        });
+                    }
+                }
             },
             submitData:function(){
                 if(this.doing) return;
@@ -412,11 +583,11 @@
                 //非负整数
                 var reg = /^\+?[1-9][0-9]*$/;
                 if(!reg.test(this.invalidDays)){
-                    $.toast("请输入合法的有效天,范围1～30不能为小数");
+                    $.toast("有效天不合法,范围1～30不能为小数");
                     return;
                 }
                 if(this.invalidDays<1||this.invalidDays>30){
-                    $.toast("请输入合法的有效天,范围1～30不能为小数");
+                    $.toast("有效天不合法,范围1～30不能为小数");
                     return;
                 }
                 var id = null;
@@ -470,9 +641,9 @@
                 this.weekDateIds = "";
                 this.selectmonths = [];
                 this.monthDateName = "";
-                $("#timepicker").data("picker").params.value = ["9","0"];
-                this.exeTime = "9:0";
-                $("#timepicker").picker("setValue",["9","0"]);
+                $("#timepicker").data("picker").params.value = ["09","00"];
+                this.exeTime = "09:00";
+                $("#timepicker").picker("setValue",["09","00"]);
                 this.startTime = "";
                 this.endTime = "";
                 $("#startdate").data("calendar").setValue([]);
@@ -541,7 +712,12 @@
                         this.$children[2].weeks[i].display=false;
                     }
                 }
-
+                    if(parseInt(cronArr[1])<10){
+                        cronArr[1] = '0'+parseInt(cronArr[1]);
+                    }
+                    if(parseInt(cronArr[2])<10){
+                        cronArr[2] = '0'+parseInt(cronArr[2]);
+                    }
                     $("#timepicker").data("picker").params.value = [cronArr[2],cronArr[1]];
                     this.exeTime = cronArr[2]+":"+cronArr[1];
                     $("#timepicker").picker("setValue",[cronArr[2],cronArr[1]]);

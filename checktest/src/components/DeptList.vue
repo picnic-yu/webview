@@ -5,6 +5,15 @@
             <button class="button pull-right submit-button" v-on:click="submit()">确定</button>
             <h1 class='title'>门店</h1>
         </header>
+        <div class="bar bar-header-secondary">
+            <div class="searchbar">
+                <a class="searchbar-cancel" v-on:click="cancelSearch()">取消</a>
+                <div class="search-input">
+                    <label class="icon icon-search" for="search"></label>
+                    <input type="search" id="search" v-model="searchName" placeholder="请输入门店的名称"/>
+                </div>
+            </div>
+        </div>
         <div id="deptListContent"  class="content content-items pull-to-refresh-content infinite-scroll" data-ptr-distance="55" data-distance="240">
             <div class="pull-to-refresh-layer">
                    <div class="preloader"></div>
@@ -22,6 +31,7 @@
 <script>
     require('../../../common/assets/font.css');
     var num = 20;//每页显示的条数
+    var searchTimer = null;
     module.exports = {
         route:{
             data:function(transition){
@@ -41,8 +51,35 @@
                     items:[],
                     selectdepts:[],
                     selectdeptscopy:[],
+                    searchName:'',
                     refreshInit:false
                     };
+        },
+        watch:{
+            /**
+             * 监听搜索框的变化
+             * @param newValue
+             * @param oldValue
+             */
+            'searchName':function(newValue,oldValue){
+                if(newValue != oldValue){
+                    if(searchTimer){
+                        clearTimeout(searchTimer);
+                        searchTimer = null;
+                    }
+                    var _this = this;
+                    searchTimer = setTimeout(function(){
+                        _this.searchName = newValue;
+                        _this.page.index = 0;
+                        _this.getData(function(){
+                            if(_this.page.total <= _this.items.length){
+                                _this.unbindInfinite();
+                            }
+                            $.refreshScroller();
+                        },_this);
+                    },500);
+                }
+            }
         },
         events:{
                     'popup':function(param){
@@ -140,9 +177,14 @@
                         $.detachInfiniteScroll($('#deptListContent'));
                         $('#deptListContent .infinite-scroll-preloader').hide();
                 },
+                cancelSearch:function(){
+                    this.clearData();
+                    this.refresh();
+                },
                 clearData:function(){
                          this.page.index = 0;
                          this.items = [];
+                         this.searchName = '';
                 },
                 refresh:function(){
                  this.page.index = 0;
