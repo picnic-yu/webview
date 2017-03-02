@@ -2,7 +2,7 @@
   <div class="page-group">
     <div class="page page-current" id="index">
       <header class="bar bar-nav">
-        <h1 class='title' v-show="key.indexOf(',')==-1">合格率<span v-bind:class="'state-'+key">{{title}}</span>的点检项列表</h1>
+        <h1 class='title' v-show="key.indexOf(',')==-1"><span v-i18n="{value:'checkreport.passpercent'}"></span><span v-bind:class="'state-'+key">{{title}}</span><span v-i18n="{value:'checkreport.sitem'}"></span></h1>
         <h1 class='title' v-bind:class="'state-'+key" v-show="key.indexOf(',')>-1">{{title}}</h1>
       </header>
       <div class="top-panel">
@@ -21,12 +21,12 @@
               <div class="item-left">
                 <div class="item-name wrap-line">{{item.itemName}}</div>
                 <div class="item-des">
-                  <label class="item-label">检查店总数</label><span class="item-num">{{item.checkDeptNum}}</span><span class="item-splitor"></span>
-                  <label class="item-label">不合格店数</label><span class="item-num">{{item.unqualifiedDeptNum}}</span>
+                  <label class="item-label" v-i18n="{value:'checkreport.checkstorenum'}"></label><span class="item-num">{{item.checkDeptNum}}</span><span class="item-splitor"></span>
+                  <label class="item-label" v-i18n="{value:'checkreport.nopassstorenum'}"></label><span class="item-num">{{item.unqualifiedDeptNum}}</span>
                 </div>
               </div>
               <div class="item-rate" v-show="item.qualifiedRate!=-1" v-bind:class="{'state-best':item.qualifiedRate==1,'state-good':item.qualifiedRate<1&&item.qualifiedRate>=0.8,'state-bad':item.qualifiedRate<0.8}">{{item.qualifiedRate|percent}}</div>
-              <div class="item-rate" v-show="item.qualifiedRate==-1">未检查</div>
+              <div class="item-rate" v-show="item.qualifiedRate==-1" v-i18n="{value:'checkreport.notcheck'}"></div>
             </li>
           </ul>
         </div>

@@ -27,8 +27,8 @@
           </div>
         <div class="childlog-container">
           <div class="child-title">
-            <span class="child-tab" v-bind:class="{true:'tab-active',false:''}[chldTableIndex==1]" v-on:click="selectChildTab(1)">登录情况</span>
-            <span class="child-tab" v-bind:class="{true:'tab-active',false:''}[chldTableIndex==2]" v-on:click="selectChildTab(2)">执行力情况</span>
+            <span class="child-tab" v-bind:class="{true:'tab-active',false:''}[chldTableIndex==1]" v-on:click="selectChildTab(1)" v-i18n="{value:'checkreport.loginstatus'}"></span>
+            <span class="child-tab" v-bind:class="{true:'tab-active',false:''}[chldTableIndex==2]" v-on:click="selectChildTab(2)" v-i18n="{value:'checkreport.orderstatus'}"></span>
           </div>
           <table v-show="chldTableIndex==1" width="100%"><tr style="height:40px;"><td></td><td align="right" colspan="5"><div v-show="!showAllFlag" class="log-all" v-on:click="showAllLogList(1)">{{showAll}}</div><div v-show="showAllFlag" class="log-all" v-on:click="showAllLogList(0)">{{showSignle}}</div></td></tr>
           <tr v-show="showLog"  class="log-title"><td style="padding-left:10px;">{{userNameTitle}}</td><td v-for="title in myChildLogTitles" align="center">{{title.dayTime}}</td></tr>
@@ -36,7 +36,7 @@
             <tr v-show="!showLog" align="center"><td colspan="2"><div class="no-data">{{nodata}}</div></td></tr>
           </table>
           <table v-show="chldTableIndex==2" width="100%"><tr style="height:40px;"><td></td><td align="right" colspan="5"><div v-show="!showAllFlag" class="log-all" v-on:click="showAllLogList(1)">{{showAll}}</div><div v-show="showAllFlag" class="log-all" v-on:click="showAllLogList(0)">{{showSignle}}</div></td></tr>
-            <tr v-show="showLog" class="log-title"><td style="padding-left:10px;"><span class="child-tabtitle">{{userNameTitle}}</span></td><td align="center"><span class="child-tabtitle">门店总数</span></td><td align="center"><span class="child-tabtitle">发现问题</span></td><td align="center"><span class="child-tabtitle">点检门店</span></td><td align="center"><span class="child-tabtitle">整改问题</span></td><td align="center"><span class="child-tabtitle">问题总数</span></td></tr>
+            <tr v-show="showLog" class="log-title"><td style="padding-left:10px;"><span class="child-tabtitle">{{userNameTitle}}</span></td><td align="center"><span class="child-tabtitle" v-i18n="{value:'checkreport.storenums'}"></span></td><td align="center"><span class="child-tabtitle" v-i18n="{value:'checkreport.findproblem'}"></span></td><td align="center"><span class="child-tabtitle" v-i18n="{value:'checkreport.checkdept'}"></span></td><td align="center"><span class="child-tabtitle" v-i18n="{value:'checkreport.checkproblem'}"></span></td><td align="center"><span class="child-tabtitle" v-i18n="{value:'checkreport.problemtotal'}"></span></td></tr>
             <tr v-show="showLog" class="log-content" v-for="child in myChilds"><td class="log-username">{{child.showName}}</td><td align="center">{{child.authDeptNum|numtostr}}</td><td align="center">{{child.findProblemNum|numtostr}}</td><td align="center">{{child.checkedDeptNum|numtostr}}</td><td align="center">{{child.improvementNum|numtostr}}</td><td align="center">{{child.problemTotalNum|numtostr}}</td></tr>
             <tr v-show="!showLog" align="center"><td colspan="2"><div class="no-data">{{nodata}}</div></td></tr>
           </table>
@@ -49,34 +49,35 @@
   var echarts = require('echarts');
   var chartutils = require('../chartutils');
   var num = 20;//每页显示的条数
+  var v = require('vue');
   //高管
   var numtitles1 = [
-    {name:'findProblemNumInAuthShop',title:'问题总数',rate:0,tip:'门店总共发现的问题数',bigTitle:'本月问题汇总'},
-    {name:'solveProblemNumInAuthShop',title:'已解决数',rate:0,tip:'门店解决的问题数'},
-    {name:'findProblemNum',title:'我提交的',rate:0,tip:'高管自己发现的问题数'},
-    {name:'quota',title:'我的得分',rate:1,tip:'(高管发现问题数/门店总数*0.2+门店解决问题数/门店发现问题数*0.8)*100%'}
+    {name:'findProblemNumInAuthShop',title:v.prototype.$translate('checkreport.problemtotal'),rate:0,tip:v.prototype.$translate('checkreport.problemtotaldesc'),bigTitle:v.prototype.$translate('checkreport.problemcountmonth')},
+    {name:'solveProblemNumInAuthShop',title:v.prototype.$translate('checkreport.hasokcount'),rate:0,tip:v.prototype.$translate('checkreport.dephasokcount')},
+    {name:'findProblemNum',title:v.prototype.$translate('checkreport.iampush'),rate:0,tip:v.prototype.$translate('checkreport.orderselffindproblem')},
+    {name:'quota',title:v.prototype.$translate('checkreport.iamscore'),rate:1,tip:v.prototype.$translate('checkreport.scoredesc')}
   ];
   var numtitles11 = [
-    {name:'zhChar',title:'问题总数',rate:0},
-    {name:'findProblemNum',title:'我提交的',rate:0},
-    {name:'quota',title:'我的得分',rate:1}
+    {name:'zhChar',title:v.prototype.$translate('checkreport.problemtotal'),rate:0},
+    {name:'findProblemNum',title:v.prototype.$translate('checkreport.iampush'),rate:0},
+    {name:'quota',title:v.prototype.$translate('checkreport.iamscore'),rate:1}
   ];
   //督导
   var numtitles2 = [
-    {name:'checkedDeptNum',title:'点检总数',rate:0,tip:'点检的门店数',bigTitle:'本月点检汇总'},
-    {name:'authDeptNum',title:'门店总数',rate:0,tip:'管辖门店数'},
-    {name:'coverDeptRate',title:'覆盖率',rate:1,tip:'点检门店数/管辖门店数*100%'}];
+    {name:'checkedDeptNum',title:v.prototype.$translate('checkreport.checkcount'),rate:0,tip:v.prototype.$translate('checkreport.checksstorecount'),bigTitle:v.prototype.$translate('checkreport.checktotalmonth')},
+    {name:'authDeptNum',title:v.prototype.$translate('checkreport.storenums'),rate:0,tip:v.prototype.$translate('checkreport.authdepcount')},
+    {name:'coverDeptRate',title:v.prototype.$translate('checkreport.coverrate'),rate:1,tip:v.prototype.$translate('checkreport.checkdepauthdep')}];
   var numtitles22 = [
-    {name:'zhChar',title:'点检总数',rate:0},
-    {name:'coverDeptRate',title:'覆盖率',rate:1}];
+    {name:'zhChar',title:v.prototype.$translate('checkreport.checkcount'),rate:0},
+    {name:'coverDeptRate',title:v.prototype.$translate('checkreport.coverrate'),rate:1}];
   //店长
   var numtitles3 = [
-    {name:'improvementNum',title:'整改总数',rate:0,tip:'已整改的问题数',bigTitle:'本月整改汇总'},
-    {name:'problemTotalNum',title:'问题总数',rate:0,tip:'门店总共发现的问题数'},
-    {name:'improvementRate',title:'改善率',rate:1,tip:'整改完成数/问题总数*100%'}];
+    {name:'improvementNum',title:v.prototype.$translate('checkreport.docount'),rate:0,tip:v.prototype.$translate('checkreport.hasdoneproblemcount'),bigTitle:v.prototype.$translate('checkreport.oktotalmonth')},
+    {name:'problemTotalNum',title:v.prototype.$translate('checkreport.problemtotal'),rate:0,tip:v.prototype.$translate('checkreport.problemtotaldesc')},
+    {name:'improvementRate',title:v.prototype.$translate('checkreport.okmorerate'),rate:1,tip:v.prototype.$translate('checkreport.okprototalpro')}];
   var numtitles33 = [
-    {name:'zhChar',title:'整改总数',rate:0},
-    {name:'improvementRate',title:'改善率',rate:1}];
+    {name:'zhChar',title:v.prototype.$translate('checkreport.docount'),rate:0},
+    {name:'improvementRate',title:v.prototype.$translate('checkreport.okmoreratec'),rate:1}];
   module.exports = {
     data:function(){
       return {
@@ -282,16 +283,16 @@
                 _this.myChilds = _this.myChilds.concat(ret.data.data.data);
               }
               if(_this.myChilds.length>0) {
-                this.userNameTitle = '用户名称';
-                this.showAll = '查看全部下级';
-                this.showSignle='查看直属下级';
+                this.userNameTitle = this.$translate('common.username');
+                this.showAll = this.$translate('checkreport.showallchild');
+                this.showSignle=this.$translate('checkreport.shownextchild');
                 this.myChildLogTitles = _this.myChilds[0].logDailyDo;
               }
               _this.page.total = ret.data.data.total;
               callback && callback();
             }else{
               _this.showLog = false;
-              _this.nodata  = '没有下级用户';
+              _this.nodata  = this.$translate('checkreport.nonextuser');
               _this.myChilds = [];
               _this.page.total = 0;
               callback && callback();
@@ -313,15 +314,15 @@
                 _this.myChilds = _this.myChilds.concat(ret.data.data.data);
               }
               if(_this.myChilds.length>0) {
-                this.userNameTitle = '用户名称';
-                this.showAll = '查看全部下级';
-                this.showSignle='查看直属下级';
+                this.userNameTitle = this.$translate('common.username');
+                this.showAll = this.$translate('checkreport.showallchild');
+                this.showSignle=this.$translate('checkreport.shownextchild');
               }
               _this.page.total = ret.data.data.total;
               callback && callback();
             }else{
               _this.showLog = false;
-              _this.nodata  = '没有下级用户';
+              _this.nodata  = this.$translate('checkreport.nonextuser');
               _this.myChilds = [];
               _this.page.total = 0;
               callback && callback();

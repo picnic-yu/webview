@@ -2,12 +2,12 @@
   <div class="page-group item-page4">
     <div class="page page-current" id="index">
       <header class="bar bar-nav">
-        <h1 class='title'>详情</h1>
+        <h1 class='title' v-i18n="{value:'checkreport.detail'}"></h1>
       </header>
       <div class="nav-content">
         <h4 class="page4-depname">{{shareData.deptName}}</h4>
         <div class="page4-itemname">{{shareData.itemName}}</div>
-        <span class="detail-tip" v-show="shareData.detailedRules&&shareData.detailedRules.length>0" v-on:click="toggleAllDetails">全部细则</span><a v-show="shareData.detailedRules&&shareData.detailedRules.length>0" class="icon-detail" v-on:click="toggleAllDetails" v-bind:class="display.showdetails?'icon-detail_up':'icon-detail_down'"></a>
+        <span class="detail-tip" v-show="shareData.detailedRules&&shareData.detailedRules.length>0" v-on:click="toggleAllDetails" v-i18n="{value:'checkreport.allrules'}"></span><a v-show="shareData.detailedRules&&shareData.detailedRules.length>0" class="icon-detail" v-on:click="toggleAllDetails" v-bind:class="display.showdetails?'icon-detail_up':'icon-detail_down'"></a>
         <div class="details-panel" v-show="display.showdetails">
           <ul class="details-ul">
             <li v-for="rule in shareData.detailedRules">
@@ -33,9 +33,9 @@
                   <div class="item-des">
                     <div class="item-info">
                       <span class="item-state" v-bind:class="{'state-bad':item.count==0,'state-best':item.count==1,'state-good':item.count==-1}">{{item.count|whichcount}}</span>
-                      <span class="item-text detail-tip" v-show="item.detailedRuleIds && item.detailedRuleIds.length > 0" v-on:click="toggleItemDetails(item)">细则</span>
+                      <span class="item-text detail-tip" v-show="item.detailedRuleIds && item.detailedRuleIds.length > 0" v-on:click="toggleItemDetails(item)" v-i18n="{value:'checkreport.rules'}"></span>
                       <a class="icon-detail" v-show="item.detailedRuleIds && item.detailedRuleIds.length > 0" v-on:click="toggleItemDetails(item)" v-bind:class="item.showdetails?'icon-detail_up':'icon-detail_down'"></a>
-                      <a class="item-pic pb-standalone"  v-show="item.pics && item.pics.length > 0" v-bind:index="$index"><span class="item-text detail-tip" v-show="item.pics && item.pics.length > 0">图片</span><span class="icon-pic icon-image "></span></a>
+                      <a class="item-pic pb-standalone"  v-show="item.pics && item.pics.length > 0" v-bind:index="$index"><span class="item-text detail-tip" v-show="item.pics && item.pics.length > 0" v-i18n="{value:'checkreport.picture'}"></span><span class="icon-pic icon-image "></span></a>
                     </div>
                     <div class="item-info">
                       <span class="item-text item-username">{{item.checkerName}}</span>
@@ -124,29 +124,29 @@
         },
         filters:{
             whichcount:function(value){
-                if(value == 1) return '合格';
-                if(value == 0) return '不合格';
-                return '不适用';
+                if(value == 1) return this.$translate('checkreport.ok');
+                if(value == 0) return this.$translate('checkreport.nook');
+                return this.$translate('checkreport.disabled');
             },
             whichchecktype: function (sourcetype) {
                 if (sourcetype == 1) {
-                    return "图片点检";
+                    return this.$translate('checkreport.photo');
                 } else if (sourcetype == 2) {
-                    return "摇一摇";
+                    return this.$translate('checkreport.shake');
                 } else if (sourcetype == 3) {
-                    return "抓拍";
+                    return this.$translate('checkreport.capture');
                 } else if (sourcetype == 4) {
-                    return "手动创建";
+                    return this.$translate('checkreport.handcreate');
                 } else if (sourcetype == 5) {
-                    return "在线考评";
+                    return this.$translate('checkreport.onlinetest');
                 } else if (sourcetype == 6) {
-                    return "快拍";
+                    return this.$translate('checkreport.quickcapture');
                 } else if (sourcetype == 7) {
-                    return "告警";
+                    return this.$translate('checkreport.alarm');
                 } else if (sourcetype == 8) {
-                    return "现场巡店";
+                    return this.$translate('checkreport.sceneshop');
                 } else if (sourcetype == 9) {
-                    return "远程巡店";
+                    return this.$translate('checkreport.remoteshop');
                 }
             }
         },

@@ -18,20 +18,21 @@
     var echarts = require('echarts');
     var chartutils = require('../chartutils');
     var ANIMATE_TIME  = 6;//动画耗时时间
+    var v = require('vue');
     var poses = [{
-        name:'我',
+        name:v.prototype.$translate('common.iam'),
         value:-1,
         disabled:true
     },{
-        name:'高管',
+        name:v.prototype.$translate('common.senior'),
         value:-4,
         disabled:true
     },{
-        name:'督导',
+        name:v.prototype.$translate('common.orderer'),
         value:-3,
         disabled:true
     },{
-        name:'店长',
+        name:v.prototype.$translate('common.storer'),
         value:-2,
         disabled:true
     }];//执行力考擦对象
@@ -112,9 +113,9 @@
         filters:{
             whichstatus:function(status){
                 if(status == 1){
-                    return "不合格";
+                    return this.$translate('checkreport.nook');
                 }else if(status == 0){
-                    return "合格";
+                    return this.$translate('checkreport.ok');
                 }
             }
         },
@@ -197,7 +198,7 @@
                     this.poses[2].disabled = true;
                     this.poses[3].disabled = true;
                     this.display.nodata = true;
-                    $.toast('暂无任何级别的执行力可统计');
+                    $.toast(this.$translate('checkreport.noorderstatistic'));
                 }
             },
             selectGrade:function(index){
@@ -221,9 +222,9 @@
                 this.report.okNum = data.qualifiedNum;
                 this.animateNum(data);
                 var best = data.regions.best,good = data.regions.good,bad = data.regions.bad;
-                best.key = 'best',best.name = '优秀',best.value = best.objCount,best.itemStyle = chartutils.getPieChartOption().bestStyleOption;
-                good.key = 'good',good.name = '良好',good.value = good.objCount,good.itemStyle = chartutils.getPieChartOption().goodStyleOption;
-                bad.key = 'bad',bad.name = '较差',bad.value = bad.objCount,bad.itemStyle = chartutils.getPieChartOption().badStyleOption;
+                best.key = 'best',best.name = this.$translate('common.best'),best.value = best.objCount,best.itemStyle = chartutils.getPieChartOption().bestStyleOption;
+                good.key = 'good',good.name = this.$translate('common.good'),good.value = good.objCount,good.itemStyle = chartutils.getPieChartOption().goodStyleOption;
+                bad.key = 'bad',bad.name = this.$translate('common.bad'),bad.value = bad.objCount,bad.itemStyle = chartutils.getPieChartOption().badStyleOption;
                 if(best.value > 0) this.report.data.push(best);
                 if(good.value > 0) this.report.data.push(good);
                 if(bad.value > 0) this.report.data.push(bad);
@@ -297,7 +298,7 @@
             allDetails:function(){
                 if(this.report.total>0){
                     this.setConstantValue({
-                        name:'门店列表',
+                        name:this.$translate('checkreport.storelist'),
                         key:'best,good,bad,undo'
                     });
                     router.go({path:'/shops'});
@@ -306,7 +307,7 @@
             allCheckDetails:function(){
                 if(this.report.totalNum>0){
                     this.setConstantValue({
-                        name:'覆盖门店列表',
+                        name:this.$translate('checkreport.coverstorelist'),
                         key:'best,good,bad'
                     });
                     router.go({path:'/shops'});
@@ -318,7 +319,7 @@
             okDetails:function(){
                 if(this.report.okNum>0){
                     this.setConstantValue({
-                        name:'合格门店列表',
+                        name:this.$translate('checkreport.passstorelist'),
                         key:'best,good'
                     });
                     router.go({path:'/shops'});

@@ -2,24 +2,24 @@
   <div>
     <div class="board-box">
       <div class="board-cell">
-        <span class="cell-tip" id="help0">门店总数<span class="moon-ico icon-info"></span></span>
+        <span class="cell-tip" id="help0" v-i18n="{value:'checkreport.storenums'}"><span class="moon-ico icon-info"></span></span>
         <span class="cell-value" v-on:click="allDetails()">{{report.total}}</span>
 
-        <div class="toast-tip help0">管辖范围内的门店总数</div>
+        <div class="toast-tip help0" v-i18n="{value:'checkreport.storenumauth'}"></div>
       </div>
       <div class="boardbox-splitor"></div>
       <div class="board-cell">
-        <span class="cell-tip" id="help1">覆盖店数<span class="moon-ico icon-info"></span></span>
+        <span class="cell-tip" id="help1" v-i18n="{value:'checkreport.coverstore'}"><span class="moon-ico icon-info"></span></span>
         <span class="cell-value" v-on:click="allCheckDetails()">{{report.totalNum}}</span>
 
-        <div class="toast-tip help1">当前时间范围内被点检的门店总数</div>
+        <div class="toast-tip help1" v-i18n="{value:'checkreport.coverstoredesc'}"></div>
       </div>
       <div class="boardbox-splitor"></div>
       <div class="board-cell">
-        <span class="cell-tip" id="help2">合格店数<span class="moon-ico icon-info"></span></span>
+        <span class="cell-tip" id="help2" v-i18n="{value:'checkreport.passstorenum'}"><span class="moon-ico icon-info"></span></span>
         <span class="cell-value" v-on:click="okDetails()">{{report.okNum}}</span>
 
-        <div class="toast-tip help2">当前时间范围内被点检门店中综合分数大于80分的门店总数</div>
+        <div class="toast-tip help2" v-i18n="{value:'checkreport.passstorenumdesc'}"></div>
       </div>
     </div>
     <div class="chart-box">
@@ -37,7 +37,7 @@
             <div class="cell-1-c"><span class="cell-name">{{data.name}}</span><span class="cell-status">{{data.state|whichstatus}}</span>
             </div>
           </div>
-          <div class="cell-2">{{data.value}}家门店</div>
+          <div class="cell-2">{{data.value}}<span v-i18n="{value:'checkreport.store'}"></span></div>
           <div class="cell-3"><span class="moon-ico icon-pre"></span></div>
         </li>
       </ul>
@@ -105,9 +105,9 @@
         filters:{
             whichstatus:function(status){
                 if (status == 1) {
-                    return "不合格";
+                    return this.$translate('checkreport.nook');
                 } else if (status == 0) {
-                    return "合格";
+                    return this.$translate('checkreport.ok');
                 }
             }
         },
@@ -159,7 +159,7 @@
                 var topChart2 = echarts.init(document.getElementById('topChart2'));
                 var option2 = chartutils.getTopChartOption_item();
                 topChart2.showLoading();
-                option2.title.text = '得分排名前五的门店';
+                option2.title.text = this.$translate('checkreport.fivestore');
                 option2.color = ['#8acc47'];
                 topChart2.setOption(option2);
                 this.chart.chartObject2 = topChart2;
@@ -175,9 +175,9 @@
                 this.report.okNum = data.qualifiedDeptNum;
                 this.animateNum(data);
                 var best = data.regions.best,good = data.regions.good,bad = data.regions.bad;
-                best.key = 'best',best.name = '100分',best.value = best.objCount,best.itemStyle = chartutils.getPieChartOption().bestStyleOption;
-                good.key = 'good',good.name = '80-100分',good.value = good.objCount,good.itemStyle = chartutils.getPieChartOption().goodStyleOption;
-                bad.key = 'bad',bad.name = '0-80分',bad.value = bad.objCount,bad.itemStyle = chartutils.getPieChartOption().badStyleOption;
+                best.key = 'best',best.name = '100'+this.$translate('common.sc'),best.value = best.objCount,best.itemStyle = chartutils.getPieChartOption().bestStyleOption;
+                good.key = 'good',good.name = '80-100'+this.$translate('common.sc'),good.value = good.objCount,good.itemStyle = chartutils.getPieChartOption().goodStyleOption;
+                bad.key = 'bad',bad.name = '0-80'+this.$translate('common.sc'),bad.value = bad.objCount,bad.itemStyle = chartutils.getPieChartOption().badStyleOption;
                 if(best.value > 0) this.report.data.push(best);
                 if(good.value > 0) this.report.data.push(good);
                 if(bad.value > 0) this.report.data.push(bad);
@@ -290,14 +290,14 @@
                 var option1 = chartutils.getTopChartOption_shop();
                 option1.yAxis.data = this.report.lastFiveCategory;
                 option1.series[0].data = this.report.lastFiveData;
-                option1.title.text = '得分排名后五的门店';
+                option1.title.text = this.$translate('checkreport.lastfivestore');
                 myChart1.setOption(option1);
                 //前五图表
                 var myChart2 = this.chart.chartObject2;
                 myChart2.clear();
                 myChart2.hideLoading();
                 var option2 = chartutils.getTopChartOption_shop();
-                option2.title.text = '得分排名前五的门店';
+                option2.title.text = this.$translate('checkreport.fivestore');
                 option2.color = ['#8acc47'];
                 option2.yAxis.data = this.report.topFiveCategory;
                 option2.series[0].data = this.report.topFiveData;
@@ -339,7 +339,7 @@
             allDetails: function () {
                 if (this.report.total > 0) {
                     this.setConstantValue({
-                        name: '门店列表',
+                        name: this.$translate('checkreport.storelist'),
                         key: 'best,good,bad,undo'
                     });
                     router.go({path: '/shops'});
@@ -348,7 +348,7 @@
             allCheckDetails: function () {
                 if (this.report.totalNum > 0) {
                     this.setConstantValue({
-                        name: '覆盖门店列表',
+                        name: this.$translate('checkreport.coverstorelist'),
                         key: 'best,good,bad'
                     });
                     router.go({path: '/shops'});
@@ -360,7 +360,7 @@
             okDetails: function () {
                 if (this.report.okNum > 0) {
                     this.setConstantValue({
-                        name: '合格门店列表',
+                        name: this.$translate('checkreport.passstorelist'),
                         key: 'best,good'
                     });
                     router.go({path: '/shops'});

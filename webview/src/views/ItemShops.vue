@@ -12,8 +12,8 @@
         </div>-->
         <div class="tab-panel bar bar-nav">
           <div class="buttons-tab head-tab">
-            <a v-on:click="showAll(1)" class="tab-link  button" v-bind:class="display.showall?'active':''">所有检查门店</a>
-            <a v-on:click="showAll(0)" class="tab-link button" v-bind:class="!display.showall?'active':''">不合格门店</a>
+            <a v-on:click="showAll(1)" class="tab-link  button" v-bind:class="display.showall?'active':''" v-i18n="{value:'checkreport.allcheckdep'}"></a>
+            <a v-on:click="showAll(0)" class="tab-link button" v-bind:class="!display.showall?'active':''" v-i18n="{value:'checkreport.nopassstore'}"></a>
           </div>
         </div>
       </div>
@@ -27,7 +27,7 @@
             <li v-for="item in items" v-on:click="detail(item.deptId,item.deptName)">
               <div class="item-list">
                 <span class="item-name">{{item.deptName}}</span>
-                <span class="item-state" v-bind:class="item.state==0?'state-best':'state-bad'">{{item.state==0?'合格':'不合格'}}</span>
+                <span class="item-state" v-bind:class="item.state==0?'state-best':'state-bad'">{{item.state | fiterpass}}</span>
               </div>
             </li>
           </ul>
@@ -101,6 +101,15 @@
         },
         ready:function(){
             this.init();
+        },
+        filters: {
+            fiterpass: function (value) {
+                if (value == 0) {
+                    return this.$translate('checkreport.ok');
+                } else if (value == 1) {
+                    return this.$translate('checkreport.nook');
+                }
+            }
         },
         methods:{
             init:function(opt){

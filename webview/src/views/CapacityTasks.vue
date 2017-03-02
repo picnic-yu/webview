@@ -7,8 +7,8 @@
       <div class="nav-content">
         <div class="tab-panel bar bar-nav">
           <div class="buttons-tab head-tab">
-            <a v-on:click="showAll(1)" class="tab-link  button" v-bind:class="display.showall?'active':''">所有点检任务</a>
-            <a v-on:click="showAll(0)" class="tab-link button" v-bind:class="!display.showall?'active':''">已完成任务</a>
+            <a v-on:click="showAll(1)" class="tab-link  button" v-bind:class="display.showall?'active':''" v-i18n="{value:'checkreport.allchecktasks'}"></a>
+            <a v-on:click="showAll(0)" class="tab-link button" v-bind:class="!display.showall?'active':''" v-i18n="{value:'checkreport.donechecktasks'}"></a>
           </div>
         </div>
       </div>
@@ -26,16 +26,15 @@
                   <div class="item-b-left">
                     <!--<span class="item-label item-username">{{item.checker.showName}}</span>
                     <span class="item-label">{{item.createTime.substring(0,10)}}</span>-->
-                    <span class="item-label" v-show="item.isInvalid==0">{{item.validDate.substring(0,10)}}到期</span>
-                    <span class="item-label2" v-show="item.isInvalid==1">已过期</span>
+                    <span class="item-label" v-show="item.isInvalid==0" v-i18n="{value:'checkreport.getexpire',replace:[{{item.validDate.substring(0,10)}}]}"></span>
+                    <span class="item-label2" v-show="item.isInvalid==1" v-i18n="{value:'checkreport.hasexpire'}"></span>
                   </div>
                   <span class="item-num" v-bind:class="item.state==1?'state-best':''">{{item.state|whichstatus}}</span>
                 </div>
               </div>
             </li>
           </ul>
-          <div class="items-list no-data" v-show="items.length == 0">
-            没有任何点检任务
+          <div class="items-list no-data" v-show="items.length == 0" v-i18n="{value:'checkreport.nochecktask'}">
           </div>
         </div>
         <div class="infinite-scroll-preloader">
@@ -110,9 +109,9 @@
         filters:{
             whichstatus:function(status){
                 if(status == 0){
-                    return '未点检';
+                    return this.$translate("checkreport.nocheck");
                 }else if(status == 1){
-                    return '已完成';
+                    return this.$translate("checkreport.hasdone");
                 }
             }
         },

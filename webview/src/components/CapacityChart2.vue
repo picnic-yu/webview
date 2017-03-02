@@ -40,20 +40,22 @@
       <div class="swiper-slide">
         <div class="swiper-inner">
           <!--<h2 class="pie-title" id="help211">点检项覆盖指标<span class="moon-ico icon-info"></span></h2>-->
-          <div class="toast-tip help211 help">已点检点检项数/总点检项数</div>
+          <div class="toast-tip help211 help" v-i18n="{value:'checkreport.haschecktotalcheck'}"></div>
           <div class="board-box">
             <div class="board-cell">
-              <span class="cell-tip" id="help23">总数<span class="moon-ico icon-info"></span></span>
+              <span class="cell-tip" id="help23" v-i18n="{value:'common.total'}"><span class="moon-ico icon-info"></span></span>
               <span class="cell-value" v-on:click="allDetails(report2.total,report2.reportType)">{{report2.total}}</span>
-              <div class="toast-tip help23 help1">所有督导的总人数</div>
+              <div class="toast-tip help23 help1" v-i18n="{value:'checkreport.allordercount'}"></div>
             </div>
             <div class="boardbox-splitor"></div>
             <div class="board-cell">
-              <span class="cell-tip"id="help24">本月合格人数<span class="moon-ico icon-info"></span></span>
+              <span class="cell-tip"id="help24" v-i18n="{value:'checkreport.passcountmonth'}"><span class="moon-ico icon-info"></span></span>
               <span class="cell-value" v-on:click="okDetails(report2.okNum,report2.reportType)">{{report2.okNum}}</span>
 
               <div class="toast-tip help24 help2">
-                计算方式：[(检查门店点检项数/(门店数*点检项数))*50%+(自己发现的问题数/门店数)*50%]大于等于{{report.levelMid*100}}%的督导人数
+                <span v-i18n="{value:'checkreport.computedesc'}"></span>
+                {{report.levelMid*100}}%
+                <span v-i18n="{value:'checkreport.sordecount'}"></span>
               </div>
             </div>
           </div>
@@ -68,7 +70,7 @@
                 <div class="cell-1">
                   <div class="cell-1-c"><span class="cell-name">{{data.name}}</span><span class="cell-status">{{data.state|whichstatus}}</span></div>
                 </div>
-                <div class="cell-2">{{data.value}}人</div>
+                <div class="cell-2">{{data.value}}<span v-i18n="{value:'common.people'}"></span></div>
                 <div class="cell-3"><span class="moon-ico icon-pre"></span></div>
               </li>
             </ul>
@@ -155,9 +157,9 @@
         filters:{
             whichstatus:function(status){
                 if(status == 1){
-                    return "不合格";
+                    return this.$translate('checkreport.nook');
                 }else if(status == 0){
-                    return "合格";
+                    return this.$translate('checkreport.ok');
                 }
             }
         },
@@ -219,9 +221,9 @@
                 this.report.levelMid = data.levelMid;
                 this.animateNum(data);
                 var best = data.regions.best,good = data.regions.good,bad = data.regions.bad;
-                best.key = 'best',best.name = '优秀',best.value = best.objCount,best.itemStyle = chartutils.getPieChartOption().bestStyleOption;
-                good.key = 'good',good.name = '良好',good.value = good.objCount,good.itemStyle = chartutils.getPieChartOption().goodStyleOption;
-                bad.key = 'bad',bad.name = '较差',bad.value = bad.objCount,bad.itemStyle = chartutils.getPieChartOption().badStyleOption;
+                best.key = 'best',best.name = this.$translate('common.best'),best.value = best.objCount,best.itemStyle = chartutils.getPieChartOption().bestStyleOption;
+                good.key = 'good',good.name = this.$translate('common.good'),good.value = good.objCount,good.itemStyle = chartutils.getPieChartOption().goodStyleOption;
+                bad.key = 'bad',bad.name = this.$translate('common.bad'),bad.value = bad.objCount,bad.itemStyle = chartutils.getPieChartOption().badStyleOption;
                 if(best.value > 0) this.report.data.push(best);
                 if(good.value > 0) this.report.data.push(good);
                 if(bad.value > 0) this.report.data.push(bad);
@@ -271,9 +273,9 @@
                 this.report2.levelMid = data.levelMid;
                 this.animateNum2(data);
                 var best = data.regions.best,good = data.regions.good,bad = data.regions.bad;
-                best.key = 'best',best.name = '优秀',best.value = best.objCount,best.itemStyle = chartutils.getPieChartOption().bestStyleOption;
-                good.key = 'good',good.name = '良好',good.value = good.objCount,good.itemStyle = chartutils.getPieChartOption().goodStyleOption;
-                bad.key = 'bad',bad.name = '较差',bad.value = bad.objCount,bad.itemStyle = chartutils.getPieChartOption().badStyleOption;
+                best.key = 'best',best.name = this.$translate('common.best'),best.value = best.objCount,best.itemStyle = chartutils.getPieChartOption().bestStyleOption;
+                good.key = 'good',good.name = this.$translate('common.good'),good.value = good.objCount,good.itemStyle = chartutils.getPieChartOption().goodStyleOption;
+                bad.key = 'bad',bad.name = this.$translate('common.bad'),bad.value = bad.objCount,bad.itemStyle = chartutils.getPieChartOption().badStyleOption;
                 if(best.value > 0) this.report2.data.push(best);
                 if(good.value > 0) this.report2.data.push(good);
                 if(bad.value > 0) this.report2.data.push(bad);
@@ -449,10 +451,10 @@
                 });
                 this.selectType = index;
                 if(type == 1){
-                    data.name = '点检项完成率'+data.name+'的督导列表';
+                    data.name = this.$translate('checkreport.itempercent')+data.name+this.$translate('checkreport.sorderlist');
                 }else if(type == 2){
                     //data.name = '点检项覆盖率'+data.name+'的督导列表';
-                    data.name = data.name + '的督导列表';
+                    data.name = data.name + this.$translate('checkreport.sorderlist');
                 }
                 this.setConstantValue(data);
                 router.go({name:'capacityusers',params:{type:type}});
@@ -464,7 +466,7 @@
                 if(total>0){
                     this.setConstantValue({
                         //name:type==2?'督导列表（点检项覆盖率指标）':'督导列表（点检任务完成率指标）',
-                        name: '督导列表',
+                        name: this.$translate('checkreport.orderlist'),
                         key:'best,good,bad'
                     });
                     router.go({name:'capacityusers',params:{type:type}});
@@ -477,7 +479,7 @@
                 if(okNum>0){
                     this.setConstantValue({
                         //name:type==2?'合格的督导列表（点检项覆盖率指标）':'合格的督导列表（点检任务完成率指标）',
-                        name: '合格的督导列表',
+                        name: this.$translate('checkreport.passorderlist'),
                         key:'best,good'
                     });
                     router.go({name:'capacityusers',params:{type:type}});

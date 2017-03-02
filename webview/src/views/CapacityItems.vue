@@ -7,8 +7,8 @@
       <div class="nav-content">
         <div class="tab-panel bar bar-nav">
           <div class="buttons-tab head-tab">
-            <a v-on:click="showAll(1)" class="tab-link  button" v-bind:class="display.showall?'active':''">所有点检项</a>
-            <a v-on:click="showAll(0)" class="tab-link button" v-bind:class="!display.showall?'active':''">已点检项</a>
+            <a v-on:click="showAll(1)" class="tab-link  button" v-bind:class="display.showall?'active':''" v-i18n="{value:'checkreport.checkitem'}"></a>
+            <a v-on:click="showAll(0)" class="tab-link button" v-bind:class="!display.showall?'active':''" v-i18n="{value:'checkreport.hascheckitem'}"></a>
           </div>
         </div>
       </div>
@@ -31,8 +31,7 @@
               </div>
             </li>
           </ul>
-          <div class="items-list no-data" v-show="items.length == 0">
-            没有任何点检任务
+          <div class="items-list no-data" v-show="items.length == 0" v-i18n="{value:'checkreport.nochecktask'}">
           </div>
         </div>
         <div class="infinite-scroll-preloader">
@@ -108,9 +107,9 @@
         filters:{
             whichstatus:function(status){
                 if(status == 0){
-                    return '未点检';
+                    return this.$translate("checkreport.nocheck");
                 }else if(status == 1){
-                    return '已点检';
+                    return this.$translate("checkreport.hascheck");
                 }
             }
         },

@@ -2,7 +2,7 @@
   <div class="page-group">
     <div class="page page-current" id="index">
       <header class="bar bar-nav">
-        <h1 class='title' v-show="key.indexOf(',')==-1">得分<span v-bind:class="'state-'+key">{{title}}</span>的门店列表</h1>
+        <h1 class='title' v-show="key.indexOf(',')==-1"><span v-i18n="{value:'common.scores'}"></span><span v-bind:class="'state-'+key">{{title}}</span><span v-i18n="{value:'checkreport.sstores'}"></span></h1>
         <h1 class='title' v-bind:class="'state-'+key" v-show="key.indexOf(',')>-1">{{title}}</h1>
       </header>
       <div class="top-panel">
@@ -21,12 +21,12 @@
               <div class="item-left">
                 <div class="item-name wrap-line">{{item.deptName}}</div>
                 <div class="item-des">
-                  <label class="item-label">检查项总数</label><span class="item-num">{{item.checkItemNum}}</span><span class="item-splitor"></span>
-                  <label class="item-label">不合格项数</label><span class="item-num">{{item.unqualifiedItemNum}}</span>
+                  <label class="item-label" v-i18n="{value:'checkreport.checknums'}"></label><span class="item-num">{{item.checkItemNum}}</span><span class="item-splitor"></span>
+                  <label class="item-label" v-i18n="{value:'checkreport.nopassnums'}"></label><span class="item-num">{{item.unqualifiedItemNum}}</span>
                 </div>
               </div>
-              <div class="item-rate" v-show="item.score!=-1" v-bind:class="{'state-best':item.score==100,'state-good':item.score<100&&item.score>=80,'state-bad':item.score<80}">{{item.score}}分</div>
-              <div class="item-rate" v-show="item.score==-1">未检查</div>
+              <div class="item-rate" v-show="item.score!=-1" v-bind:class="{'state-best':item.score==100,'state-good':item.score<100&&item.score>=80,'state-bad':item.score<80}">{{item.score}}<span v-i18n="{value:'common.sc'}"></span></div>
+              <div class="item-rate" v-show="item.score==-1" v-i18n="{value:'checkreport.notcheck'}"></div>
             </li>
           </ul>
         </div>

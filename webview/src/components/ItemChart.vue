@@ -2,24 +2,24 @@
   <div>
     <div class="board-box">
       <div class="board-cell">
-        <span class="cell-tip" id="help0">点检项总数<span class="moon-ico icon-info"></span></span>
+        <span class="cell-tip" id="help0" v-i18n="{value:'checkreport.checkitemtotalnum'}"><span class="moon-ico icon-info"></span></span>
         <span class="cell-value" v-on:click="allDetails()">{{report.total}}</span>
 
-        <div class="toast-tip help0">企业所有点检项总数</div>
+        <div class="toast-tip help0" v-i18n="{value:'checkreport.checkitemallgroupnum'}"></div>
       </div>
       <div class="boardbox-splitor"></div>
       <div class="board-cell">
-        <span class="cell-tip" id="help1">覆盖项总数<span class="moon-ico icon-info"></span></span>
+        <span class="cell-tip" id="help1" v-i18n="{value:'checkreport.coveritemtotal'}"><span class="moon-ico icon-info"></span></span>
         <span class="cell-value" v-on:click="allCheckDetails()">{{report.totalNum}}</span>
 
-        <div class="toast-tip help1">当前时间范围内被点检的点检项总数</div>
+        <div class="toast-tip help1" v-i18n="{value:'checkreport.coveritemtotaldesc'}"></div>
       </div>
       <div class="boardbox-splitor"></div>
       <div class="board-cell">
-        <span class="cell-tip" id="help2">合格项总数<span class="moon-ico icon-info"></span></span>
+        <span class="cell-tip" id="help2" v-i18n="{value:'checkreport.passtotal'}"><span class="moon-ico icon-info"></span></span>
         <span class="cell-value" v-on:click="okDetails()">{{report.okNum}}</span>
 
-        <div class="toast-tip help2">当前时间范围内被点检的点检项中合格率超过80%的点检项总数</div>
+        <div class="toast-tip help2" v-i18n="{value:'checkreport.passtotaldesc'}"></div>
       </div>
     </div>
     <div class="chart-box">
@@ -37,7 +37,7 @@
             <div class="cell-1-c"><span class="cell-name">{{data.name}}</span><span class="cell-status">{{data.state|whichstatus}}</span>
             </div>
           </div>
-          <div class="cell-2">{{data.value}}个点检项</div>
+          <div class="cell-2">{{data.value}}<span v-i18n="{value:'checkreport.peritem'}"></span></div>
           <div class="cell-3"><span class="moon-ico icon-pre"></span></div>
         </li>
       </ul>
@@ -104,9 +104,9 @@
         filters:{
             whichstatus:function(status){
                 if (status == 1) {
-                    return "不合格";
+                    return this.$translate('checkreport.nook');
                 } else if (status == 0) {
-                    return "合格";
+                    return this.$translate('checkreport.ok');
                 }
             }
         },
@@ -312,7 +312,7 @@
             allDetails: function () {
                 if (this.report.total > 0) {
                     this.setConstantValue({
-                        name: '点检项列表',
+                        name: this.$translate("checkreport.checkitemlist"),
                         key: 'best,good,bad,undo'
                     });
                     router.go({path: '/items'});
@@ -321,7 +321,7 @@
             allCheckDetails: function () {
                 if (this.report.totalNum > 0) {
                     this.setConstantValue({
-                        name: '覆盖点检项列表',
+                        name: this.$translate("checkreport.covercheckitemlist"),
                         key: 'best,good,bad'
                     });
                     router.go({path: '/items'});
@@ -333,7 +333,7 @@
             okDetails: function () {
                 if (this.report.okNum > 0) {
                     this.setConstantValue({
-                        name: '合格点检项列表',
+                        name: this.$translate("checkreport.passcheckitemlist"),
                         key: 'best,good'
                     });
                     router.go({path: '/items'});

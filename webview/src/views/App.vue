@@ -6,11 +6,11 @@
           <div class="tabs-menu-inner">
             <div class="buttons-tab head-tab">
               <a v-on:click="showWhichChart(0)" class="tab-link  button"
-                 v-bind:class="currentIndex==0?'active':''"><span class="text-title">门店</span></a>
+                 v-bind:class="currentIndex==0?'active':''"><span class="text-title" v-i18n="{value:'common.store'}"></span></a>
               <a v-on:click="showWhichChart(1)" class="tab-link button"
-                 v-bind:class="currentIndex==1?'active':''"><span class="text-title">核心工作</span></a>
+                 v-bind:class="currentIndex==1?'active':''"><span class="text-title" v-i18n="{value:'common.center'}"></span></a>
               <a v-on:click="showWhichChart(2)" class="tab-link button"
-                 v-bind:class="currentIndex==2?'active':''"><span class="text-title">执行力</span></a>
+                 v-bind:class="currentIndex==2?'active':''"><span class="text-title" v-i18n="{value:'common.order'}"></span></a>
             </div>
           </div>
         </menu>
@@ -19,12 +19,12 @@
         <div v-show="currentIndex!=2" class="search-box" v-on:click="searchMore()">
           <div class="timebox">
             <label class="date-time">{{search.startTime}}<span class="is-today" v-show="search.startTime|istoday">今天</span></label>
-            <span class="datetime-tip">开始时间</span>
+            <span class="datetime-tip" v-i18n="{value:'common.starttime'}"></span>
           </div>
           <div>～</div>
           <div class="timebox">
             <label class="date-time">{{search.endTime}}<span class="is-today" v-show="search.endTime|istoday">今天</span></label>
-            <span class="datetime-tip">结束时间</span>
+            <span class="datetime-tip" v-i18n="{value:'common.endtime'}"></span>
           </div>
         </div>
         <component v-bind:search="search" :is="currentView" keep-alive transition="fade" transition-mode="out-in"></component>

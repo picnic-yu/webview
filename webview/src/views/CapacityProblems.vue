@@ -7,8 +7,8 @@
       <div class="nav-content" v-show="reportType==3">
         <div class="tab-panel bar bar-nav">
           <div class="buttons-tab head-tab">
-            <a v-on:click="showAll(1)" class="tab-link  button" v-bind:class="display.showall?'active':''">所有问题</a>
-            <a v-on:click="showAll(0)" class="tab-link button" v-bind:class="!display.showall?'active':''">已整改问题</a>
+            <a v-on:click="showAll(1)" class="tab-link  button" v-bind:class="display.showall?'active':''" v-i18n="{value:'checkreport.allproblem'}"></a>
+            <a v-on:click="showAll(0)" class="tab-link button" v-bind:class="!display.showall?'active':''" v-i18n="{value:'checkreport.okproblem'}"></a>
           </div>
         </div>
       </div>
@@ -39,8 +39,7 @@
               </div>
             </li>
           </ul>
-          <div class="items-list no-data" v-show="items.length == 0">
-            没有任何问题记录
+          <div class="items-list no-data" v-show="items.length == 0" v-i18n="{value:'checkreport.noproblem'}">
           </div>
         </div>
         <div class="infinite-scroll-preloader">
@@ -130,32 +129,32 @@
              */
             whichsourcetype:function(sourcetype){
                 if(sourcetype == 1){
-                    return "图片点检";
+                    return this.$translate('checkreport.photo');
                 }else if(sourcetype == 2){
-                    return "摇一摇";
+                    return this.$translate('checkreport.shake');
                 }else if(sourcetype == 3){
-                    return "抓拍";
+                    return this.$translate('checkreport.capture');
                 }else if(sourcetype == 4){
-                    return "手动创建";
+                    return this.$translate('checkreport.handcreate');
                 }else if(sourcetype == 5){
-                    return "在线考评";
+                    return this.$translate('checkreport.onlinetest');
                 }else if(sourcetype == 6){
-                    return "快拍";
+                    return this.$translate('checkreport.quickcapture');
                 }else if(sourcetype == 7){
-                    return "告警";
+                    return this.$translate('checkreport.alarm');
                 }else if(sourcetype == 8){
-                    return "现场巡店";
+                    return this.$translate('checkreport.sceneshop');
                 } else if (sourcetype == 9) {
-                    return "远程巡店";
+                    return this.$translate('checkreport.remoteshop');
                 }
             },
             whichstatus:function(status){
                 if(status == 5){
-                    return '待整改';
+                    return this.$translate('checkreport.nodo');
                 }else if(status == 4){
-                    return '整改完成';
+                    return this.$translate('checkreport.done');
                 }else if(status == 3){
-                    return '待复检';
+                    return this.$translate('checkreport.norecheck');
                 }
             }
         },

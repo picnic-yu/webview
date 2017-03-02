@@ -1,31 +1,31 @@
 <template>
   <div class="page" id="search">
     <header class="bar bar-nav">
-      <h1 class='title' onclick="goBack()">选择日期</h1>
+      <h1 class='title' onclick="goBack()" v-i18n="{value:'common.selecttime'}"></h1>
     </header>
     <div class="content">
       <div class="default-panel">
-        <p><a class="button  button-orange" v-on:click="thisweek()">只统计本周</a></p>
-        <p><a class="button  button-orange" v-on:click="thismonth()">只统计本月</a></p>
+        <p><a class="button  button-orange" v-on:click="thisweek()" v-i18n="{value:'common.staticweek'}"></a></p>
+        <p><a class="button  button-orange" v-on:click="thismonth()" v-i18n="{value:'common.staticmonth'}"></a></p>
       </div>
       <div class="time-panel">
-        <div class="panel-title">按自定义时间段统计</div>
+        <div class="panel-title" v-i18n="{value:'common.timestatic'}"></div>
         <div class="time-box list-block">
           <div class="item-content">
             <div class="item-inner">
-              <div class="item-title label">开始时间</div>
-              <div class="item-input"><input id="box-starttime" placeholder="请选择开始时间" type="text" v-model="search.startTime" readonly></div>
+              <div class="item-title label" v-i18n="{value:'common.starttime'}"></div>
+              <div class="item-input"><input id="box-starttime" v-i18n.placeholder="{value:'common.selectstarttime'}" type="text" v-model="search.startTime" readonly></div>
             </div>
           </div>
           <div class="item-content">
             <div class="item-inner">
-              <div class="item-title label">结束时间</div>
-              <div class="item-input"><input id="box-endtime" placeholder="请选择结束时间" type="text" v-model="search.endTime" readonly></div>
+              <div class="item-title label" v-i18n="{value:'common.endtime'}"></div>
+              <div class="item-input"><input id="box-endtime" v-i18n.placeholder="{value:'common.selectendtime'}" type="text" v-model="search.endTime" readonly></div>
             </div>
           </div>
         </div>
       </div>
-      <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="othertime()">统计</a></p>
+      <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="othertime()" v-i18n="{value:'common.static'}"></a></p>
     </div>
   </div>
 </template>
@@ -69,6 +69,10 @@
             initUI:function(){
                 var _this = this;
                 $('#box-starttime').calendar({
+                    monthNames: [this.$translate('common.jan'), this.$translate('common.feb'), this.$translate('common.mar'), this.$translate('common.apr'), this.$translate('common.may'), this.$translate('common.june'), this.$translate('common.july'), this.$translate('common.aug') , this.$translate('common.sep'), this.$translate('common.oct'), this.$translate('common.nov'), this.$translate('common.dec')],
+                    monthNamesShort: [this.$translate('common.jan'), this.$translate('common.feb'), this.$translate('common.mar'), this.$translate('common.apr'), this.$translate('common.may'), this.$translate('common.june'), this.$translate('common.july'), this.$translate('common.aug') , this.$translate('common.sep'), this.$translate('common.oct'), this.$translate('common.nov'), this.$translate('common.dec')],
+                    dayNames: [this.$translate('common.sun'), this.$translate('common.mon'), this.$translate('common.tue'), this.$translate('common.wed'), this.$translate('common.thu'), this.$translate('common.fri'), this.$translate('common.sat')],
+                    dayNamesShort: [this.$translate('common.sun'), this.$translate('common.mon'), this.$translate('common.tue'), this.$translate('common.wed'), this.$translate('common.thu'), this.$translate('common.fri'), this.$translate('common.sat')],
                     maxDate:this.search.endTime.replace(/-/g,'/'),
                     ready:function(p){
                         _sc = p;

@@ -6,10 +6,10 @@
       </header>
       <div class="top-panel bar">
         <div class="searchbar">
-          <a class="searchbar-cancel" v-on:click="cancelSearch()">取消</a>
+          <a class="searchbar-cancel" v-on:click="cancelSearch()" v-i18n="{value:'common.cancel'}"></a>
           <div class="search-input">
             <label class="icon icon-search" for="search"></label>
-            <input type="search" id="search" v-model="searchName" placeholder="请输入门店名进行查询"/>
+            <input type="search" id="search" v-model="searchName" v-i18n.placeholder="{value:'common.inputstorename'}"/>
           </div>
         </div>
       </div>
@@ -26,8 +26,7 @@
               </div>
             </li>
           </ul>
-          <div class="items-list no-data" v-show="items.length == 0">
-            没有任何点检门店
+          <div class="items-list no-data" v-show="items.length == 0" v-i18n="{value:'checkreport.nocheckstore'}">
           </div>
         </div>
         <div class="infinite-scroll-preloader">

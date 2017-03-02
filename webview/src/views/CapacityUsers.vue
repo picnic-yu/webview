@@ -9,11 +9,11 @@
         ～
         <label class="date-time">{{search.endTime}}</label>-->
         <div class="searchbar">
-          <a class="searchbar-cancel" v-on:click="cancelSearch()">取消</a>
+          <a class="searchbar-cancel" v-on:click="cancelSearch()" v-i18n="{value:'common.cancel'}"></a>
 
           <div class="search-input">
             <label class="icon icon-search" for="search"></label>
-            <input type="search" id="search" v-model="searchName" placeholder="请输入显示名进行查询"/>
+            <input type="search" id="search" v-model="searchName" v-i18n.placeholder="{value:'common.inputshowname'}"/>
           </div>
         </div>
       </div>
@@ -39,45 +39,45 @@
                   </div>-->
                   <table>
                     <tr>
-                      <td class="item-label">本月发现问题数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.findproblemnum'}"></td>
                       <td class="item-num">{{item.findProblemNum}}</td>
                       <td><span class="item-splitor"></span></td>
-                      <td class="item-label">上月发现问题数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.findproblemnumpremonth'}"></td>
                       <td class="item-num">{{item.findProblemNumPreMonth}}</td>
                     </tr>
                     <tr>
-                      <td class="item-label">本月管辖门店数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.authdepnum'}"></td>
                       <td class="item-num">{{item.authDeptNum}}</td>
                       <td><span class="item-splitor"></span></td>
-                      <td class="item-label">上月管辖门店数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.authdepnumpremonth'}"></td>
                       <td class="item-num">{{item.authDeptNumPreMonth}}</td>
                     </tr>
                     <tr>
-                      <td class="item-label">本月问题解决数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.solvepronum'}"></td>
                       <td class="item-num">{{item.solveProblemNumInAuthShop}}</td>
                       <td><span class="item-splitor"></span></td>
-                      <td class="item-label">上月问题解决数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.solvepronumpremonth'}"></td>
                       <td class="item-num">{{item.solveProblemNumInAuthShopPreMonth}}</td>
                     </tr>
                     <tr>
-                      <td class="item-label">本月门店问题数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.findproinauthshop'}"></td>
                       <td class="item-num">{{item.findProblemNumInAuthShop}}</td>
                       <td><span class="item-splitor"></span></td>
-                      <td class="item-label">上月门店问题数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.findproinauthshoppremonth'}"></td>
                       <td class="item-num">{{item.findProblemNumInAuthShopPreMonth}}</td>
                     </tr>
                     <tr>
-                      <td class="item-label">本月点检门店数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.checkdepnum'}"></td>
                       <td class="item-num">{{item.checkedDeptNum}}</td>
                       <td><span class="item-splitor"></span></td>
-                      <td class="item-label">上月点检门店数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.checkdepnumpre'}"></td>
                       <td class="item-num">{{item.checkedDeptNumPreMonth}}</td>
                     </tr>
                     <tr>
-                      <td class="item-label">本月高管综合率</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.quota'}"></td>
                       <td class="item-num">{{item.quota==0?item.quota:(item.quota*100).toFixed(1)}}%</td>
                       <td><span class="item-splitor"></span></td>
-                      <td class="item-label">上月高管综合率</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.quotapre'}"></td>
                       <td class="item-num">{{item.quotaPre==0?item.quotaPre:(item.quotaPre*100).toFixed(1)}}%</td>
                     </tr>
                   </table>
@@ -110,31 +110,31 @@
                   </div>-->
                   <table>
                     <tr>
-                      <td class="item-label">本月点检门店数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.checkdepnum'}"></td>
                       <td class="item-num">{{item.checkedDeptNum}}</td>
                       <td><span class="item-splitor"></span></td>
-                      <td class="item-label">上月点检门店数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.checkdepnumpre'}"></td>
                       <td class="item-num">{{item.checkedDeptNumPreMonth}}</td>
                     </tr>
                     <tr>
-                      <td class="item-label">本月管辖门店数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.authdepnum'}"></td>
                       <td class="item-num">{{item.authDeptNum}}</td>
                       <td><span class="item-splitor"></span></td>
-                      <td class="item-label">上月管辖门店数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.authdepnumpremonth'}"></td>
                       <td class="item-num">{{item.authDeptNumPreMonth}}</td>
                     </tr>
                     <tr>
-                      <td class="item-label">本月发现问题数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.findproblemnum'}"></td>
                       <td class="item-num">{{item.findProblemNum}}</td>
                       <td><span class="item-splitor"></span></td>
-                      <td class="item-label">上月发现问题数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.findproblemnumpremonth'}"></td>
                       <td class="item-num">{{item.findProblemNumPreMonth}}</td>
                     </tr>
                     <tr>
-                      <td class="item-label">本月门店覆盖率</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.coverdeprate'}"></td>
                       <td class="item-num">{{item.coverDeptRate==0?item.coverDeptRate:(item.coverDeptRate*100).toFixed(1)}}%</td>
                       <td><span class="item-splitor"></span></td>
-                      <td class="item-label">上月门店覆盖率</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.coverdepratepremonth'}"></td>
                       <td class="item-num">{{item.coverDeptRatePreMonth==0?item.coverDeptRatePreMonth:(item.coverDeptRatePreMonth*100).toFixed(1)}}%</td>
                     </tr>
                   </table>
@@ -153,24 +153,24 @@
                   </div>-->
                   <table>
                     <tr>
-                      <td class="item-label">本月整改完成数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.improvementnum'}"></td>
                       <td class="item-num">{{item.improvementNum}}</td>
                       <td><span class="item-splitor"></span></td>
-                      <td class="item-label">上月整改完成数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.improvementnumpre'}"></td>
                       <td class="item-num">{{item.improvementNumPreMonth}}</td>
                     </tr>
                     <tr>
-                      <td class="item-label">本月门店问题数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.findproinauthshop'}"></td>
                       <td class="item-num">{{item.problemTotalNum}}</td>
                       <td><span class="item-splitor"></span></td>
-                      <td class="item-label">上月门店问题数</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.findproinauthshoppremonth'}"></td>
                       <td class="item-num">{{item.problemTotalNumPreMonth}}</td>
                     </tr>
                     <tr>
-                      <td class="item-label">本月整改问题率</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.improvementrate'}"></td>
                       <td class="item-num">{{item.improvementRate | ratefilter}}</td>
                       <td><span class="item-splitor"></span></td>
-                      <td class="item-label">上月整改问题率</td>
+                      <td class="item-label" v-i18n="{value:'checkreport.improvementratepre'}"></td>
                       <td class="item-num">{{item.improvementRatePreMonth | ratefilter}}</td>
                     </tr>
                   </table>
@@ -393,9 +393,9 @@
              */
             detailProblem:function(item){
                 if(this.reportType == 0){
-                    Constant.capacityParam.problemsPage.title = item.name+'发现的问题';
+                    Constant.capacityParam.problemsPage.title = item.name+this.$translate('checkreport.findproblems');
                 }else if(this.reportType == 3){
-                    Constant.capacityParam.problemsPage.title = item.name+'的问题';
+                    Constant.capacityParam.problemsPage.title = item.name+this.$translate('checkreport.problems');
                 }
                 router.go({name:'capacityproblems',params:{type:this.reportType,userId:item.id}});
             },
@@ -404,7 +404,7 @@
              * @param item
              */
             detailTask:function(item){
-                Constant.capacityParam.tasksPage.title = item.name+'的点检任务';
+                Constant.capacityParam.tasksPage.title = item.name+this.$translate('checkreport.schecktask');
                 router.go({name:'capacitytasks',params:{userId:item.id}});
             },
             /**
@@ -412,7 +412,7 @@
              * @param item
              */
             detailItem:function(item){
-                Constant.capacityParam.itemsPage.title = item.name+'的点检项列表';
+                Constant.capacityParam.itemsPage.title = item.name+this.$translate('checkreport.sitem');
                 router.go({name:'capacityitems',params:{userId:item.id}});
             },
             /**
@@ -420,7 +420,7 @@
              * @param item
              */
             detailShop:function(item){
-                Constant.capacityParam.itemsPage.title = item.name+'的点检门店列表';
+                Constant.capacityParam.itemsPage.title = item.name+this.$translate('checkreport.scheckdep');
                 router.go({name:'capacityshops',params:{userId:item.id}});
             }
         }
