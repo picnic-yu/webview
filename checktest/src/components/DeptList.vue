@@ -32,6 +32,7 @@
     require('../../../common/assets/font.css');
     var num = 20;//每页显示的条数
     var searchTimer = null;
+    var Vue = require('vue');
     module.exports = {
         route:{
             data:function(transition){
@@ -122,6 +123,7 @@
                             var _this = this;
                             this.loading = true;
                             searchData = searchData?searchData:this;
+                            Vue.http.options.emulateJSON = false;
                             this.$http.post('/service/getUserShopListForWebview.action?token='+Constant.token,{
                               containDevice: 0,
                               name:searchData.searchName,
@@ -129,6 +131,7 @@
                               num:searchData.page.num
                             }).then(function(ret){
                               _this.loading = false;
+                              Vue.http.options.emulateJSON = true;
                               if(ret.ok && ret.data && ret.data.result == 'ok'){
                               for(var i=0;i<ret.data.data.data.length;i++){
                                    var flag = false;
