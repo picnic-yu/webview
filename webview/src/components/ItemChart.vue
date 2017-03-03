@@ -2,21 +2,21 @@
   <div>
     <div class="board-box">
       <div class="board-cell">
-        <span class="cell-tip" id="help0" v-i18n="{value:'checkreport.checkitemtotalnum'}"><span class="moon-ico icon-info"></span></span>
+        <span class="cell-tip" id="help0"><span v-i18n="{value:'checkreport.checkitemtotalnum'}"></span><span class="moon-ico icon-info"></span></span>
         <span class="cell-value" v-on:click="allDetails()">{{report.total}}</span>
 
         <div class="toast-tip help0" v-i18n="{value:'checkreport.checkitemallgroupnum'}"></div>
       </div>
       <div class="boardbox-splitor"></div>
       <div class="board-cell">
-        <span class="cell-tip" id="help1" v-i18n="{value:'checkreport.coveritemtotal'}"><span class="moon-ico icon-info"></span></span>
+        <span class="cell-tip" id="help1"><span v-i18n="{value:'checkreport.coveritemtotal'}"></span><span class="moon-ico icon-info"></span></span>
         <span class="cell-value" v-on:click="allCheckDetails()">{{report.totalNum}}</span>
 
         <div class="toast-tip help1" v-i18n="{value:'checkreport.coveritemtotaldesc'}"></div>
       </div>
       <div class="boardbox-splitor"></div>
       <div class="board-cell">
-        <span class="cell-tip" id="help2" v-i18n="{value:'checkreport.passtotal'}"><span class="moon-ico icon-info"></span></span>
+        <span class="cell-tip" id="help2"><span v-i18n="{value:'checkreport.passtotal'}"></span><span class="moon-ico icon-info"></span></span>
         <span class="cell-value" v-on:click="okDetails()">{{report.okNum}}</span>
 
         <div class="toast-tip help2" v-i18n="{value:'checkreport.passtotaldesc'}"></div>

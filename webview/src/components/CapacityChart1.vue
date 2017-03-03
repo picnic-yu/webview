@@ -3,13 +3,13 @@
         <div class="report-content-inner">
             <div class="board-box">
                 <div class="board-cell">
-                    <span class="cell-tip" id="help11" v-i18n="{value:'common.total'}"><span class="moon-ico icon-info"></span></span>
+                    <span class="cell-tip" id="help11"><span v-i18n="{value:'common.total'}"></span><span class="moon-ico icon-info"></span></span>
                     <span class="cell-value" v-on:click="allDetails()">{{report.total}}</span>
                     <div class="toast-tip help11 help1" v-i18n="{value:'checkreport.allseniorcount'}"></div>
                 </div>
                 <div class="boardbox-splitor"></div>
                 <div class="board-cell">
-                    <span class="cell-tip"id="help12" v-i18n="{value:'checkreport.passcountmonth'}"><span class="moon-ico icon-info"></span></span>
+                    <span class="cell-tip"id="help12"><span v-i18n="{value:'checkreport.passcountmonth'}"></span><span class="moon-ico icon-info"></span></span>
                     <span class="cell-value" v-on:click="okDetails()">{{report.okNum}}</span>
 
                     <div class="toast-tip help12 help2">

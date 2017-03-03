@@ -18,12 +18,12 @@
       <div id="contentList" class="content infinite-scroll"  data-distance="100">
         <div v-show="currentIndex!=2" class="search-box" v-on:click="searchMore()">
           <div class="timebox">
-            <label class="date-time">{{search.startTime}}<span class="is-today" v-show="search.startTime|istoday">今天</span></label>
+            <label class="date-time">{{search.startTime}}<span class="is-today" v-show="search.startTime|istoday" v-i18n="{value:'common.today'}"></span></label>
             <span class="datetime-tip" v-i18n="{value:'common.starttime'}"></span>
           </div>
           <div>～</div>
           <div class="timebox">
-            <label class="date-time">{{search.endTime}}<span class="is-today" v-show="search.endTime|istoday">今天</span></label>
+            <label class="date-time">{{search.endTime}}<span class="is-today" v-show="search.endTime|istoday" v-i18n="{value:'common.today'}"></span></label>
             <span class="datetime-tip" v-i18n="{value:'common.endtime'}"></span>
           </div>
         </div>

@@ -43,13 +43,13 @@
           <div class="toast-tip help211 help" v-i18n="{value:'checkreport.haschecktotalcheck'}"></div>
           <div class="board-box">
             <div class="board-cell">
-              <span class="cell-tip" id="help23" v-i18n="{value:'common.total'}"><span class="moon-ico icon-info"></span></span>
+              <span class="cell-tip" id="help23"><span v-i18n="{value:'common.total'}"></span><span class="moon-ico icon-info"></span></span>
               <span class="cell-value" v-on:click="allDetails(report2.total,report2.reportType)">{{report2.total}}</span>
               <div class="toast-tip help23 help1" v-i18n="{value:'checkreport.allordercount'}"></div>
             </div>
             <div class="boardbox-splitor"></div>
             <div class="board-cell">
-              <span class="cell-tip"id="help24" v-i18n="{value:'checkreport.passcountmonth'}"><span class="moon-ico icon-info"></span></span>
+              <span class="cell-tip"id="help24"><span v-i18n="{value:'checkreport.passcountmonth'}"></span><span class="moon-ico icon-info"></span></span>
               <span class="cell-value" v-on:click="okDetails(report2.okNum,report2.reportType)">{{report2.okNum}}</span>
 
               <div class="toast-tip help24 help2">
