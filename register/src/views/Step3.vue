@@ -4,25 +4,24 @@
             <div class="register-wrap">
                 <div class="register-container">
                     <table width="100%"><tr align="center"><td><img class="nextlogo" src="../../../common/assets/imgs/logo_220.png"></img></td></tr>
-                        <tr align="center" class="tip-1 tip-2" style="color:#333;" v-show="curEnterFlag==1"><td>
-                            请上传企业营业执照
+                        <tr align="center" class="tip-1 tip-2" style="color:#333;" v-show="curEnterFlag==1"><td v-i18n="{value:'uploadcertificate'}">
                         </td></tr>
                         <tr valign="bottom" v-show="curEnterFlag==2" class="tip-1 tip-3"><td>
-                            <span style="padding-left:20px;">您的企业营业执照正在审核中，请耐心等待</span>
+                            <span style="padding-left:20px;" v-i18n="{value:'passingwait'}"></span>
                         </td></tr>
                         <tr valign="top" class="tip-1 tip-3"  v-show="curEnterFlag==2"><td>
-                            <span style="padding-left:20px;">如需紧急处理，请拨打400-100-1392</span>
+                            <span style="padding-left:20px;" v-i18n="{value:'call400'}"></span>
                         </td></tr>
                         <tr v-show="curEnterFlag==3" valign="bottom" class="tip-1 tip-3" style="color:red;"><td>
-                            <span style="padding-left:20px;">您的企业营业执照审核不通过，请重新上传</span>
+                            <span style="padding-left:20px;" v-i18n="{value:'reuploadcertificate'}"></span>
                         </td></tr>
                         <tr valign="top" class="tip-1 tip-3" v-show="curEnterFlag==3" style="color:red;"><td>
-                            <span style="padding-left:20px;">如有任何疑问，请拨打400-100-1392</span>
+                            <span style="padding-left:20px;" v-i18n="{value:'call4001'}"></span>
                         </td></tr>
                     </table>
                     <div class="enterprise-bg">
                         <table>
-                            <tr><td><span style="font-size:16px;">营业执照</span></td></tr>
+                            <tr><td><span style="font-size:16px;" v-i18n="{value:'certificate'}"></span></td></tr>
                             <tr><td><div class="fp-left" v-for="picpath in showPicPaths" track-by="$index">
                                 <a class="pb-standalone" index="{{$index}}">
                                     <img width="60" height="60" v-bind:src="picpath.picUrl" class="p-img p-img-{{$index}}"/>
@@ -35,7 +34,7 @@
                                 <span class="delete-img icon-cross" v-on:click="deleteItemImg($index)">x</span>
                             </div></td></tr>
                             <tr><td><div class="fp-add" style="width:100%;height:50px;" @click="beforeUpload($event)">
-                                <table width="100%"><tr valign="top"><td width="90%"><span class="add-filedesc">&nbsp;支持*.png;*.jpg;*.jpeg;</span></td>
+                                <table width="100%"><tr valign="top"><td width="90%"><span class="add-filedesc">&nbsp;<label v-i18n="{value:'support'}"></label>*.png;*.jpg;*.jpeg;</span></td>
                                 <td><img width="48" height="48" src="../../../common/assets/imgs/cam.png"/>
                                 </td>
                                 </tr></table>
@@ -43,11 +42,11 @@
                                 </div>
                             </td></tr>
                             <tr><td><span class="tip-span">{{waitInfo}}</span></td></tr>
-                            <tr><td><div class="upload-pic" v-on:click="uploadCer()">上传</div></td></tr>
+                            <tr><td><div class="upload-pic" v-on:click="uploadCer()" v-i18n="{value:'upload'}"></div></td></tr>
                         </table>
                     </div>
                 </div>
-                <div class="tip-login" v-on:click="openApp()">切换其他帐号登录</div>
+                <div class="tip-login" v-on:click="openApp()" v-i18n="{value:'changeotheraccount'}"></div>
             </div>
         </div>)
     </div>
@@ -145,7 +144,7 @@
                     for (var i = 0; i < fileNum; i++) {
                         var file = this.files[i];
                         if (file.size > 1024 * 1024 * 5) {
-                            $.toast('图片大小不能超过5M');
+                            $.toast(_this.$translate("picnotbigthan5m"));
                             break;
                         }
                         (function (i) {
@@ -170,20 +169,20 @@
                                         if (!hasToMorePic) {
                                             if ($('.fp-left').length > maxImgNum) {
                                                 hasToMorePic = true;
-                                                $.toast('上传的图片最多不能超过' + maxImgNum + '张');
+                                                $.toast(_this.$translate("uploadcannotmorethan") + maxImgNum + _this.$translate("zhang"));
                                             }
                                         }
                                     }, 500);
                                 },
                                 fail: function () {
-                                    console.log('多张: ' + i + ' 压缩失败...');
+                                    console.log(_this.$translate("duozhang") + i + _this.$translate("compressfailed"));
                                 },
                                 complate: function () {
-                                    console.log('多张: ' + i + ' 压缩完成...');
+                                    console.log(_this.$translate("duozhang") + i + _this.$translate("compresscomplete"));
                                 },
                                 notSupport: function (file) {
                                     notSupport = true;
-                                    alert('浏览器不支持！');
+                                    alert(_this.$translate("browsernotsupport"));
                                 }
                             });
                         })(i);
@@ -225,7 +224,7 @@
             },
             beforeUpload: function (event) {
                 if ($('.fp-left').length >= maxImgNum) {
-                    $.toast('上传的图片最多不能超过' + maxImgNum + '张');
+                    $.toast(this.$translate("uploadcannotmorethan") + maxImgNum + this.$translate("zhang"));
                     event.preventDefault();
                     event.stopPropagation();
 
@@ -242,16 +241,16 @@
                     var result = ret.data.result;
                     if (result == "ok") {
                         this.showPicPaths.splice(index, 1);
-                        $.toast('删除企业营业执照��功');
+                        $.toast(this.$translate('deletecertificatesuccess'));
                     } else {
-                        $.toast('删除企业营业执照失败');
+                        $.toast(this.$translate('deletecertificatefailed'));
                     }
                 });
             },
             uploadCer:function(){
                 if(this.uploadFlag)return;
                 if ($('.fp-left').length > maxImgNum) {
-                    $.toast('上传的图片最多不能超过' + maxImgNum + '张');
+                    $.toast(this.$translate("uploadcannotmorethan") + maxImgNum + this.$translate("zhang"));
                     return;
                 }
                 if(!Constant.enterId) return;
@@ -261,11 +260,11 @@
                     imgurls = imgurls + url + "@@@";
                 }
                 if(!imgurls){
-                    $.toast('没有新的图片需要上传');
+                    $.toast(this.$translate("nonewpicupload"));
                     return;
                 }
                 this.uploadFlag = true;
-                this.waitInfo = "正在上传请稍候……";
+                this.waitInfo = this.$translate("uploadingwait");
                 this.$http.post('/service/saveEnterpriseCers.action',{
                     enterpriseId : Constant.enterId,
                     eid:imgurls
@@ -274,16 +273,21 @@
                     this.uploadFlag = false;
                     this.waitInfo = '';
                     if (result == "ok") {
-                        $.toast('上传营业执照成功');
+                        $.toast(this.$translate("uploadcertificatesuccess"));
                         if(this.isApp){
                             //如果是从app里面点进来的注册，则调用app的方法跳转到登录界面
                             this.webviewReady();
                         }else{
-                            window.location.href = getRootPath() + "/loginsuccess.html";
+                            if(Constant.language=='en'){
+                                window.location.href = this.getRootPath() + "/uploadsuccess_en.html";
+                            }else{
+                                window.location.href = this.getRootPath() + "/uploadsuccess.html";
+                            }
+                            //window.location.href = getRootPath() + "/loginsuccess.html";
                             //window.location.href="http://www.ovopark.com/uploadsuccess.html";
                         }
                     } else {
-                        $.toast('上传营业执照失败');
+                        $.toast(this.$translate("uploadcertificatefailed"));
                     }
                 });
 
@@ -306,7 +310,7 @@
             },
             openApp:function(){
                 if(this.isWeixin()){
-                    $.toast("请点击右上角在浏览器中打开");
+                    $.toast(this.$translate("netspaceopen"));
                 }else{
                     var u = window.navigator.userAgent.toLowerCase();
                     if (u.indexOf('iphone') > -1 || u.indexOf('itouch') > -1 || u.indexOf('ipad') > -1) {
@@ -351,7 +355,7 @@
                         window.webkit.messageHandlers.goto_login.postMessage("");
                 }
                 }catch(e){
-                    $.toast("暂不支持");
+                    $.toast(this.$translate("notsupport"));
                 }
             },
             getRootPath:function(){

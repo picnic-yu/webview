@@ -12,13 +12,13 @@
                         <span>{{tag}}</span>
                     </div>
                     <div class="register-tab">
-                        <a v-on:click="selectTab(1)"><span class="regnew" v-bind:class="currentTab==1?'select-tab':''">注册新企业</span></a>
-                        <a v-on:click="selectTab(2)"><span class="enterhas" v-bind:class="currentTab==2?'select-tab':''">加入已有企业</span></a>
+                        <a v-on:click="selectTab(1)"><span class="regnew" v-bind:class="currentTab==1?'select-tab':''" v-i18n="{value:'registernewgroup'}"></span></a>
+                        <a v-on:click="selectTab(2)"><span class="enterhas" v-bind:class="currentTab==2?'select-tab':''" v-i18n="{value:'addhasgroup'}"></span></a>
                     </div>
                     <div class="enterprise-bg" v-show="currentTab==1">
                         <div class="inputwrap">
                             <table  class="label-table"><tr>
-                                <td><input type="text" placeholder="用户名" v-model="userName" v-on:blur="checkUser()"></td>
+                                <td><input type="text" v-i18n.placeholder="{value:'username'}" v-model="userName" v-on:blur="checkUser()"></td>
                                 <td class="read-label">*</td>
                             </tr></table>
                         </div>
@@ -35,51 +35,51 @@
                         </div>
                         <div class="inputwrap">
                             <table class="label-table"><tr>
-                                <td><input type="password" placeholder="密码" v-model="pwd"></td>
+                                <td><input type="password" v-i18n.placeholder="{value:'password'}" v-model="pwd"></td>
                                 <td class="read-label">*</td>
                             </tr></table>
                         </div>
                         <div class="inputwrap">
                             <table class="label-table"><tr>
-                                <td><input type="text" placeholder="姓名" v-model="showName"></td>
+                                <td><input type="text" v-i18n.placeholder="{value:'showname'}" v-model="showName"></td>
                                 <td class="read-label">*</td>
                             </tr></table>
                         </div>
                         <div class="inputwrap">
-                            <input type="text" placeholder="邮箱" v-model="email">
+                            <input type="text" v-i18n.placeholder="{value:'email'}" v-model="email">
                         </div>
                         <div class="inputwrap">
                             <table class="label-table"><tr>
-                                <td><input type="text" maxlength="11" placeholder="手机号码" v-model="phone"></td>
+                                <td><input type="text" maxlength="11" v-i18n.placeholder="{value:'mobilephone'}" v-model="phone"></td>
                                 <td class="read-label">*</td>
                             </tr></table>
                         </div>
                         <div class="user-wrap">
                             <div class="inputwrap authcode">
                                 <table  class="label-table"><tr>
-                                    <td><input type="text" placeholder="验证码" v-model="authorcode"></td>
+                                    <td><input type="text" v-i18n.placeholder="{value:'validatecode'}" v-model="authorcode"></td>
                                     <td class="read-label">*</td>
                                 </tr></table>
                             </div>
-                            <a v-show="!showwait" class="getauthcode" v-on:click="getAuthCode()">获取验证码</a>
-                            <a v-show="showwait" class="getwait"><span>等待{{second}}秒</span></a>
+                            <a v-show="!showwait" class="getauthcode" v-on:click="getAuthCode()" v-i18n="{value:'getvalidatecode'}"></a>
+                            <a v-show="showwait" class="getwait"><span v-i18n="{value:'wait'}"></span>{{second}}<span v-i18n="{value:'second'}"></span></a>
                         </div>
                         <div class="inputwrap">
                             <table  class="label-table"><tr>
-                                <td><input type="text" placeholder="企业名称" v-model="enterpriseName"></td>
+                                <td><input type="text" v-i18n.placeholder="{value:'groupname'}" v-model="enterpriseName"></td>
                                 <td class="read-label">*</td>
                             </tr></table>
                         </div>
                         <div class="tip-span" v-show="errorshow1"><span>{{errorInfo1}}</span></div>
-                        <div><input class="create-btn" type="button" value="创建企业" v-on:click="createEnterprise()"></div>
+                        <span><input class="create-btn" type="button" v-i18n.value="{value:'createenterprise'}" v-on:click="createEnterprise()"></span>
                     </div>
                     <div class="person-bg" v-show="currentTab==2">
                         <div class="inputwrap">
-                            <input type="text" placeholder="企业邀请码" v-model="activeCode">
+                            <input type="text" v-i18n.placeholder="{value:'invationcode'}" v-model="activeCode">
                         </div>
                         <div class="tip-span" v-show="errorshow2"><span>{{errorInfo2}}</span></div>
                         <div class="inputwrap">
-                            <input class="create-btn" type="button" v-on:click="next()" value="下一步">
+                            <input class="create-btn" type="button" v-on:click="next()" v-i18n.value="{value:'next'}">
                         </div>
                     </div>
                 </div>
@@ -102,7 +102,7 @@
         data:function(){
             return {
                 transitionName: 'show',
-                tag:'创建企业帐号',
+                tag:this.$translate("crateenterpriseaccount"),
                 currentTab:Constant.currentTab,
                 errorshow1:false,
                 errorshow2:false,
@@ -133,61 +133,61 @@
                 if(this.registerFlag) return;
                 if(!this.userName){
                     this.errorshow1 = true;
-                    this.errorInfo1 = "请输入用户名";
+                    this.errorInfo1 = this.$translate("inputusername");
                     return;
                 }
                 if(!this.pwd){
                     this.errorshow1 = true;
-                    this.errorInfo1 = "请输入密码";
+                    this.errorInfo1 = this.$translate("inputpassword");
                     return;
                 }
                 var myPwdReg = /^[a-zA-Z0-9]{6,128}$/;
                 if(this.pwd=="888888"){
                     this.errorshow1 = true;
-                    this.errorInfo1 = "哦吆,密码不能这么随便";
+                    this.errorInfo1 = this.$translate("passwordcannotsoeasy");
                     return;
                 }
                 if(!myPwdReg.test(this.pwd)){
                     if(this.pwd.length < 6){
                         this.errorshow1 = true;
-                        this.errorInfo1 = "密码至少6位";
+                        this.errorInfo1 = this.$translate("passwordatleastsix");
                         return;
                     }else{
                         this.errorshow1 = true;
-                        this.errorInfo1 = "密码只能是数字和字母";
+                        this.errorInfo1 = this.$translate("passordneednumandabc");
                         return;
                     }
                 }
                 if(!this.showName){
                     this.errorshow1 = true;
-                    this.errorInfo1 = "请输入姓名";
+                    this.errorInfo1 = this.$translate("inputshowname");
                     return;
                 }
                 if(!this.phone){
                     this.errorshow1 = true;
-                    this.errorInfo1 = "请输入手机号码";
+                    this.errorInfo1 = this.$translate("inputmobilephone");
                     return;
                 }
                 var phoneReg=/^(0|86|17951)?(13[0-9]|15[012356789]|17[0-9]|18[0-9]|14[57])[0-9]{8}$/;
                 if(!phoneReg.test(this.phone)){
                     this.errorshow1 = true;
-                    this.errorInfo1 = "手机号码不符合格式";
+                    this.errorInfo1 = this.$translate("mobilephonenotvalid");
                     return;
                 }
                 if(!this.authorcode){
                     this.errorshow1 = true;
-                    this.errorInfo1 = "请输入验证码";
+                    this.errorInfo1 = this.$translate("inputvalidatecode");
                     return;
                 }
                 if(!this.enterpriseName){
                     this.errorshow1 = true;
-                    this.errorInfo1 = "请输入企业名称";
+                    this.errorInfo1 = this.$translate("inputenterprisename");
                     return;
                 }
                 var password = md5.hex_md5(this.pwd);
                 this.registerFlag = true;
                 this.errorshow1 = true;
-                this.errorInfo1 = "正在创建,请稍候……";
+                this.errorInfo1 = this.$translate("creatingwait");
                 this.$http.post('/service/registerJoin.action',{
                     'registerVo.enterpriseId':null,
                     'registerVo.enterpriseName':this.enterpriseName,
@@ -202,23 +202,23 @@
                     if(ret.data){
                         if(ret.data.result=="INVALID_PARAMETER"){
                             this.errorshow1 = true;
-                            this.errorInfo1 = "信息不完善";
+                            this.errorInfo1 = this.$translate("infoperfect");
                             return;
                         }else if(ret.data.result=="USERNAME_REGISTERED"){
                             this.errorshow1 = true;
-                            this.errorInfo1 = "用户名已存在";
+                            this.errorInfo1 = this.$translate("usernamehasexisted");
                             return;
                         }else if(ret.data.result=="PHONE_REGISTERED"){
                             this.errorshow1 = true;
-                            this.errorInfo1 = "手机号码已存在";
+                            this.errorInfo1 = this.$translate("mobilephonehasexisted");
                             return;
                         }else if(ret.data.result=="DUPLICATE"){
                             this.errorshow1 = true;
-                            this.errorInfo1 = "企业名已经存在";
+                            this.errorInfo1 = this.$translate("enterprisenamehasexisted");
                             return;
                         }else if(ret.data.result=="CODE_ERROR"){
                             this.errorshow1 = true;
-                            this.errorInfo1 = "验证码错误";
+                            this.errorInfo1 = this.$translate("validatecodeerror");
                             return;
                         }else if(ret.data.result=="ok"){
                             /*this.errorshow1 = true;
@@ -235,12 +235,12 @@
                             router.go('/next');
                         }else{
                             this.errorshow1 = true;
-                            this.errorInfo1 = "啊噢,注册失败!";
+                            this.errorInfo1 = this.$translate("registerfailed");
                             return;
                         }
                     }else{
                         this.errorshow1 = true;
-                        this.errorInfo1 = "服务器出现异常";
+                        this.errorInfo1 = this.$translate("serverexception");
                         return;
                     }
                 });
@@ -260,18 +260,22 @@
                 if(!this.userName){
                     this.errorshowName = true;
                     this.errorInfoNameCan = false;
-                    this.errorInfoName = "请输入用户名";
+                    this.errorInfoName = this.$translate("inputusername");
                     return;
                 }
                 this.$http.post('/checkUsername.action',{
                     username:this.userName
                 }).then(function(ret){
                     this.errorshowName = true;
-                    this.errorInfoName = ret.data;
-                    if(this.errorInfoName.indexOf("可以")>-1){
+                    if(ret && ret.data && ret.data.result=="ok"){
                         this.errorInfoNameCan = true;
+                        this.errorInfoName = this.$translate("can");
+                    }else if(ret && ret.data && ret.data.result=="DUPLICATE"){
+                        this.errorInfoNameCan = false;
+                        this.errorInfoName = this.$translate("cannot");
                     }else{
                         this.errorInfoNameCan = false;
+                        this.errorInfoName = "";
                     }
                 });
             },
@@ -279,13 +283,13 @@
             getAuthCode:function(){
                 if(!this.phone){
                     this.errorshow1 = true;
-                    this.errorInfo1 = "请输入手机号码";
+                    this.errorInfo1 = this.$translate("inputmobilephone");
                     return;
                 }
                 var phoneReg=/^(0|86|17951)?(13[0-9]|15[012356789]|17[0-9]|18[0-9]|14[57])[0-9]{8}$/;
                 if(!phoneReg.test(this.phone)){
                     this.errorshow1 = true;
-                    this.errorInfo1 = "手机号码不符合格式";
+                    this.errorInfo1 = this.$translate("mobilephonenotvalid");
                     return;
                 }
                 this.showwait = true;
@@ -297,11 +301,11 @@
                     var result = ret.data.result;
                     this.errorshow1 = true;
                     if (result == "ok") {
-                        this.errorInfo1 = "验证码发送成功";
+                        this.errorInfo1 = this.$translate("validatecodesendsuccess");
                     }else if(result == "PHONE_REGISTERED"){
-                        this.errorInfo1 = "该手机号码已被注册过";
+                        this.errorInfo1 = this.$translate("mobilephonehasregisted");
                     }else{
-                        this.errorInfo1 = "验证码发送失败";
+                        this.errorInfo1 = this.$translate("validatecodesendfailed");
                     }
                 });
             },
@@ -321,7 +325,7 @@
             next:function(){
                 if(!this.activeCode){
                     this.errorshow2 = true;
-                    this.errorInfo2 = "请输入邀请码";
+                    this.errorInfo2 = this.$translate("inputinvationcode");
                     return;
                 }
                 this.$http.post('/service/getCodeInfo.action',{
@@ -333,7 +337,7 @@
                         router.go('/join');
                     }else{
                         this.errorshow2 = true;
-                        this.errorInfo2 = "邀请码错误";
+                        this.errorInfo2 = this.$translate("invationcodeerror");
                         return;
                     }
                 });
@@ -341,7 +345,7 @@
             },
             openApp:function(){
                 if(this.isWeixin()){
-                    $.toast("请点击右上角在浏览器中打开");
+                    $.toast(this.$translate("netspaceopen"));
                 }else{
                     var u = window.navigator.userAgent.toLowerCase();
                     if (u.indexOf('iphone') > -1 || u.indexOf('itouch') > -1 || u.indexOf('ipad') > -1) {
