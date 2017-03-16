@@ -1,9 +1,9 @@
 <template>
     <div class="popup popup-month">
         <header class="bar bar-nav">
-                <button class="button pull-left cancel-button" v-on:click="close()">取消</button>
-                <button class="button pull-right submit-button" v-on:click="submit()">确定</button>
-                <h1 class='title'>月</h1>
+                <button class="button pull-left cancel-button" v-on:click="close()" v-i18n="{value:'cancelBtn'}">取消</button>
+                <button class="button pull-right submit-button" v-on:click="submit()" v-i18n="{value:'sure'}">确定</button>
+                <h1 class='title' v-i18n="{value:'month'}"></h1>
         </header>
         <div class="content">
             <div class="month-list items-list">

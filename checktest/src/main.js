@@ -9,6 +9,7 @@ var Vue = require('vue'),
 Router = require('./router');
 Main = require('./Main.vue'),
 utils = require('./utils'),
+    VueI18n = require('./vue-i18n'),
 commonutils = require('../../common/assets/js/commonutils'),
 Constant = require('./constant'),
 VueTap = require('vue-tap');
@@ -18,6 +19,7 @@ Vue.use(require('vue-resource'));
 //设置url传递过来的参数
 Vue.http.options.emulateJSON = true;
 Vue.http.headers.common['authenticator'] = Constant.token = commonutils.getPageUrlParam('token');
+Constant.language = commonutils.getPageUrlParam('lang')?commonutils.getPageUrlParam('lang'):'cn';
 
 
 var router = new VueRouter(
@@ -28,6 +30,13 @@ var router = new VueRouter(
 );
 Router(router);
 window.router = router;
+
+//添加国际化插件
+Vue.use(VueI18n,{
+    default:Constant.language,
+    data:require("./i18n")
+});
+
 /**
  * 提供Android和iOS调用返回功能
  * @returns {boolean}

@@ -1,15 +1,15 @@
 <template>
     <div class="popup popup-checker">
         <header class="bar bar-nav">
-                <button class="button pull-left cancel-button" v-on:click="close()">取消</button>
-                <h1 class='title'>点检人</h1>
+                <button class="button pull-left cancel-button" v-on:click="close()" v-i18n="{value:'cancelBtn'}"></button>
+                <h1 class='title' v-i18n="{value:'checker'}"></h1>
         </header>
         <div class="bar bar-header-secondary">
             <div class="searchbar">
-                <a class="searchbar-cancel" v-on:click="cancelSearch()">取消</a>
+                <a class="searchbar-cancel" v-on:click="cancelSearch()" v-i18n="{value:'cancelBtn'}"></a>
                 <div class="search-input">
                     <label class="icon icon-search" for="search"></label>
-                    <input type="search" id="search" v-model="userName" placeholder="请输入用户显示名"/>
+                    <input type="search" id="search" v-model="userName" v-i18n.placeholder="{value:'inputusershowname'}"/>
                 </div>
             </div>
         </div>

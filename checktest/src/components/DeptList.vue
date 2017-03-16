@@ -1,16 +1,16 @@
 <template>
     <div class="popup popup-dept">
         <header class="bar bar-nav">
-            <button class="button pull-left cancel-button" v-on:click="close()">取消</button>
-            <button class="button pull-right submit-button" v-on:click="submit()">确定</button>
-            <h1 class='title'>门店</h1>
+            <button class="button pull-left cancel-button" v-on:click="close()" v-i18n="{value:'cancelBtn'}"></button>
+            <button class="button pull-right submit-button" v-on:click="submit()" v-i18n="{value:'sure'}"></button>
+            <h1 class='title' v-i18n="{value:'store'}"></h1>
         </header>
         <div class="bar bar-header-secondary">
             <div class="searchbar">
-                <a class="searchbar-cancel" v-on:click="cancelSearch()">取消</a>
+                <a class="searchbar-cancel" v-on:click="cancelSearch()" v-i18n="{value:'cancelBtn'}"></a>
                 <div class="search-input">
                     <label class="icon icon-search" for="search"></label>
-                    <input type="search" id="search" v-model="searchName" placeholder="请输入门店的名称"/>
+                    <input type="search" id="search" v-model="searchName" v-i18n.placeholder="{value:'inputstorename'}"/>
                 </div>
             </div>
         </div>

@@ -2,8 +2,8 @@
     <div class="page-group">
        <div class="page page-current" id="index">
            <header class="bar bar-nav">
-               <span class='title'>点检任务列表</span>
-               <button class="button pull-right cancel-button" v-on:click="addCheckTask()">添加</button>
+               <span class='title' v-i18n="{value:'checktasktitle'}"></span>
+               <button class="button pull-right cancel-button" v-on:click="addCheckTask()" v-i18n="{value:'addBtn'}"></button>
                <span class="pull-left icon-back" v-on:click="backTo()"></span>
            </header>
            <div id="checkListContent" class="content content-items pull-to-refresh-content infinite-scroll"  data-ptr-distance="55" data-distance="240">
@@ -105,7 +105,6 @@
                     }
                 } else if ($.device.ios) {
                     try {
-                        $.alert("gggg");
                         window.webkit.messageHandlers.closeCurrentInterface.postMessage(1);
                     } catch (e) {
                     }

@@ -9,5 +9,6 @@ module.exports = {
     pathName:'',
     params:{},
     backpath:''
-  }
+  },
+    language:''
 };

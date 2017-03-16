@@ -1,8 +1,8 @@
 <template>
     <div class="popup popup-detail">
         <header class="bar bar-nav">
-                <button class="button pull-left cancel-button" v-on:click="close()">取消</button>
-                <h1 class='title'>点检任务配置</h1>
+                <button class="button pull-left cancel-button" v-on:click="close()" v-i18n="{value:'cancelBtn'}"></button>
+                <h1 class='title' v-i18n="{value:'checktaskconfig'}"></h1>
         </header>
         <div class="content">
             <div class="list-block">
@@ -10,9 +10,9 @@
                         <li>
                             <div class="item-content">
                                 <div class="item-inner">
-                                    <div class="item-title label">任务名称</div>
+                                    <div class="item-title label" v-i18n="{value:'taskname'}"></div>
                                     <div class="item-input">
-                                        <input type="text" placeholder="请输入任务名称" v-model="taskName"/>
+                                        <input type="text" v-i18n.placeholder="{value:'pleaseinputtaskname'}" v-model="taskName"/>
                                     </div>
                                 </div>
                             </div>
@@ -20,11 +20,11 @@
                         <li>
                             <div class="item-content">
                                 <div class="item-inner">
-                                    <div class="item-title label">任务周期</div>
+                                    <div class="item-title label" v-i18n="{value:'taskweek'}"></div>
                                     <div class="item-input">
                                         <select id="execute" v-on:change="selectExecute()" style="-webkit-appearance: none;">
-                                            <option value=1>周</option>
-                                            <option value=2>月</option>
+                                            <option value=1 v-i18n="{value:'week'}"></option>
+                                            <option value=2 v-i18n="{value:'month'}"></option>
                                         </select>
                                     </div>
                                 </div>
@@ -33,12 +33,12 @@
                         <li>
                             <div class="item-content">
                                 <div class="item-inner">
-                                    <div class="item-title label">执行日期</div>
+                                    <div class="item-title label" v-i18n="{value:'executedate'}"></div>
                                     <div class="item-input" v-show="weekCombo">
-                                    <input type="text" placeholder="请选择" v-on:click="selectWeek()" readonly="readonly" v-model="weekDateName"/>
+                                    <input type="text" v-i18n.placeholder="{value:'pleaseselect'}" v-on:click="selectWeek()" readonly="readonly" v-model="weekDateName"/>
                                     </div>
                                     <div class="item-input" v-show="!weekCombo">
-                                    <input type="text" placeholder="请选择" v-on:click="selectMonth()" readonly="readonly" v-model="monthDateName"/>
+                                    <input type="text" v-i18n.placeholder="{value:'pleaseselect'}" v-on:click="selectMonth()" readonly="readonly" v-model="monthDateName"/>
                                     </div>
                                 </div>
                             </div>
@@ -46,7 +46,7 @@
                         <li>
                             <div class="item-content">
                                 <div class="item-inner">
-                                    <div class="item-title label">执行时间</div>
+                                    <div class="item-title label" v-i18n="{value:'executetime'}"></div>
                                     <div class="item-input">
                                     <input type="text" id="timepicker" v-model="exeTime"/>
                                     </div>
@@ -56,9 +56,9 @@
                         <li>
                             <div class="item-content">
                                 <div class="item-inner">
-                                    <div class="item-title label">开始日期</div>
+                                    <div class="item-title label" v-i18n="{value:'startdate'}"></div>
                                     <div class="item-input">
-                                    <input type="text" id="startdate" v-model="startTime" placeholder="请输入开始日期">
+                                    <input type="text" id="startdate" v-model="startTime" v-i18n.placeholder="{value:'inputstartdate'}">
                                     </div>
                                 </div>
                             </div>
@@ -66,9 +66,9 @@
                         <li>
                             <div class="item-content">
                                 <div class="item-inner">
-                                    <div class="item-title label">结束日期</div>
+                                    <div class="item-title label" v-i18n="{value:'enddate'}"></div>
                                     <div class="item-input">
-                                    <input type="text" id="enddate" v-model="endTime" placeholder="请输入结束日期">
+                                    <input type="text" id="enddate" v-model="endTime" v-i18n.placeholder="{value:'inputenddate'}">
                                     </div>
                                 </div>
                             </div>
@@ -76,11 +76,11 @@
                          <li>
                              <div class="item-content">
                                  <div class="item-inner">
-                                     <div class="item-title label">执行类型</div>
+                                     <div class="item-title label" v-i18n="{value:'excutetype'}"></div>
                                      <div class="item-input">
                                       <select id="selectType" v-on:change="selectExeType()">
-                                         <option value=1>按点检项</option>
-                                         <option value=0>按场景</option>
+                                         <option value=1 v-i18n="{value:'byevalutionitem'}"></option>
+                                         <option value=0 v-i18n="{value:'byscene'}"></option>
                                       </select>
                                      </div>
                                  </div>
@@ -89,13 +89,13 @@
                          <li>
                               <div class="item-content">
                                   <div class="item-inner" v-show="evalution">
-                                      <div class="item-title label">点检项</div>
+                                      <div class="item-title label" v-i18n="{value:'evalutionitem'}"></div>
                                       <div class="item-input">
                                        <input type="text" readonly="readonly" v-on:click="showEvalution()" v-model="evalName">
                                       </div>
                                   </div>
                                   <div class="item-inner" v-show="!evalution">
-                                        <div class="item-title label">场景</div>
+                                        <div class="item-title label" v-i18n="{value:'scene'}"></div>
                                         <div class="item-input">
                                          <input type="text" readonly="readonly" v-on:click="showScene()" v-model="sceneName">
                                         </div>
@@ -105,7 +105,7 @@
                           <li>
                                   <div class="item-content">
                                       <div class="item-inner">
-                                          <div class="item-title label">门店名称</div>
+                                          <div class="item-title label" v-i18n="{value:'shopname'}"></div>
                                           <div class="item-input">
                                               <input type="text" readonly="readonly" v-model="deptName" v-on:click="goToShoplist()"/>
                                           </div>
@@ -115,7 +115,7 @@
                            <li>
                                  <div class="item-content">
                                      <div class="item-inner">
-                                         <div class="item-title label">点检人</div>
+                                         <div class="item-title label" v-i18n="{value:'checker'}"></div>
                                          <div class="item-input">
                                              <input type="text" readonly="readonly" v-model="checkerName" v-on:click="goToCheckerlist()"/>
                                          </div>
@@ -125,7 +125,7 @@
                             <li>
                                  <div class="item-content">
                                      <div class="item-inner">
-                                         <div class="item-title label">任务有效天</div>
+                                         <div class="item-title label" v-i18n="{value:'taskvalidday'}"></div>
                                          <div class="item-input">
                                              <input type="text" v-model="invalidDays"/>
                                          </div>
@@ -135,7 +135,7 @@
                             <li>
                                 <div class="item-content">
                                     <div class="item-inner" style="color:#333;">
-                                        <div class="item-title label">联动抓拍</div>
+                                        <div class="item-title label" v-i18n="{value:'gotocapture'}"></div>
                                         <div class="item-input" v-on:click="selectCapture()">
                                             <span class="item-icon" v-bind:class="isCapture==1?'icon-square-check':'icon-square'"></span>
                                         </div>
@@ -146,8 +146,8 @@
             </div>
         </div>
         <div class="bottom">
-            <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="submitData()">确定</a></p>
-            <p class="submit-panel" v-show="deleteflag"><a class="button button-fill  button-ccc"  v-on:click="deleteData()">删除</a></p
+            <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="submitData()" v-i18n="{value:'sure'}"></a></p>
+            <p class="submit-panel" v-show="deleteflag"><a class="button button-fill  button-ccc"  v-on:click="deleteData()" v-i18n="{value:'delete'}"></a></p
         </div>
     </div>
     <checker></checker>
@@ -309,7 +309,7 @@
                     }
                 }
                 $("#timepicker").picker({
-                    toolbarTemplate:'<header class="bar bar-nav"><button class="button-link pull-right close-picker">确定</button></header>',
+                    toolbarTemplate:'<header class="bar bar-nav"><button class="button-link pull-right close-picker">'+this.$translate("sure")+'</button></header>',
                     cols:[{
                        textAlign:'center',
                        values:hours
@@ -325,10 +325,18 @@
                 var curDate = commonutils.formatDateTime(new Date(), 1);
                 //定义开始日期
                 $("#startdate").calendar({
+                    monthNames: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+                    monthNamesShort: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+                    dayNames: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
+                    dayNamesShort: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
                     minDate:curDate.replace(/-/g,'/')
                 });
                 //定义结束日期
                 $("#enddate").calendar({
+                    monthNames: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+                    monthNamesShort: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+                    dayNames: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
+                    dayNamesShort: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
                     minDate:curDate.replace(/-/g,'/')
                 });
             },
@@ -383,7 +391,7 @@
                                                 shopstr = shopstr + ",";
                                             }
                                         }
-                                        alertstr = "检测到以下门店点检项未关联,将不能生成点检任务:"+shopstr+"<br>";
+                                        alertstr = this.$translate("shopnotrelatealert")+shopstr+"<br>";
                                     }
                                 }
                                 if(ret.data.data.hasManager){
@@ -402,7 +410,7 @@
                                                 shopstr = shopstr + ",";
                                             }
                                         }
-                                        alertstr = alertstr + "检测到以下门店未配置店长,将不能生成点检任务:"+shopstr;
+                                        alertstr = alertstr + this.$translate("shophasnostorer")+shopstr;
                                     }
                                 }
                                 if(alertstr){
@@ -453,7 +461,7 @@
                                                 shopstr = shopstr + ",";
                                             }
                                         }
-                                        alertstr = "检测到以下门店没有配置场景:"+shopstr+"<br>";
+                                        alertstr = this.$translate("shophasnoscene")+shopstr+"<br>";
                                     }
                                 }
                                 if(ret.data.data.hasManager){
@@ -472,7 +480,7 @@
                                                 shopstr = shopstr + ",";
                                             }
                                         }
-                                        alertstr = alertstr + "检测到以下门店未配置店长,将不能生成点检任务:"+shopstr;
+                                        alertstr = alertstr + this.$translate("shophasnostorer")+shopstr;
                                     }
                                 }
                                 if(alertstr){
@@ -494,7 +502,7 @@
                 if(this.doing) return;
 
                 if(!this.taskName){
-                    $.toast("请输入任务名称");
+                    $.toast(this.$translate("pleaseinputtaskname"));
                     return;
                 }
 
@@ -506,11 +514,11 @@
                 cron = this.monthDateName;
                 }
                 if(!cron){
-                    $.toast("请选择执行日期");
+                    $.toast(this.$translate("pleaseselectexcutedate"));
                     return;
                 }
                 if(!this.exeTime){
-                    $.toast("请选择执行时间");
+                    $.toast(this.$translate("pleaseselectexcutetime"));
                     return;
                 }
                 var crons = this.exeTime.split(':');
@@ -521,15 +529,15 @@
                     cronStr = "0 "+crons[1]+" "+crons[0]+" "+cron + " * ?";
                 }
                 if(!this.startTime){
-                    $.toast("请选择开始日期");
+                    $.toast(this.$translate("pleaseselectstartdate"));
                     return;
                 }
                 if(!this.endTime){
-                    $.toast("请选择结束日期");
+                    $.toast(this.$translate("pleaseselectenddate"));
                     return;
                 }
                 if(this.startTime>this.endTime){
-                    $.toast("开始日期不能大于结束日期");
+                    $.toast(this.$translate("startcannotbigthanend"));
                     return;
                 }
 
@@ -542,7 +550,7 @@
                 }
                 if($("#selectType").val()==1){
                     if(!itemIds){
-                        $.toast("请至少选择一个点检项");
+                        $.toast(this.$translate("selectatleastoneevalute"));
                         return;
                     }
                 }
@@ -556,7 +564,7 @@
                 }
                 if($("#selectType").val()==0){
                     if(!presetNos){
-                        $.toast("请至少选择一个场景");
+                        $.toast(this.$translate("selectatleastonescene"));
                         return;
                     }
                 }
@@ -569,11 +577,11 @@
                     }
                 }
                 if(!depIds){
-                    $.toast("请至少选择一个门店");
+                    $.toast(this.$translate("selectatleastoneshop"));
                     return;
                 }
                 if(!this.selectchecker[0]){
-                    $.toast("请选择一个点检人");
+                    $.toast(this.$translate("selectonechecker"));
                     return;
                 }
 
@@ -583,11 +591,11 @@
                 //非负整数
                 var reg = /^\+?[1-9][0-9]*$/;
                 if(!reg.test(this.invalidDays)){
-                    $.toast("有效天不合法,范围1～30不能为小数");
+                    $.toast(this.$translate("validdaynotformat"));
                     return;
                 }
                 if(this.invalidDays<1||this.invalidDays>30){
-                    $.toast("有效天不合法,范围1～30不能为小数");
+                    $.toast(this.$translate("validdaynotformat"));
                     return;
                 }
                 var id = null;
@@ -616,12 +624,12 @@
                 }).then(function(ret){
                     _this.doing = false;
                     if(ret.ok && ret.data && ret.data.result == 'ok'){
-                        $.toast('保存任务成功');
+                        $.toast(this.$translate("savetasksuccess"));
                         _this.closeRefresh();
                     }else if(ret.ok && ret.data && ret.data.result == 'NEVER_FIRED'){
-                        $.toast("此任务永远不会被执行");
+                        $.toast(this.$translate("tasknotbedexcuted"));
                     }else{
-                        $.toast("保存失败");
+                        $.toast(this.$translate("savefailed"));
                     }
                 });
             },
@@ -783,15 +791,17 @@
             },
             deleteData:function(){
                 var _this = this;
-                $.confirm("确认删除该任务吗?",function(){
+                $.modal.prototype.defaults.modalButtonOk = this.$translate("sure");
+                $.modal.prototype.defaults.modalButtonCancel = this.$translate("cancelBtn");
+                    $.confirm(this.$translate("confirmdeletetask"),function(){
                      _this.$http.post('/service/deleteCheckTaskById.action?token='+Constant.token,{
                                          checkTaskId:_this.record.id
                                      }).then(function(ret){
                                          if(ret.ok && ret.data && ret.data.result == 'ok'){
-                                             $.toast('删除成功');
+                                             $.toast(this.$translate("deletesuccess"));
                                              _this.closeRefresh();
                                          }else{
-                                             $.toast("删除失败");
+                                             $.toast(this.$translate("deletefailed"));
                                          }
                      });
                 });

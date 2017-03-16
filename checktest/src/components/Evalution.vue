@@ -1,9 +1,9 @@
 <template>
     <div class="popup popup-evalution">
         <header class="bar bar-nav">
-            <button class="button pull-left cancel-button" v-on:click="close()">取消</button>
-            <button class="button pull-right submit-button" v-on:click="submit()">确定</button>
-            <h1 class='title'>点检项</h1>
+            <button class="button pull-left cancel-button" v-on:click="close()" v-i18n="{value:'cancelBtn'}"></button>
+            <button class="button pull-right submit-button" v-on:click="submit()" v-i18n="{value:'sure'}"></button>
+            <h1 class='title' v-i18n="{value:'evalutionitem'}"></h1>
        </header>
         <div class="content">
             <div class="eval-list">
