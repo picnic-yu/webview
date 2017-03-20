@@ -2,8 +2,8 @@
   <div class="page-group">
     <div class="page page-current" id="index">
       <header class="bar bar-nav">
-        <h1 class='title'>{{currentDate}}销售详情</h1>
-        <a class="right-menu" v-on:click="addDetail()">录入</a>
+        <h1 class='title'>{{currentDate}}<lable v-i18n="{value:'saledetail'}"></lable></h1>
+        <a class="right-menu" v-on:click="addDetail()" v-i18n="{value:'posin'}"></a>
       </header>
     <div id="saleDataContent" class="content content-items pull-to-refresh-content infinite-scroll"  data-ptr-distance="55" data-distance="240">
       <div class="pull-to-refresh-layer">
@@ -19,15 +19,14 @@
               <span class="item-user">{{item.createrName}}</span>
             </div>
             <div class="item-des item-br">
-              <label class="item-num"><span class="person-value">{{item.dealPersonNum}}</span>单</label>
+              <label class="item-num"><span class="person-value">{{item.dealPersonNum}}</span><span v-i18n="{value:'dan'}"></span></label>
               <!--<label class="item-num"><span class="deal-value">{{item.dealNum}}</span>件</label>-->
-              <label class="item-num item-num-large"><span class="total-value">{{item.total}}</span>元</label>
+              <label class="item-num item-num-large"><span class="total-value">{{item.total}}</span><span v-i18n="{value:'money'}"></span></label>
             </div>
           </li>
         </ul>
       </div>
-      <div class="items-list no-data" v-show="nodata">
-        没有任何记录
+      <div class="items-list no-data" v-show="nodata" v-i18n="{value:'nodata'}">
       </div>
       <div class="infinite-scroll-preloader">
         <div class="preloader"></div>

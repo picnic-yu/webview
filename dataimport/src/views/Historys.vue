@@ -2,14 +2,14 @@
   <div class="page-group">
     <div class="page page-current" id="index">
       <header class="bar bar-nav">
-        <h1 class='title'>POS数据历史记录</h1>
-        <a class="right-menu" v-on:click="goAdd()">录入</a>
+        <h1 class='title' v-i18n="{value:'poshistorytitle'}"></h1>
+        <a class="right-menu" v-on:click="goAdd()" v-i18n="{value:'posin'}"></a>
       </header>
       <div class="top-panel">
         <div class="search-box search-box-shop" v-on:click="goToShoplist()">
           <div class="search-box-left"><span class="icon-shop"></span></div>
           <div class="search-box-right">
-            <a class="search-shop-tip"  v-show="!shopInfo.id">请选择一个门店</a>
+            <a class="search-shop-tip"  v-show="!shopInfo.id" v-i18n="{value:'selectastore'}"></a>
             <span class="search-shop"   v-show="shopInfo.id">{{shopInfo.name}}</span>
           </div>
         </div>
@@ -19,14 +19,14 @@
             <div class="search-time">
               <div class="timebox">
                 <label class="date-time">{{search.startTime}}<span class="is-today"
-                                                                   v-show="search.startTime|istoday">今天</span></label><br>
-                <span class="datetime-tip">开始时间</span>
+                                                                   v-show="search.startTime|istoday" v-i18n="{value:'today'}"></span></label><br>
+                <span class="datetime-tip" v-i18n="{value:'starttime'}"></span>
               </div>
               <div class="to">～</div>
               <div class="timebox">
                 <label class="date-time">{{search.endTime}}<span class="is-today"
-                                                                 v-show="search.endTime|istoday">今天</span></label><br>
-                <span class="datetime-tip">结束时间</span>
+                                                                 v-show="search.endTime|istoday" v-i18n="{value:'today'}"></span></label><br>
+                <span class="datetime-tip" v-i18n="{value:'endtime'}"></span>
               </div>
             </div>
           </div>
@@ -49,15 +49,14 @@
                 <!--<label class="item-label">销售单数</label><span class="item-num">{{item.dealPersonNum}}</span>
                 <label class="item-label">销售件数</label><span class="item-num">{{item.dealNum}}</span>
                 <label class="item-label">总销售额</label><span class="item-num item-num-large">{{item.total}}</span>-->
-                <label class="item-num"><span class="person-value">{{item.dealPersonNum}}</span>单</label>
+                <label class="item-num"><span class="person-value">{{item.dealPersonNum}}</span><span v-i18n="{value:'dan'}"></span></label>
                 <!--<label class="item-num"><span class="deal-value">{{item.dealNum}}</span>件</label>-->
-                <label class="item-num item-num-large"><span class="total-value">{{item.total}}</span>元</label>
+                <label class="item-num item-num-large"><span class="total-value">{{item.total}}</span><span v-i18n="{value:'money'}"></span></label>
               </div>
             </li>
           </ul>
         </div>
-        <div class="items-list no-data" v-show="nodata">
-          没有任何历史记录
+        <div class="items-list no-data" v-show="nodata" v-i18n="{value:'nohistorydata'}">
         </div>
         <div class="infinite-scroll-preloader">
           <div class="preloader"></div>

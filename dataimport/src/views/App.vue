@@ -2,42 +2,42 @@
   <div class="page-group" :transition="transitionName">
     <div class="page page-current" id="index">
       <header class="bar bar-nav">
-        <h1 class='title'>POS数据录入</h1>
-        <a class="right-menu" v-on:click="goHistorys()">历史</a>
+        <h1 class='title' v-i18n="{value:'postitle'}"></h1>
+        <a class="right-menu" v-on:click="goHistorys()" v-i18n="{value:'history'}"></a>
       </header>
       <div class="content">
         <div class="list-block">
-          <form action="javascript:void(0);">
+          <!--<form action="javascript:void(0);">-->
             <ul>
               <li>
                 <div class="item-content">
                   <div class="item-inner">
-                    <div class="item-title label">门店</div>
-                    <div class="item-input"><input type="text" v-model="shopInfo.name" placeholder="选择一个门店" v-on:click="goToShoplist()" readonly/></div>
+                    <div class="item-title label" v-i18n="{value:'store'}"></div>
+                    <div class="item-input"><input type="text" v-model="shopInfo.name" v-i18n.placeholder="{value:'selectastore'}" v-on:click="goToShoplist()" readonly/></div>
                   </div>
                 </div>
               </li>
               <li>
                 <div class="item-content">
                   <div class="item-inner">
-                    <div class="item-title label">销售日期</div>
-                    <div class="item-input"><input id="saleDate" type="text" placeholder="选择销售日期" v-model="saleDate" readonly/></div>
+                    <div class="item-title label" v-i18n="{value:'saledate'}"></div>
+                    <div class="item-input"><input id="saleDate" type="text" v-i18n.placeholder="{value:'selectsaledate'}" v-model="saleDate" readonly/></div>
                   </div>
                 </div>
               </li>
               <li>
                 <div class="item-content">
                   <div class="item-inner">
-                    <div class="item-title label">销售时间</div>
-                    <div class="item-input"><input id="saleTime" type="text" placeholder="选择销售时间" v-model="saleTime" readonly/></div>
+                    <div class="item-title label" v-i18n="{value:'saletime'}"></div>
+                    <div class="item-input"><input id="saleTime" type="text" v-i18n.placeholder="{value:'selectsaletime'}" v-model="saleTime" readonly/></div>
                   </div>
                 </div>
               </li>
               <li>
                 <div class="item-content">
                   <div class="item-inner">
-                    <div class="item-title label">销售单数</div>
-                    <div class="item-input"><input type="number" placeholder="请输入销售单数"
+                    <div class="item-title label" v-i18n="{value:'salenum'}"></div>
+                    <div class="item-input"><input type="number" v-i18n.placeholder="{value:'inputsalenum'}"
                                                    v-model="dealPersonNum" @input="istoolong0()"/></div>
                   </div>
                 </div>
@@ -54,16 +54,16 @@
               <li>
                 <div class="item-content">
                   <div class="item-inner">
-                    <div class="item-title label">总销售额</div>
-                    <div class="item-input"><input type="number" placeholder="请输入总销售额(元)"
+                    <div class="item-title label" v-i18n="{value:'totalsalemoney'}"></div>
+                    <div class="item-input"><input type="number" v-i18n.placeholder="{value:'inputtotalsalemoney'}"
                                                    v-model="total" maxlength="9" @input="istoolong2()"/></div>
                   </div>
                 </div>
               </li>
             </ul>
-          </form>
+          <!--</form>-->
         </div>
-        <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="submitData()" v-bind:class="doing?'disabled':''">提交</a></p>
+        <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="submitData()" v-bind:class="doing?'disabled':''" v-i18n="{value:'submit'}"></a></p>
       </div>
     </div>
   </div>
@@ -230,23 +230,23 @@
             submitData:function(){
                 if(this.doing) return;
                 if(!this.shopInfo.id){
-                    $.toast("请选择一个门店");
+                    $.toast(this.$translate("selectastore"));
                     return;
                 }
                 if(!this.saleDate){
-                    $.toast("请选择一个销售日期");
+                    $.toast(this.$translate("selectsaledate"));
                     return;
                 }
                 if(!this.saleTime){
-                    $.toast("请选择一个销售时间");
+                    $.toast(this.$translate("selectsaletime"));
                     return;
                 }
                 if(this.dealPersonNum == ''){
-                    $.toast("请输入销售单数");
+                    $.toast(this.$translate("inputsalenum"));
                     return;
                 }
                 if (this.dealPersonNum.length > 9 || this.dealPersonNum <= 0 || !utils.isInteger(this.dealPersonNum)) {
-                    $.toast("销售单数为至少大于0的合法数字");
+                    $.toast(this.$translate("inputsalenumvalidalert"));
                     return;
                 }
 
@@ -259,13 +259,13 @@
                return;
                }*/
                 if(!this.total){
-                    $.toast("请输入总销售额");
+                    $.toast(this.$translate("inputtotalsalemoney"));
                     return;
                 }
                 //非负数
                 var reg1 = /^\d+(\.{0,1}\d+){0,1}$/
                 if(this.total.length > 9 || !reg1.test(this.total)){
-                    $.toast("总销售额不合法");
+                    $.toast(this.$translate("totalsaleinvalid"));
                     return;
                 }
                 var _this = this;
@@ -282,7 +282,7 @@
                     if(ret.ok && ret.data && ret.data.result == 'ok'){
                         _this.success();
                     }else{
-                        $.toast("录入失败");
+                        $.toast(this.$translate("posinfalied"));
                         setTimeout(function () {
                             _this.doing = false;
                         }, 1000);
@@ -290,16 +290,16 @@
                 });
             },
             success: function () {
-                $.toast("录入成功");
+                $.toast(this.$translate("posinsuccess"));
                 var _this = this;
                 var btns = [{
-                    text: '查看历史',
+                    text: this.$translate("showhistory"),
                     bold: true,
                     onClick: function () {
                         _this.goHistorys();
                     }
                 }, {
-                    text: '继续录入',
+                    text: this.$translate("poscontinue"),
                     bold: true,
                     onClick: function () {
                         _this.clearData0();

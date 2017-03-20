@@ -1,31 +1,31 @@
 <template>
   <div class="page" id="search" :transition="transitionName">
     <header class="bar bar-nav">
-      <h1 class='title' onclick="goBack()">选择日期</h1>
+      <h1 class='title' onclick="goBack()" v-i18n="{value:'selectdate'}"></h1>
     </header>
     <div class="content">
       <div class="default-panel">
-        <p><a class="button  button-orange" v-on:click="thisweek()">只统计本周</a></p>
-        <p><a class="button  button-orange" v-on:click="thismonth()">只统计本月</a></p>
+        <p><a class="button  button-orange" v-on:click="thisweek()" v-i18n="{value:'statisticweek'}"></a></p>
+        <p><a class="button  button-orange" v-on:click="thismonth()" v-i18n="{value:'statisticmonth'}"></a></p>
       </div>
       <div class="time-panel">
-        <div class="panel-title">按自定义时间段统计</div>
+        <div class="panel-title" v-i18n="{value:'timerangestatistic'}"></div>
         <div class="time-box list-block">
           <div class="item-content">
             <div class="item-inner">
-              <div class="item-title label">开始时间</div>
-              <div class="item-input"><input id="box-starttime" placeholder="请选择开始时间" type="text" v-model="search.startTime" readonly></div>
+              <div class="item-title label" v-i18n="{value:'starttime'}"></div>
+              <div class="item-input"><input id="box-starttime" v-i18n.placeholder="{value:'pleaseselectstartdate'}" type="text" v-model="search.startTime" readonly></div>
             </div>
           </div>
           <div class="item-content">
             <div class="item-inner">
-              <div class="item-title label">结束时间</div>
-              <div class="item-input"><input id="box-endtime" placeholder="请选择结束时间" type="text" v-model="search.endTime" readonly></div>
+              <div class="item-title label" v-i18n="{value:'endtime'}"></div>
+              <div class="item-input"><input id="box-endtime" v-i18n.placeholder="{value:'pleaseselectenddate'}" type="text" v-model="search.endTime" readonly></div>
             </div>
           </div>
         </div>
       </div>
-      <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="othertime()">统计</a></p>
+      <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="othertime()" v-i18n="{value:'statistic'}"></a></p>
     </div>
   </div>
 </template>

@@ -2,7 +2,7 @@
     <div class="popup popup-detail">
         <header class="bar bar-nav">
             <h1 class='title'>{{record.dep_name}}</h1>
-            <a class="right-menu" v-on:click="close()">关闭</a>
+            <a class="right-menu" v-on:click="close()" v-i18n="{value:'close'}"></a>
         </header>
         <div class="content ">
             <div class="list-block">
@@ -10,7 +10,7 @@
                     <li>
                         <div class="item-content">
                             <div class="item-inner">
-                                <div class="item-title label">销售日期</div>
+                                <div class="item-title label" v-i18n="{value:'saledate'}"></div>
                                 <div class="item-input">
                                     <input style="background-color:#f1f1f1;" type="text" disabled="disabled" v-model="currentDate"/>
                                 </div>
@@ -20,7 +20,7 @@
                     <li>
                         <div class="item-content">
                             <div class="item-inner">
-                                <div class="item-title label">销售时间</div>
+                                <div class="item-title label" v-i18n="{value:'saletime'}"></div>
                                 <div class="item-input">
                                     <input id="saledetailtime" type="text" v-model="currentTime"/>
                                 </div>
@@ -30,9 +30,9 @@
                     <li>
                         <div class="item-content">
                             <div class="item-inner">
-                                <div class="item-title label">销售单数</div>
+                                <div class="item-title label" v-i18n="{value:'salenum'}"></div>
                                 <div class="item-input">
-                                    <input type="number" placeholder="请输入销售单数" v-model="dealPearsonNum" maxlength="9"/>
+                                    <input type="number" v-i18n.placeholder="{value:'inputsalenum'}" v-model="dealPearsonNum" maxlength="9"/>
                                 </div>
                             </div>
                         </div>
@@ -40,9 +40,9 @@
                     <li>
                         <div class="item-content">
                             <div class="item-inner">
-                                <div class="item-title label">总销售额</div>
+                                <div class="item-title label" v-i18n="{value:'totalsalemoney'}"></div>
                                 <div class="item-input">
-                                    <input type="number" placeholder="请输入总销售额(元)" v-model="total" maxlength="9"/>
+                                    <input type="number" v-i18n.placeholder="{value:'inputtotalsalemoney'}" v-model="total" maxlength="9"/>
                                 </div>
                             </div>
                         </div>
@@ -51,8 +51,8 @@
             </div>
         </div>
         <div class="bottom">
-            <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="submitData()">确定</a></p>
-            <p v-show="deleteflag" class="submit-panel"><a class="button button-fill button-gray"  v-on:click="deleteData()">删除</a></p>
+            <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="submitData()" v-i18n="{value:'sure'}"></a></p>
+            <p v-show="deleteflag" class="submit-panel"><a class="button button-fill button-gray"  v-on:click="deleteData()" v-i18n="{value:'delete'}"></a></p>
         </div>
     </div>
     </div>
@@ -180,22 +180,22 @@
             submitData:function(){
                 if(this.doing) return;
                 if(this.dealPearsonNum == ''){
-                    $.toast("请输入销售单数");
+                    $.toast(this.$translate("inputsalenum"));
                     return;
                 }
                 if (this.dealPearsonNum.length > 9 || this.dealPearsonNum <= 0 || !utils.isInteger(this.dealPearsonNum)) {
-                    $.toast("销售单数为至少大于0的合法数字");
+                    $.toast(this.$translate("inputsalenumvalidalert"));
                     return;
                 }
 
                 if(!this.total){
-                    $.toast("请输入总销售额");
+                    $.toast(this.$translate("inputtotalsalemoney"));
                     return;
                 }
                 //非负数
                 var reg1 = /^\d+(\.{0,1}\d+){0,1}$/
                 if(this.total.length > 9 || !reg1.test(this.total)){
-                    $.toast("总销售额不合法");
+                    $.toast(this.$translate("totalsaleinvalid"));
                     return;
                 }
                 var detailId = null;
@@ -219,10 +219,10 @@
                 }).then(function(ret){
                     _this.doing = false;
                     if(ret.ok && ret.data && ret.data.result == 'ok'){
-                        $.toast('保存数据成功');
+                        $.toast(this.$translate("savedatasuccess"));
                         _this.closeRefresh();
                     }else{
-                        $.toast("保存失败");
+                        $.toast(this.$translate("savefailed"));
                     }
                 });
             },
@@ -230,18 +230,18 @@
                 var _this = this;
                 var detailId = _this.record.id;
                 if(!detailId) return;
-                $.confirm('确定要删除这条记录吗？', function () {
-                    $.showPreloader('正在删除');
+                $.confirm(this.$translate("confirmdelete"), function () {
+                    $.showPreloader(this.$translate("deleteing"));
                     _this.$http.post('/service/deleteSaleDetailData.action', {
                         detailId: detailId,
                         token: Constant.token
                     }).then(function (ret) {
                         $.hidePreloader();
                         if (ret.ok && ret.data && ret.data.result == 'ok') {
-                            $.toast('删除成功');
+                            $.toast(this.$translate("deletesuccess"));
                             _this.closeRefresh();
                         } else {
-                            $.toast('删除失败');
+                            $.toast(this.$translate("deletefailed"));
                         }
                     });
                 }, function () {
