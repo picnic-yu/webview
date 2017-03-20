@@ -2562,8 +2562,8 @@ Device/OS Detection
             toolbar: true,
             toolbarCloseText: '确定',
             toolbarTemplate: '<header class="bar bar-nav">\
-                <button class="button button-link pull-right close-picker">确定</button>\
-                <h1 class="title">请选择</h1>\
+                <button class="button button-link pull-right close-picker"></button>\
+                <h1 class="title"></h1>\
                 </header>',
         };
         params = params || {};
@@ -2572,6 +2572,10 @@ Device/OS Detection
                 params[def] = defaults[def];
             }
         }
+        params.toolbarTemplate = '<header class="bar bar-nav">\
+                <button class="button button-link pull-right close-picker">'+params.toolbarCloseText+'</button>\
+                <h1 class="title"></h1>\
+                </header>'
         p.params = params;
         p.cols = [];
         p.initialized = false;
