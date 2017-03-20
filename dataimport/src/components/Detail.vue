@@ -112,6 +112,7 @@
                     }
                 }
                 $("#saledetailtime").picker({
+                    toolbarCloseText:this.$translate('sure'),
                     cols: [
                         {
                             textAlign: 'center',

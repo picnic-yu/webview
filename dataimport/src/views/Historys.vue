@@ -265,7 +265,7 @@
                 router.go({path:'/shoplist'});
             },
             goAdd:function(){
-                window.location.href = 'index.html?token='+Constant.token+'&name='+encodeURIComponent(Constant.shopInfo.name)+'&id='+Constant.shopInfo.id;
+                window.location.href = 'index.html?token='+Constant.token+'&lang='+Constant.language+'&name='+encodeURIComponent(Constant.shopInfo.name)+'&id='+Constant.shopInfo.id;
             }
         }
     };

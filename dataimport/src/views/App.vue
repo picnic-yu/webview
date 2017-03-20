@@ -117,6 +117,10 @@
                 var timeArr = curTime.substring(0,5).split(':');
                 var _this = this;
                 $('#saleDate').calendar({
+                    monthNames: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+                    monthNamesShort: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+                    dayNames: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
+                    dayNamesShort: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
                     maxDate:curDate.replace(/-/g,'/'),
                     onClose:function(){
                         _this.setValidTime();
@@ -139,6 +143,7 @@
                     }
                 }
                 $("#saleTime").picker({
+                    toolbarCloseText:this.$translate('sure'),
                     cols: [
                         {
                             textAlign: 'center',
@@ -162,7 +167,7 @@
                 router.go({path:'/shoplist'});
             },
             goHistorys:function(){
-                window.location.href = 'historys.html?token='+Constant.token+'&name='+encodeURIComponent(Constant.shopInfo.name)+'&id='+Constant.shopInfo.id;
+                window.location.href = 'historys.html?token='+Constant.token+'&lang='+Constant.language+'&name='+encodeURIComponent(Constant.shopInfo.name)+'&id='+Constant.shopInfo.id;
             },
             setValidTime:function(){
                 var _this = this;
