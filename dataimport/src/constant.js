@@ -18,5 +18,6 @@ module.exports = {
         id:'',
         name:''
     },
-    currentDate:''
+    currentDate:'',
+    language:''
 };
