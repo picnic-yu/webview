@@ -1,15 +1,15 @@
 <template>
-  <div class="page-group" :transition="transitionName">
+  <div class="page-group">
     <div class="page page-current container" id="index">
       <header class="bar bar-nav">
-        <h1 class='title'>设备列表</h1>
-        <a class="right-menu" v-on:click="goAdd()">添加</a>
+        <h1 class='title' v-i18n="{value:'devlist'}"></h1>
+        <a class="right-menu" v-on:click="goAdd()" v-i18n="{value:'add'}"></a>
       </header>
       <div class="top-panel">
         <div class="search-box search-box-shop" v-on:click="goToShopList()">
           <div class="search-box-left"><span class="icon-shop"></span></div>
           <div class="search-box-right">
-            <a class="search-shop-tip"  v-show="!shopInfo.id">请选择一个门店</a>
+            <a class="search-shop-tip"  v-show="!shopInfo.id" v-i18n="{value:'selectastore'}"></a>
             <span class="search-shop"   v-show="shopInfo.id">{{shopInfo.name}}</span>
           </div>
         </div>
@@ -22,9 +22,9 @@
         <div class="searchbar row">
           <div class="search-input col-80">
             <label class="icon icon-search" for="searchMac"></label>
-            <input type="search" id="searchMac" v-model="search.mac" placeholder="输入设备12位序列号" maxlength="12"/>
+            <input type="search" id="searchMac" v-model="search.mac" v-i18n.placeholder="{value:'inputdevno'}" maxlength="12"/>
           </div>
-          <a v-on:click="searchByMac()" class="button button-fill button-primary col-20 search-btn" v-bind:class="(!search.mac || search.mac.length < 12)?'disabled':''">搜索</a>
+          <a v-on:click="searchByMac()" class="button button-fill button-primary col-20 search-btn" v-bind:class="(!search.mac || search.mac.length < 12)?'disabled':''" v-i18n="{value:'search'}"></a>
         </div>
       </div>
     <div id="historysContent" class="content content-items pull-to-refresh-content"  data-ptr-distance="55">
@@ -38,8 +38,8 @@
             <div class="item-item" v-on:click="detail(item)" v-bind:class="item.checked?'item-checked':''">
               <div class="item-des">
                 <span class="item-name">{{item.deviceName}}</span>
-                <label v-show="!item.onlineOnPlatform && (item.dType== 1 || item.dType== 3 || item.dType== 5 || item.dType== 9)" class="item-error">!视频</label>
-                <label v-show="!item.online" class="item-error">!网管</label>
+                <label v-show="!item.onlineOnPlatform && (item.dType== 1 || item.dType== 3 || item.dType== 5 || item.dType== 9)" class="item-error" v-i18n="{value:'novideo'}"></label>
+                <label v-show="!item.online" class="item-error" v-i18n="{value:'nonetwork'}"></label>
               </div>
               <div class="item-des">
                 <span class="item-user">{{item.dType|whichdevicetype}}</span>
@@ -51,7 +51,7 @@
               </div>
               <div class="item-des">
                 <span class="item-user">{{item.version}}</span>
-                <label v-show="item.version != item.latestVersion" class="item-error2">可升级</label>
+                <label v-show="item.version != item.latestVersion" class="item-error2" v-i18n="{value:'canupgrade'}"></label>
               </div>
             </div>
             <div class="item-des item-childlist">
@@ -59,8 +59,8 @@
                 <li v-for="child in item.deviceStatusLst" v-on:click="detail(child)" v-bind:class="child.checked?'item-checked':''">
                   <div class="item-des">
                     <span class="item-name">{{child.deviceName}}</span>
-                    <label v-show="!child.onlineOnPlatform && (child.dType== 1 || child.dType== 3 || child.dType== 5 || child.dType== 9)" class="item-error">!视频</label>
-                    <label v-show="!child.online" class="item-error">!网管</label>
+                    <label v-show="!child.onlineOnPlatform && (child.dType== 1 || child.dType== 3 || child.dType== 5 || child.dType== 9)" class="item-error" v-i18n="{value:'novideo'}"></label>
+                    <label v-show="!child.online" class="item-error" v-i18n="{value:'nonetwork'}"></label>
                   </div>
                   <div class="item-des">
                     <span class="item-user">{{child.dType|whichdevicetype}}</span>
@@ -72,7 +72,7 @@
                   </div>
                   <div class="item-des">
                     <span class="item-user">{{child.version}}</span>
-                    <label v-show="child.version != child.latestVersion" class="item-error2">可升级</label>
+                    <label v-show="child.version != child.latestVersion" class="item-error2" v-i18n="{value:'canupgrade'}"></label>
                   </div>
                 </li>
               </ul>
@@ -80,12 +80,11 @@
           </li>
         </ul>
       </div>
-      <div class="items-list no-data" v-show="nodata">
-        没有任何设备
+      <div class="items-list no-data" v-show="nodata" v-i18n="{value:'hasnodevice'}">
       </div>
     </div>
   </div>
-  <devicerelevancy  transition="slide"></devicerelevancy>
+  <devicerelevancy></devicerelevancy>
   <deviceinfo></deviceinfo>
   </div>
 </template>
@@ -112,7 +111,7 @@
         });
       },
       deactivate:function(transition){
-        this.transitionName = 'left';
+        //this.transitionName = 'left';
         this.clearData();
         transition.next();
       }
@@ -120,30 +119,30 @@
     filters:{
       whichdevicetype:function(type){
         if(type == 1){
-          return "视频设备";
+          return this.$translate('vediodevice');
         }else if(type == 2){
           return "NVR";
         }else if(type == 3){
-          return "客流设备";
+          return this.$translate('customedevice');
         }else if(type == 4){
-          return "客流板卡";
+          return this.$translate('customeboard');
         }else if(type == 5){
-          return "热点设备";
+          return this.$translate('hotdevice');
         }else if(type == 6){
-          return "热点板卡";
+          return this.$translate('hotboard');
         }else if(type == 7){
           return "PC4";
         }else if(type == 8){
-          return "智能板卡";
+          return this.$translate('intelboard');
         }else if(type == 9){
-          return "智能设备";
+          return this.$translate('inteldev');
         }
         return "";
       }
     },
     data:function(){
       return {
-        transitionName:'right',
+        //transitionName:'right',
         search:{
           startTime:'',
           endTime:'',
@@ -229,7 +228,7 @@
       unReletaDevice:function(device){
         var parentDevice = getParentDevice(this.items,device.pId);
         if(!parentDevice){
-          $.toast('父级设备不存在');
+          $.toast(this.$translate('parentdevicenotexist'));
           return;
         }
         var _this = this;
@@ -240,18 +239,18 @@
           if(ret.ok && ret.data && ret.data.result == 'ok'){
             var data = ret.data.data.data;
             if(data.del_result == 1){
-              $.toast('解除关联失败');
+              $.toast(this.$translate('unlinkfailed'));
               return;
             }
             var delResults = data.del_dev_result;
             if(delResults[0].result == 0){
-              $.toast('解除关联成功');
+              $.toast(this.$translate('unlinksuccess'));
               this.getData();
             }else{
-              $.toast('解除关联失败');
+              $.toast(this.$translate('unlinkfailed'));
             }
           }else{
-            $.toast('解除关联失败');
+            $.toast(this.$translate('unlinkfailed'));
           }
         });
       },
@@ -293,17 +292,17 @@
           if(res.ok && res.data){
             var data = res.data.result;
             if(typeof(data) == 'undefined'){
-              $.toast('升级失败');
+              $.toast(this.$translate('upgradefailed'));
               return;
             }
             if (data < 0) {
               if (data == '-2') {
-                $.toast('设备不在线，请稍后再试');
+                $.toast(this.$translate('devicenotonline'));
               } else if (data == '-1') {
-                $.toast('找不到当前设备');
+                $.toast(this.$translate('cannotfindcurrentdev'));
               }
             }else{//指令下发成功，开始升级，设置进度，并持续去获取升级进度
-              $.showPreloader('正在升级...<span class="upgrade-value" id="upgradeValue">0</span>%');
+              $.showPreloader(this.$translate('upgradeing')+'...<span class="upgrade-value" id="upgradeValue">0</span>%');
               _this.getUpgradeProgress(device);
             }
           }
@@ -319,16 +318,16 @@
             if(ret.ok && ret.data){
               var data = ret.data.result;
               if(typeof(data) == 'undefined'){
-                $.toast('升级失败');
+                $.toast(this.$translate('upgradefailed'));
                 return;
               }
               if (data < 0 && data != '-2') {
                 if (data == '-1') {
-                  $.toast('找不到当前设备');
+                  $.toast(this.$translate('cannotfindcurrentdev'));
                 } else if (data == '-3') {
                   $('#upgradeValue').html(100);
                   $.hidePreloader();
-                  $.toast('升级成功');
+                  $.toast(this.$translate('upgradesuccess'));
                   _this.loadData();
                 }
               } else {
@@ -353,7 +352,7 @@
       },
       detail:function(device){
         this.device = Constant.device =  device;
-        utils.showDevOptList(this,device,false,'请选择操作');
+        utils.showDevOptList(this,device,false,this.$translate('selectoprate'));
       },
       goToShopList:function(){
         router.go('/shoplist');

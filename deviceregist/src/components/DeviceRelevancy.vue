@@ -1,7 +1,7 @@
 <template>
     <div class="popup popup-relevancy">
         <header class="bar bar-nav">
-            <h1 class='title'>选择关联设备</h1>
+            <h1 class='title' v-i18n="{value:'selectrelatedevice'}"></h1>
         </header>
         <div class="content pull-to-refresh-content" id="shopListContent" data-ptr-distance="55">
             <div class="pull-to-refresh-layer">
@@ -10,15 +10,19 @@
             </div>
             <div class="device-list items-list">
                 <ul>
-                    <li v-for="device in devices" v-on:click="selectDevice(device)">
-                        <span class="item-icon" v-bind:class="!!device.checked?'icon-square-check':'icon-square'"></span><span class="item-name">{{device.deviceName}}</span>
+                    <li v-for="device in devices">
+                        <table><tr v-on:click="selectDevice(device)"><td colspan="2"><span class="item-icon" v-bind:class="!!device.checked?'icon-square-check':'icon-square'"></span><span class="item-name">{{device.device_alias_name}}</span></td></tr>
+                            <tr v-on:click="selectDevice(device)"><td><span class="item-mac">{{device.ipcmac}}</span></td><td align="right"><span class="item-mac">{{device.device_type}}</span></td></tr>
+                            <tr v-show="device.accessType==2"><td><span class="item-username">用户名</span><input id="userinput_{{device.ipcmac}}" type="text" class="device-input"></td>
+                                <td align="right"><span class="item-username">密码</span><input id="pwd_{{device.ipcmac}}" type="text" class="device-input"></td></tr>
+                        </table>
                     </li>
                 </ul>
             </div>
         </div>
         <div class="bottom">
-            <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="submit()" v-bind:class="selectDevices.length>0 && !doing?'':'disabled'">确认</a></p>
-            <p class="submit-panel"><a class="button button-fill  button-dark"  v-on:click="close()">取消</a></p>
+            <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="submit()" v-bind:class="selectDevices.length>0 && !doing?'':'disabled'" v-i18n="{value:'ok'}"></a></p>
+            <p class="submit-panel"><a class="button button-fill  button-dark"  v-on:click="close()" v-i18n="{value:'cancel'}"></a></p>
         </div>
     </div>
 </template>
@@ -88,9 +92,8 @@
             getData:function(callback){
                 var _this = this;
                 this.loading = true;
-                this.$http.post('/service/searchDevicesByDepId0.action?token='+Constant.token,{
-                    depId:Constant.shopInfo.id,
-                    mac:Constant.device.mac
+                this.$http.post('/service/searchNvrDev.action?token='+Constant.token,{
+                    serialNo:Constant.device.mac
                 }).then(function(ret){
                     _this.loading = false;
                     if(ret.ok && ret.data){
@@ -117,21 +120,48 @@
             submit:function(){
                 if(this.selectDevices.length == 0 || this.doing) return;
                 var _this = this;
+                var selectedArray = this.getSelectedDevices();
+                if(!selectedArray) return;
                 this.doing = true;
-                $.showPreloader('正在关联设备...');
-                this.$http.post('/service/addDevices.action?token='+Constant.token,JSON.stringify({
-                    mac :Constant.device.mac,
-                    dsList : this.selectDevices
+                $.showPreloader(this.$translate('islinking'));
+                this.$http.post('/service/addNvrDevNew.action?token='+Constant.token,JSON.stringify({
+                    serialNo :Constant.device.mac,
+                    deviceBos : selectedArray
                 })).then(function(ret){
                     $.hidePreloader();
                     _this.doing = false;
                     if(ret.ok && ret.data){
-                        if(ret.data.result != 'ok'){
-                            $.toast('关联失败');
+                        if(ret.data.result == 'EXCEED_LIMIT'){
+                            $.alert(this.$translate('limiterror')+":"+ret.data.data.data);
+                            return;
+                        }else if(ret.data.result != 'ok'){
+                            $.toast(this.$translate('linkfailed'));
                             return;
                         }
                         var res = ret.data.data.data;
-                        if(res.add_result == 0){
+                        var flag = true;
+                        for ( var i = 0; i < res.length; i++) {
+                            if(res[i].result != 200000 && res[i].result != 404002){
+                                if(res[i].result == 404005){
+                                    $.alert(this.$translate('cannotlinkdevice')+res[i].ipcmac);
+                                }else if(res[i].result == 404003){
+                                    $.alert(this.$translate('devicefor')+res[i].ipcmac+this.$translate('usernamepasswordnotright'));
+                                }else if(res[i].result == 404002){
+                                    $.alert(this.$translate('devicefor')+res[i].ipcmac+this.$translate('hasexist'));
+                                }else if(res[i].result == 400000){
+                                    $.alert(this.$translate('devicefor')+res[i].ipcmac+this.$translate('linkfailed'));
+                                }
+                                flag = false;
+                            }
+                        }
+                        if(flag){
+                            $.toast(this.$translate('linksuccess'));
+                            _this.close();
+                            _this.$dispatch('refreshDeviceList');
+                        }
+
+
+                        /*if(res.add_result == 0){
                             var addResults = res.add_dev_result;
                             var error = 0,errorMacs = '';
                             for ( var i = 0; i < addResults.length; i++) {
@@ -144,45 +174,71 @@
                                 }
                             }
                             if(error == 0){
-                                $.toast('关联成功');
+                                $.toast(this.$translate('linksuccess'));
                                 _this.close();
                                 _this.$dispatch('refreshDeviceList');
                             }else if(error < _this.selectDevices.length){
-                                $.alert('关联序列号为:'+errorMacs+'的设备失败',function(){
+                                $.alert(this.$translate('linkdevno')+errorMacs+this.$translate('devicesfailed'),function(){
                                     _this.close();
                                     _this.$dispatch('refreshDeviceList');
                                 });
                             }else{
-                                $.toast('全部设备关联失败');
+                                $.toast(this.$translate('alldevicelinkfailed'));
                             }
                         }else{
-                            $.toast('关联失败');
-                        }
+                            $.toast(this.$translate('linkfailed'));
+                        }*/
                     }
                 });
             },
             close:function(){
                 this.clearData();
                 $.closeModal('.popup-relevancy');
+            },
+            getSelectedDevices:function(){
+                var selectedArray = [];
+                for(var i=0;i<this.selectDevices.length;i++){
+                        var obj = this.selectDevices[i];
+                        var username = "";
+                        var pwd = "";
+                        if(obj.accessType==2){
+                            username = $("#userinput_"+obj.ipcmac).val();
+                            pwd = $("#pwd_"+obj.ipcmac).val();
+                            if(!username){
+                                $.alert("MAC:"+obj.ipcmac+"的用户名不能为空");
+                                $("#userinput_"+obj.ipcmac).focus();
+                                return null;
+                            }
+                            if(!pwd){
+                                $.alert("MAC:"+obj.ipcmac+"的密码不能为空");
+                                $("#pwd_"+obj.ipcmac).focus();
+                                return null;
+                            }
+                        }
+                        selectedArray.push({
+                            ipcmac : obj.ipcmac,
+                            accessType : obj.accessType,
+                            userName : username,
+                            passwd :  pwd
+                        });
+                }
+                return selectedArray;
             }
         }
     };
 
     function add(devices,device){
         devices.push({
-            id:device.id,
-            mac : device.mac,
-            mac1 : device.mac1,
-            deviceName : device.deviceName,
-            deviceIp : device.deviceIp,
-            deviceType :  device.deviceType
+            ipcmac : device.ipcmac,
+            accessType : device.accessType,
+            device_type :  device.device_type
         });
         return devices;
     }
     function remove(devices,device){
         var index = -1;
         for(var i=0;i<devices.length;i++){
-            if(devices[i].id == device.id){
+            if(devices[i].ipcmac == device.ipcmac){
                 index = i;
                 break;
             }
@@ -210,8 +266,26 @@
 .items-list li{
     flex-direction: row ;
 }
+
+.items-list table{
+    width:100%;
+}
     .submit-panel{
         margin:5px 10px;
         margin-bottom: 0px;
+    }
+    .item-mac{
+        margin-right:5px;
+        font-size:14px;
+        margin-left:30px;
+    }
+    .device-input{
+        border:1px solid #ddd;
+        width:80px;
+    }
+    .item-username{
+        font-size: 14px;
+        margin-right:5px;
+        margin-left:30px;
     }
 </style>

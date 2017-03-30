@@ -2,8 +2,8 @@
     <div class="page-group" :transition="transitionName">
         <div class="page page-current container" id="index">
             <header class="bar bar-nav">
-                <h1 class='title'>设备注册</h1>
-                <a class="right-menu" v-on:click="goDeviceList()">列表</a>
+                <h1 class='title' v-i18n="{value:'devregister'}"></h1>
+                <a class="right-menu" v-on:click="goDeviceList()" v-i18n="{value:'list'}"></a>
             </header>
             <div class="content">
                 <div class="list-block item-step1">
@@ -11,13 +11,13 @@
                         <div class="item-content">
                             <div class="item-inner">
                                 <div class="item-input" v-on:click="goToShoplist()">
-                                    <a class="search-shop-tip"  v-show="!shopInfo.id" >请选择一个门店</a>
+                                    <a class="search-shop-tip"  v-show="!shopInfo.id" v-i18n="{value:'selectastore'}"></a>
                                     <span class="search-shop"   v-show="shopInfo.id">{{shopInfo.name}}</span>
                                 </div>
                             </div>
                         </div>
                     </li></ul>
-                    <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="next()" v-bind:class="shopInfo.id?'':'disabled'">下一步</a></p>
+                    <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="next()" v-bind:class="shopInfo.id?'':'disabled'" v-i18n="{value:'next'}"></a></p>
                 </div>
             </div>
         </div>
