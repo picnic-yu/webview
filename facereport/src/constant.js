@@ -17,5 +17,6 @@ module.exports = {
   shopInfo:{
     id:'',
     name:''
-  }
+  },
+  language:''
 };

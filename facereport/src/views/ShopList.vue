@@ -3,7 +3,7 @@
     <div class="page page-current" id="index">
       <header class="bar bar-nav">
         <span class="pull-left icon-back"></span>
-        <h1 class='title' v-on:click="backTo()">选择设备</h1>
+        <h1 class='title' v-on:click="backTo()" v-i18n="{value:'selectdevice'}"></h1>
       </header>
       <div id="shopListContent" class="content content-items">
         <div class="items-list">

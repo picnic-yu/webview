@@ -1,5 +1,4 @@
-
-
+var vue = require('vue');
 //pie图表定义
 module.exports.getPieChartOption = function(){
   return {
@@ -68,7 +67,7 @@ module.exports.getNoDataPieChartOption = function(){
       animation:false,
       silent:false,
       data : [{
-        name:'暂无数据',
+        name:vue.prototype.$translate('hasnodata'),
         value:1
       }]
     } ]

@@ -2,14 +2,14 @@
   <div class="page-group" :transition="transitionName">
     <div class="page page-current" id="index">
       <header class="bar bar-nav">
-        <span class="pull-left icon-back"></span>
-        <h1 class='title' v-on:click="backTo()">人脸报表分析</h1>
+        <h1 class='title' v-i18n="{value:'facereport'}"></h1>
+        <span class="pull-left icon-back" v-on:click="backTo()"></span>
       </header>
       <div class="top-panel">
         <div class="search-box search-box-shop" v-on:click="goToShoplist()">
           <div class="search-box-left"><span class="icon-shop"></span></div>
           <div class="search-box-right">
-            <a class="search-shop-tip"  v-show="!shopInfo.id">请选择一个智能设备</a>
+            <a class="search-shop-tip"  v-show="!shopInfo.id" v-i18n="{value:'selectinteldevice'}"></a>
             <span class="search-shop"   v-show="shopInfo.id">{{shopInfo.name}}</span>
           </div>
         </div>
@@ -19,14 +19,14 @@
             <div class="search-time">
               <div class="timebox">
                 <label class="date-time">{{search.startTime}}<span class="is-today"
-                                                                   v-show="search.startTime|istoday">今天</span></label><br>
-                <span class="datetime-tip">开始时间</span>
+                                                                   v-show="search.startTime|istoday" v-i18n="{value:'today'}"></span></label><br>
+                <span class="datetime-tip" v-i18n="{value:'starttime'}"></span>
               </div>
               <div class="to">～</div>
               <div class="timebox">
                 <label class="date-time">{{search.endTime}}<span class="is-today"
-                                                                 v-show="search.endTime|istoday">今天</span></label><br>
-                <span class="datetime-tip">结束时间</span>
+                                                                 v-show="search.endTime|istoday" v-i18n="{value:'today'}"></span></label><br>
+                <span class="datetime-tip" v-i18n="{value:'endtime'}"></span>
               </div>
             </div>
           </div>
@@ -41,7 +41,7 @@
           </div>
           </div>
           <div style="margin-top:10px;" v-on:click="goToAllData()">
-            <div class="title-all chart-title" style="padding:20px;">查看全部数据</div>
+            <div class="title-all chart-title" style="padding:20px;" v-i18n="{value:'showalldata'}"></div>
           </div>
           </div>
       </div>
@@ -53,31 +53,32 @@
   var commonutils = require('../../../common/assets/js/commonutils');
   var echarts = require('echarts');
   var chartutils = require('../chartutils');
-  var arr = [{key:'face.ageL',id:'ageChart',name:'年龄',noid:'nochart1',nodata:true,chartObj:{},colorarr:['#8acc47','#f90','#04bafe','#ff4d27']},
-    {key:'face.sex',id:'sexChart',name:'性别',noid:'nochart2',nodata:true,chartObj:{},colorarr:['#8acc47','#ff4d27']},
-    {key:'face.glass',id:'glassChart',name:'眼镜',noid:'nochart3',nodata:true,chartObj:{},colorarr:['#ff4d27','#8acc47']},
-    {key:'face.feeling',id:'feelingChart',name:'心情',noid:'nochart4',nodata:true,chartObj:{},colorarr:['#8acc47','#f90','#ff4d27']}];
-  var i18n={"face.sex.male":"男性",
-    "face.sex.female":"女性",
-    "face.glass.yes":"戴眼镜",
-    "face.glass.no":"不戴眼镜",
-    "face.feeling.l2":"开心",
-    "face.feeling.l1":"很开心",
-    "face.feeling.l3":"平静",
-    "face.feeling.l4":"不开心",
-    "face.race.white":"白人",
-    "face.race.az":"亚洲人",
-    "face.race.black":"黑人",
-    "face.age.l1":"10岁以下",
-    "face.age.l2":"10-20岁",
-    "face.age.l3":"21-30岁",
-    "face.age.l4":"31-40岁",
-    "face.age.l5":"41-50岁",
-    "face.age.l6":"50岁以上",
-    "face.ageL.level1":"少年",
-    "face.ageL.level2":"青年",
-    "face.ageL.level3":"中年",
-    "face.ageL.level4":"老年"};
+  var v = require('vue');
+  var arr = [{key:'face.ageL',id:'ageChart',name:v.prototype.$translate('age'),noid:'nochart1',nodata:true,chartObj:{},colorarr:['#8acc47','#f90','#04bafe','#ff4d27']},
+    {key:'face.sex',id:'sexChart',name:v.prototype.$translate('sex'),noid:'nochart2',nodata:true,chartObj:{},colorarr:['#8acc47','#ff4d27']},
+    {key:'face.glass',id:'glassChart',name:v.prototype.$translate('glasses'),noid:'nochart3',nodata:true,chartObj:{},colorarr:['#ff4d27','#8acc47']},
+    {key:'face.feeling',id:'feelingChart',name:v.prototype.$translate('feel'),noid:'nochart4',nodata:true,chartObj:{},colorarr:['#8acc47','#f90','#ff4d27']}];
+  var i18n={"face.sex.male":v.prototype.$translate('man'),
+    "face.sex.female":v.prototype.$translate('woman'),
+    "face.glass.yes":v.prototype.$translate('takeglassess'),
+    "face.glass.no":v.prototype.$translate('takenoglassess'),
+    "face.feeling.l2":v.prototype.$translate('happy'),
+    "face.feeling.l1":v.prototype.$translate('veryhappy'),
+    "face.feeling.l3":v.prototype.$translate('calm'),
+    "face.feeling.l4":v.prototype.$translate('nohappy'),
+    "face.race.white":v.prototype.$translate('white'),
+    "face.race.az":v.prototype.$translate('az'),
+    "face.race.black":v.prototype.$translate('black'),
+    "face.age.l1":v.prototype.$translate('aglevel1'),
+    "face.age.l2":v.prototype.$translate('aglevel2'),
+    "face.age.l3":v.prototype.$translate('aglevel3'),
+    "face.age.l4":v.prototype.$translate('aglevel4'),
+    "face.age.l5":v.prototype.$translate('aglevel5'),
+    "face.age.l6":v.prototype.$translate('aglevel6'),
+    "face.ageL.level1":v.prototype.$translate('young'),
+    "face.ageL.level2":v.prototype.$translate('oldyoung'),
+    "face.ageL.level3":v.prototype.$translate('youngold'),
+    "face.ageL.level4":v.prototype.$translate('old')};
   var num = 5;//每页显示的条数
   module.exports =  {
     route:{

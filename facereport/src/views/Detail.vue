@@ -3,7 +3,7 @@
     <div class="page page-current" id="index">
       <header class="bar bar-nav">
         <span class="pull-left icon-back"></span>
-        <h1 class='title' v-on:click="backTo()">人脸分析数据</h1>
+        <h1 class='title' v-on:click="backTo()" v-i18n="{value:'facedata'}"></h1>
       </header>
       <div class="top-panel">
         <label class="date-time">{{search.startTime}}</label>
@@ -31,8 +31,8 @@
             </li>
           </ul>
         </div>
-        <div class="items-list no-data" v-show="nodata">
-          没有任何数据
+        <div class="items-list no-data" v-show="nodata" v-i18n="{value:'nodata'}">
+
         </div>
         <div class="infinite-scroll-preloader">
           <div class="preloader"></div>
@@ -107,39 +107,39 @@
     filters: {
       filterrace: function (value) {
         if (value == 0) {
-          return "亚洲人";
+          return this.$translate('az');
         } else if (value == 1) {
-          return "白人";
+          return this.$translate('white');
         } else {
-          return "黑人";
+          return this.$translate('black');
         }
       },
       filtergender: function (value) {
         if (value == 1) {
-          return "男性";
+          return this.$translate('man');
         } else {
-          return "女性";
+          return this.$translate('woman');
         }
       },
       filterage: function (value) {
-        return value + "岁";
+        return value + this.$translate('yearsold');
       },
       filterglass: function (value) {
         if (value == 0) {
-          return "不戴眼镜"
+          return this.$translate('takenoglassess');
         } else {
-          return "戴眼镜"
+          return this.$translate('takeglassess');
         }
       },
       filtersmiling: function (value) {
         if (value < 10) {
-          return "不开心";
+          return this.$translate('nohappy');
         } else if (value >= 10 && value < 30) {
-          return "平静";
+          return this.$translate('calm');
         } else if (value >= 30 && value < 50) {
-          return "开心";
+          return this.$translate('happy');
         } else {
-          return "很开心";
+          return this.$translate('veryhappy');
         }
       }
     },
