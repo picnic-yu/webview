@@ -443,7 +443,7 @@
                 loading: false,
                 refreshInit: false,
                 notdoNumber:0,//代办记录数
-                showBackBtn: Constant.showBackBtn
+                showBackBtn: Constant.showBackBtn && Constant.token.length>0
             }
         },
         components: {
@@ -548,7 +548,7 @@
             showVersion: function () {
                 clearTimeout(clickTimer);
                 if (clickShowVesionNum >= 2) {
-                    $.toast('当前工作圈版本V2.2.1');
+                    $.toast('当前工作圈版本V2.2.5');
                     clickShowVesionNum = 0;
                 } else {
                     clickShowVesionNum++;
@@ -656,8 +656,13 @@
                 }).then(function (ret) {
                     if (ret.ok && ret.data && ret.data.result == 'ok') {
                         var data = ret.data.data;
-                        _this.items[index].comment = data.data;
-
+                        if(data && data.data){
+                            //格式化文本中的超连接
+                            for(var i=0;i<data.data.length;i++){
+                                utils.formatHyperLink(data.data[i],data.data[i].content);
+                            }
+                            _this.items[index].comment = data.data;
+                        }
                     }
                     Constant.detail.hasSubmitCmt = false;
                 });

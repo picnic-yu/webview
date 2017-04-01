@@ -321,6 +321,7 @@
                     searchOther: false
                 },
                 isAtAll: 0,
+                openUserListType:-1,//打开原生通讯录功能，0为@人,1为亮点推广
                 done: false,//是否完成创建
                 submiting: false,//是否正在提交
                 bo: Constant.bo,
@@ -384,6 +385,7 @@
                         this.style.height = this.scrollHeight + 'px';
                     }
                 });
+                this.registUserListEvent();
                 dragula([$('.img-content .uploadimg-container')[0]], {
                     moves: function (el, source) {
                         if ($(el).hasClass('fp-left')) {
@@ -407,6 +409,26 @@
                     width:size.w+'px',
                     height:size.h+'px',
                     webkitTransform:'translate('+size.offsetX+'px,'+size.offsetY+'px)'
+                };
+            },
+            //注册通讯录事件
+            registUserListEvent:function () {
+                var _this = this;
+                window.saveUserList = function (res) {
+                    if(typeof(res) == 'string'){
+                        res = JSON.parse(res);
+                    }
+                    if(_this.openUserListType == 0){
+                        if(res.isAtAll == 1){
+                            _this.isAtAll = 1;
+                        }else{
+                            _this.isAtAll = 0;
+                            _this.userlist = formatUserList(res.users);
+                        }
+                    }else if(_this.openUserListType == 1){
+                        _this.bo.subItems[Constant.create.mUserInfo.parentIndex].childs[Constant.create.mUserInfo.index].content = getUserIds0(res.users);
+                        Vue.set(_this.bo.subItems[Constant.create.mUserInfo.parentIndex].childs[Constant.create.mUserInfo.index], 'contentStr', getUserNames0(res.users));
+                    }
                 };
             },
             //注册安卓相册事件
@@ -681,15 +703,32 @@
                 Constant.selectedGroups = this.grouplist = [];
             },
             goToUserList: function (subItem, parentIndex, index) {
+                this.openUserListType = 1;
                 Constant.create.mUserInfo.ids = subItem.content;
                 Constant.create.mUserInfo.names = subItem.contentStr;
                 Constant.create.mUserInfo.parentIndex = parentIndex;
                 Constant.create.mUserInfo.index = index;
-                if (subItem.isMulti) {
-                    router.go({name: 'mutipleuserlist', params: {type: 1}});
-                } else {
-                    router.go({name: 'userlist', params: {dowhich: 1}});
+                try{
+                    var type = subItem.isMulti?2:1;
+                    if($.device.android){
+                        window.webview && window.webview.openUserList(JSON.stringify({type:type,userIds:subItem.content,isHaveSelf:1,isAtAll:0}));
+                    }else if($.device.ios){
+                        window.webkit.messageHandlers.openUserList.postMessage({type:type,userIds:subItem.content,isHaveSelf:1,isAtAll:0});
+                    }else{
+                        if (subItem.isMulti) {
+                            router.go({name: 'mutipleuserlist', params: {type: 1}});
+                        } else {
+                            router.go({name: 'userlist', params: {dowhich: 1}});
+                        }
+                    }
+                }catch (e){
+                    if (subItem.isMulti) {
+                        router.go({name: 'mutipleuserlist', params: {type: 1}});
+                    } else {
+                        router.go({name: 'userlist', params: {dowhich: 1}});
+                    }
                 }
+                
             },
             goToDate: function (value, parentIndex, index) {
                 Constant.create.mDate.value = value;
@@ -719,7 +758,20 @@
                 sitem.showPics.splice(index, 1);
             },
             atWho: function () {
-                router.go({name: 'mutipleuserlist', params: {type: 0}});
+                this.openUserListType = 0;
+                try{
+                    var userIds = getUserIds(this.userlist);
+                    var isAtAll = this.isAtAll || 0;
+                    if($.device.android){
+                        window.webview && window.webview.openUserList(JSON.stringify({type:2,userIds:userIds,isHaveSelf:0,isAtAll:isAtAll}));
+                    }else if($.device.ios){
+                        window.webkit.messageHandlers.openUserList.postMessage({type:2,userIds:userIds,isHaveSelf:0,isAtAll:isAtAll});
+                    }else{
+                        router.go({name: 'mutipleuserlist', params: {type: 0}});
+                    }
+                }catch (e){
+                    router.go({name: 'mutipleuserlist', params: {type: 0}});
+                }
             },
             whichTemplate: function () {
                 router.go({name: 'templates', params: {dowhich: 1}});
@@ -908,6 +960,39 @@
             }
         }
         return ids;
+    }
+
+    function getUserIds0(users) {
+        var ids = '';
+        for (var i = 0; i < users.length; i++) {
+            ids += users[i].userId;
+            if (i != users.length - 1) {
+                ids += ',';
+            }
+        }
+        return ids;
+    }
+
+    function getUserNames0(users) {
+        var names = '';
+        for (var i = 0; i < users.length; i++) {
+            names += users[i].showName;
+            if (i != users.length - 1) {
+                names += ',';
+            }
+        }
+        return names;
+    }
+    
+    function formatUserList(users) {
+        var list = [];
+        for (var i = 0; i < users.length; i++) {
+            list.push({
+                id:users[i].userId,
+                showName:users[i].showName
+            });
+        }
+        return list;
     }
 
 </script>

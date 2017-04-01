@@ -79,12 +79,12 @@ module.exports = {
             }
         ]
     },
-    plugins: [
-        /* new webpack.ProvidePlugin({
+    /*plugins: [
+        /!* new webpack.ProvidePlugin({
          echarts:'echarts'
-         }),*/
+         }),*!/
         new webpack.optimize.CommonsChunkPlugin('vendor', 'vendor.bundle.js')
-    ],
+    ],*/
     externals: [{
         'zepto': 'Zepto',
         '$': 'Zepto'

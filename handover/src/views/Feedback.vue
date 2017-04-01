@@ -34,6 +34,8 @@
                 </div>
                 <p class="submit-panel"><a class="button button-fill  button-orange disabled" v-on:click="submit()"
                                            v-bind:class="!bo.content?'disabled':''">提交</a></p>
+                
+                <div class="footer"><a class="call" href="tel:400-100-1392">呼叫客服</a></div>
 
                 <div class="blank"></div>
             </div>
@@ -611,7 +613,26 @@
     .success {
         padding: 10px 15px;
     }
-
+.footer{
+    position: absolute;
+    bottom:20px;
+    width: 100%;
+    height:32px;
+    text-align: center;
+}
+.call{
+    text-align: center;
+    width:120px;
+    height: 32px;
+    line-height: 32px;
+    display: inline-block;
+    border-radius: 10px;
+    color: #fff;
+    background: #fa0;
+}
+.call:active{
+    background: #f90;
+}
     @media all and (max-width: 360px) {
         .timebox .date-time {
             font-size: 12px;

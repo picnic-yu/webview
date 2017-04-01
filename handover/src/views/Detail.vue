@@ -506,6 +506,12 @@
         },
         ready: function () {
             this.init();
+            $('#cmtInput2').focus(function () {
+                var _this = this;
+                setTimeout(function () {
+                    _this.scrollIntoView();
+                },400);
+            });
         },
         methods: {
             backTo: function () {
@@ -717,6 +723,8 @@
                     });
                     myPhotoBrowserStandalone.open();
                     isPhotoOpen = true;
+                    utils.longTapEvent.bind($('.photo-browser')[0]);
+                    e.stopPropagation();
                 });
                 $(document).off('click', '.pb-standalone.sub-item-pic').on('click', '.pb-standalone.sub-item-pic', function () {
                     var index = $(this).attr('index');//当前图片组中查看的图片的索引
@@ -742,6 +750,8 @@
                     });
                     myPhotoBrowserStandalone.open();
                     isPhotoOpen = true;
+                    utils.longTapEvent.bind($('.photo-browser')[0]);
+                    e.stopPropagation();
                 });
                 //上传图片的点击事件
                 $(document).off('click', '.pb-standalone.detail-cmt-pic').on('click', '.pb-standalone.detail-cmt-pic', function () {
@@ -766,6 +776,8 @@
                     });
                     myPhotoBrowserStandalone.open();
                     isPhotoOpen = true;
+                    utils.longTapEvent.bind($('.photo-browser')[0]);
+                    e.stopPropagation();
                 });
                 //评论中的图片点击事件
                 $(document).off('click', '.pb-standalone.detail-cmted-pic').on('click', '.pb-standalone.detail-cmted-pic', function () {
@@ -791,6 +803,8 @@
                     });
                     myPhotoBrowserStandalone.open();
                     isPhotoOpen = true;
+                    utils.longTapEvent.bind($('.photo-browser')[0]);
+                    e.stopPropagation();
                 });
                 //上传图片事件
                 $(document).off('change', '.handover-detail .add-pic').on('change', '.handover-detail .add-pic', function () {

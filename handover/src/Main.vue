@@ -324,9 +324,11 @@
     .pages {
         position: relative;
         width: 100%;
+        max-width: 640px;
         height: 100%;
         overflow: hidden;
         background: #f4f4f4;
+        max-width: 640px;
     }
 
     .page {
