@@ -2,8 +2,8 @@
   <div class="page-group" :transition="transitionName">
     <div class="page page-current" id="index">
       <header class="bar bar-nav">
-        <span class="pull-left icon-back"></span>
-        <h1 class='title' v-on:click="backTo()" v-i18n="{value:'selectdevice'}"></h1>
+        <h1 class='title' v-i18n="{value:'selectdevice'}"></h1>
+        <span class="pull-left icon-back" v-on:click="backTo()"></span>
       </header>
       <div id="shopListContent" class="content content-items">
         <div class="items-list">
@@ -45,9 +45,6 @@
     methods:{
       init:function(){
           this.getData();
-      },
-      fdfd:function(){
-        $.alert("fg");
       },
       backTo: function () {
         var curPathName = Constant.curRoute.pathName;

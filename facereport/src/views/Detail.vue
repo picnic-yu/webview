@@ -2,8 +2,8 @@
   <div class="page-group" :transition="transitionName">
     <div class="page page-current" id="index">
       <header class="bar bar-nav">
-        <span class="pull-left icon-back"></span>
-        <h1 class='title' v-on:click="backTo()" v-i18n="{value:'facedata'}"></h1>
+        <h1 class='title' v-i18n="{value:'facedata'}"></h1>
+        <span class="pull-left icon-back" v-on:click="backTo()"></span>
       </header>
       <div class="top-panel">
         <label class="date-time">{{search.startTime}}</label>
