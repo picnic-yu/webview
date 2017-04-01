@@ -41,12 +41,13 @@ module.exports.setBackPath = function(name,params){
  * @param reregist 是否是注册页面
  * @param title 操作表标题
  */
+var v = require('vue');
 module.exports.showDevOptList = function(comp,device,reregist,title){
   var btns = [{
     text:title,
     label:true
   },{
-    text:'查看设备',
+    text:v.prototype.$translate('showdevice'),
     bold:true,
     onClick:function(){
       if(reregist){
@@ -61,14 +62,16 @@ module.exports.showDevOptList = function(comp,device,reregist,title){
   }];
   if(device.version != device.latestVersion){
     btns.push({
-      text:'升级设备',
+      text:v.prototype.$translate('upgradedevice'),
       bold:true,
       color:'danger',
       disabled:device.online?false:true,
       close:device.online?true:false,
       onClick:function(){
         if(device.online){//dms在线才能升级
-          $.confirm('确认把设备升级到最新版本吗？',function(){
+            $.modal.prototype.defaults.modalButtonOk = v.prototype.$translate('ok');
+            $.modal.prototype.defaults.modalButtonCancel = v.prototype.$translate('cancel');
+          $.confirm(v.prototype.$translate('upgradetolast'),function(){
             comp.upgrade(device);
           });
         }
@@ -77,7 +80,7 @@ module.exports.showDevOptList = function(comp,device,reregist,title){
   }
   if(device.dType == 2 || device.dType == 4 || device.dType == 6 || device.dType == 8){//NVR、客流盒子、热点盒子、智能板卡
     btns.push({
-      text:'设备关联',
+      text:v.prototype.$translate('devicelink'),
       bold:true,
       disabled:device.online?false:true,
       close:device.online?true:false,
@@ -92,14 +95,16 @@ module.exports.showDevOptList = function(comp,device,reregist,title){
   }
   if(device.pId){
     btns.push({
-      text:'解除关联',
+      text:v.prototype.$translate('deviceunlink'),
       bold:true,
       color:'danger',
       disabled:device.online?false:true,
       close:device.online?true:false,
       onClick:function(){
         if(device.online){
-          $.confirm('确认解除关联吗？',function(){
+            $.modal.prototype.defaults.modalButtonOk = this.$translate("ok");
+            $.modal.prototype.defaults.modalButtonCancel = this.$translate("cancel");
+          $.confirm(v.prototype.$translate('confirmunlinkdevice'),function(){
             comp.unReletaDevice(device);
           });
         }
@@ -108,14 +113,14 @@ module.exports.showDevOptList = function(comp,device,reregist,title){
   }
   if(device.dType == 7){//PC4支持直接客流配置
     btns.push({
-      text:'客流配置',
+      text:v.prototype.$translate('customerflowconfig'),
       bold:true,
       disabled:device.online?false:true,
       close:device.online?true:false,
       onClick:function(){
         if(device.online){
           //TODO
-          $.toast('即将开放');
+          $.toast(v.prototype.$translate('willopen'));
         }
       }
     });
@@ -124,7 +129,7 @@ module.exports.showDevOptList = function(comp,device,reregist,title){
   groups.push(btns);
   if(reregist){
     groups.push([{
-      text:'继续注册',
+      text:v.prototype.$translate('continueregist'),
       bold:true,
       onClick:function(){
         Constant.devRegist.mac = '';
@@ -133,7 +138,7 @@ module.exports.showDevOptList = function(comp,device,reregist,title){
     }]);
   }else{
     groups.push([{
-      text:'取消',
+      text:v.prototype.$translate('cancel'),
       bg:'danger',
       onClick:function(){
 
@@ -143,7 +148,7 @@ module.exports.showDevOptList = function(comp,device,reregist,title){
   $.actions(groups);
 };
 var goDeviceList = function(){
-  window.location.href = 'devices.html?token='+Constant.token+'&name='+encodeURIComponent(Constant.shopInfo.name)+'&id='+Constant.shopInfo.id+'&mac='+Constant.search.mac+"&source="+Constant.source;
+  window.location.href = 'devices.html?token='+Constant.token+'&name='+encodeURIComponent(Constant.shopInfo.name)+'&id='+Constant.shopInfo.id+'&mac='+Constant.search.mac+"&source="+Constant.source+"&lang="+Constant.language;
 };
 module.exports.goDeviceList = goDeviceList;
 /**
@@ -151,9 +156,9 @@ module.exports.goDeviceList = goDeviceList;
  */
 var goDeviceRegist = function(){
   if(Constant.source == 1){
-    window.location.href = 'index.html?token='+Constant.token+'&name='+encodeURIComponent(Constant.shopInfo.name)+'&id='+Constant.shopInfo.id+"&source="+Constant.source+"#!/step2";
+    window.location.href = 'index.html?token='+Constant.token+'&name='+encodeURIComponent(Constant.shopInfo.name)+'&lang='+Constant.language+'&id='+Constant.shopInfo.id+"&source="+Constant.source+"#!/step2";
   }else{
-    window.location.href = 'index.html?token='+Constant.token+'&name='+encodeURIComponent(Constant.shopInfo.name)+'&id='+Constant.shopInfo.id+"&source="+Constant.source;
+    window.location.href = 'index.html?token='+Constant.token+'&name='+encodeURIComponent(Constant.shopInfo.name)+'&lang='+Constant.language+'&id='+Constant.shopInfo.id+"&source="+Constant.source;
   }
 };
 module.exports.goDeviceRegist = goDeviceRegist;

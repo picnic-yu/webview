@@ -30,5 +30,6 @@ module.exports = {
     pwd:'',
     dType:''
   },
-  source:''//空为webviewurl来自于未选择门店时候的跳转，1来自于门店界面的注册的跳转
+  source:'',//空为webviewurl来自于未选择门店时候的跳转，1来自于门店界面的注册的跳转
+  language:''
 };

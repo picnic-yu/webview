@@ -2,9 +2,10 @@
     <div class="page-group">
         <div class="page page-current" id="index">
             <header class="bar bar-nav">
-                <h1 class='title'>工程归档</h1>
+                <h1 class='title' v-i18n="{value:'projectfile'}"></h1>
                 <a class="right-menu" v-on:click="toggleEdit()" v-if="hasPrivilege" v-bind:class="editStatus?'red':''">{{optName}}</a>
-                <a class="right-menu export-btn" v-on:click="exportExcel()" v-if="hasExportBtn">导出</a>
+                <a class="right-menu export-btn" v-on:click="exportExcel()" v-if="hasExportBtn" v-i18n="{value:'export'}"></a>
+                <span class="pull-left icon-back" onclick="goBack()"></span>
             </header>
             <div class="content">
                 <form id="f1"  method="post"  target="tmpframe" enctype="multipart/form-data">
@@ -46,11 +47,11 @@
                                                     <div  class="search-shop-tip search-shop-tip-{{childType.id}}">{{childType.descript?childType.descript:'添加描述'}}</div>
                                                     <textarea class="text-area textarea-{{childType.id}}"
                                                               v-on:click="showTextArea(childType)"
-                                                              v-model="childType.desCopy" placeholder="添加描述"></textarea>
+                                                              v-model="childType.desCopy" v-i18n.placeholder="{value:'adddesc'}"></textarea>
                                                     <div class="btn-panel" v-show="childType.showTextArea">
                                                         <span v-bind:class="childType.desCopy&&childType.desCopy.length>100?'red':''">{{childType.desCopy?childType.desCopy.length:0}}</span>/<span>100</span>
-                                                        <p  class="submit-panel submit-panel-small pull-right"><a class="button button-fill  button-orange"  v-on:click="submitTextArea(childType)" v-bind:class="">提交</a></p>
-                                                        <p  class="submit-panel submit-panel-small pull-right"><a class="button button-fill  button-light"  v-on:click="hideTextArea(childType)" v-bind:class="">取消</a></p>
+                                                        <p  class="submit-panel submit-panel-small pull-right"><a class="button button-fill  button-orange"  v-on:click="submitTextArea(childType)" v-bind:class="" v-i18n="{value:'submit'}"></a></p>
+                                                        <p  class="submit-panel submit-panel-small pull-right"><a class="button button-fill  button-light"  v-on:click="hideTextArea(childType)" v-bind:class="" v-i18n="{value:'cancel'}"></a></p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -63,7 +64,7 @@
                 </ul>
                 <div>
                     <div class="item-step2 item-form" v-show="types.length>0">
-                        <h2 class="content-title">联系方式</h2>
+                        <h2 class="content-title" v-i18n="{value:'phone'}"></h2>
                         <div class="content-panel">
                             <div class="list-block">
                                 <form action="javascript:void(0);">
@@ -71,8 +72,8 @@
                                         <li>
                                             <div class="item-content">
                                                 <div class="item-inner">
-                                                    <div class="item-title label">安装人员</div>
-                                                    <div class="item-input"><input type="text" v-model="baseInfo.builder" placeholder="请输入现场施工人员的称呼" maxlength="30"/></div>
+                                                    <div class="item-title label" v-i18n="{value:'installpeople'}"></div>
+                                                    <div class="item-input"><input type="text" v-model="baseInfo.builder" v-i18n.placeholder="{value:'inputinstaller'}" maxlength="30"/></div>
                                                     *
                                                 </div>
                                             </div>
@@ -80,8 +81,8 @@
                                         <li>
                                             <div class="item-content">
                                                 <div class="item-inner">
-                                                    <div class="item-title label">工人电话</div>
-                                                    <div class="item-input"><input type="tel" placeholder="请输入施工人员的联系方式" v-model="baseInfo.builderPhone" maxlength="30"/></div>
+                                                    <div class="item-title label" v-i18n="{value:'installerphone'}"></div>
+                                                    <div class="item-input"><input type="tel" v-i18n.placeholder="{value:'inputinstallerphone'}" v-model="baseInfo.builderPhone" maxlength="30"/></div>
                                                     *
                                                 </div>
                                             </div>
@@ -89,8 +90,8 @@
                                         <li>
                                             <div class="item-content">
                                                 <div class="item-inner">
-                                                    <div class="item-title label">安装日期</div>
-                                                    <div class="item-input"><input type="text" id="buildTime" placeholder="请选择施工日期" v-model="baseInfo.builderTimeStr" readonly/></div>
+                                                    <div class="item-title label" v-i18n="{value:'installerdate'}"></div>
+                                                    <div class="item-input"><input type="text" id="buildTime" v-i18n.placeholder="{value:'selectinstallerdate'}" v-model="baseInfo.builderTimeStr" readonly/></div>
                                                     *
                                                 </div>
                                             </div>
@@ -98,8 +99,8 @@
                                         <li>
                                             <div class="item-content">
                                                 <div class="item-inner">
-                                                    <div class="item-title label">门店电话</div>
-                                                    <div class="item-input"><input type="tel" placeholder="请输入施工门店的联系方式" v-model="baseInfo.deptPhone" maxlength="30"/></div>
+                                                    <div class="item-title label" v-i18n="{value:'storephone'}"></div>
+                                                    <div class="item-input"><input type="tel" v-i18n.placeholder="{value:'inputstorephone'}" v-model="baseInfo.deptPhone" maxlength="30"/></div>
                                                     *
                                                 </div>
                                             </div>
@@ -108,7 +109,7 @@
                             </div>
                             <p class="submit-panel submit-baseinfo"><a class="button button-fill  button-orange"
                                                                        v-on:click="submitBaseInfo()"
-                                                                       v-bind:class="doing?'disabled':''">提交</a></p>
+                                                                       v-bind:class="doing?'disabled':''" v-i18n="{value:'submit'}"></a></p>
                         </div>
                     </div>
                 </div>
@@ -149,7 +150,7 @@
                 editStatus:false,
                 hasPrivilege:false,
                 hasExportBtn: false,
-                optName: '删除',
+                optName: this.$translate('delete'),
                 curTypeId:-1,//当前上传的图片的类型
                 pics:[],
                 types:[],
@@ -189,11 +190,15 @@
             init: function () {
                 this.shopInfo = Constant.shopInfo;
                 if(!this.shopInfo.id){
-                    $.toast('请选择一个门店');
+                    $.toast(this.$translate('selectonestore'));
                     return;
                 }
                 $('#buildTime').calendar({
                     maxDate:commonutils.formatDateTime(new Date(),1).replace(/-/g,'/'),
+                    monthNames: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+                    monthNamesShort: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+                    dayNames: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
+                    dayNamesShort: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')]
                 });
                 this.getTypes();
                 this.getBaseInfo();
@@ -237,12 +242,12 @@
                     for (var i = 0; i < fileNum; i++) {
                         var file = this.files[i];
                         if (file.size > 1024 * 1024 * 10) {
-                            $.toast('图片大小不能超过10M');
+                            $.toast(this.$translate('picnotbigthan10m'));
                             break;
                         }
                         var reader = new FileReader();
                         reader.readAsDataURL(file);
-                        $.showPreloader('正在上传...');
+                        $.showPreloader(this.$translate('uploading'));
                         reader.onload = function () {
                             successNum++;
                             if (successNum == fileNum) {
@@ -304,7 +309,7 @@
                             _this.resetSeq();
                             setTimeout(_this.bind,1000);
                         }else{
-                            $.toast('获取服务器数据异常');
+                            $.toast(this.$translate('getdataerror'));
                             _this.hasPrivilege = false;
                         }
                     }else{
@@ -330,7 +335,7 @@
                     return;
                 }
                 if (childType.desCopy.length > 100) {
-                    $.toast('描述字数太多了');
+                    $.toast(this.$translate('descnumtoomany'));
                     return;
                 }
                 var _this = this;
@@ -342,7 +347,7 @@
                     typeId:childType.id
                 }).then(function(ret){
                     if(ret.data.result == 'ok'){
-                        $.toast('添加描述成功',true);
+                        $.toast(this.$translate('adddescsucc'),true);
                         _this.hideTextArea(childType);
                         childType.descript = childType.desCopy;
                         setTimeout(function(){
@@ -353,25 +358,25 @@
                             }
                         },500);
                     }else{_this.submit(_file,item);
-                        $.toast('添加描述失败');
+                        $.toast(this.$translate('adddescfail'));
                     }
                 });
             },
             submitBaseInfo:function(){
                 if(!this.baseInfo.builder){
-                    $.toast("请输入施工人员称呼");
+                    $.toast(this.$translate('addinstallername'));
                     return;
                 }
                 if(!this.baseInfo.builderPhone){
-                    $.toast("请输入施工人员联系方式");
+                    $.toast(this.$translate('addinstallerphone'));
                     return;
                 }
                 if(!this.baseInfo.builderTimeStr){
-                    $.toast("请选择施工日期");
+                    $.toast(this.$translate('addinstallerdate'));
                     return;
                 }
                 if(!this.baseInfo.deptPhone){
-                    $.toast("请输入施工门店联系方式");
+                    $.toast(this.$translate('addstorephone'));
                     return;
                 }
                 this.$http.post('/service/saveOrUpdateDeptAttachInfo.action?token='+Constant.token,{
@@ -383,10 +388,10 @@
                     deptPhone:this.baseInfo.deptPhone
                 }).then(function(ret){
                     if(ret.data.result == 'ok'){
-                        $.toast('提交成功');
+                        $.toast(this.$translate('submitsuccess'));
                         $('.submit-baseinfo').hide();
                     }else{
-                        $.toast('提交失败');
+                        $.toast(this.$translate('submitfailed'));
                     }
                 });
             },
@@ -400,7 +405,7 @@
                         $.hidePreloader();
                         var res = JSON.parse(oXHR.response);
                         if(res.result == "ok"){
-                            $.toast('上传成功');
+                            $.toast(this.$translate('uploadsuccess'));
                             for (var i = 0; i < res.data.data.length; i++) {
                                 item.attachments.push(res.data.data[i]);
                             }
@@ -410,7 +415,7 @@
                     }, false);
                     oXHR.addEventListener('error', function(){
                         $.hidePreloader();
-                        $.toast('上传失败');
+                        $.toast(this.$translate('uploadfailed'));
                     }, false);
                     oXHR.addEventListener('abort', function(){
                         $.hidePreloader();
@@ -432,20 +437,20 @@
                     imageId:id
                 }).then(function(ret){
                     if(ret.data.result == 'ok'){
-                        $.toast('删除成功');
+                        $.toast(this.$translate('deletesuccess'));
                         childType.attachments.splice(index,1);
                         _this.resetSeq();
                     }else{
-                        $.toast('删除失败');
+                        $.toast(this.$translate('deletefailed'));
                     }
                 });
             },
             toggleEdit:function(){
                 this.editStatus = !this.editStatus;
                 if(this.editStatus){
-                    this.optName = '完成';
+                    this.optName = this.$translate('finish');
                 }else{
-                    this.optName = '删除';
+                    this.optName = this.$translate('delete');
                 }
             },
             /**
@@ -506,13 +511,13 @@
             success:function(){
                 var _this = this;
                 $.actions([[{
-                    text:'继续上传',
+                    text:this.$translate('uploadcontinue'),
                     bold:true,
                     onClick:function(){
                         _this.clearData();
                     }
                 }],[{
-                    text:'归档完成',
+                    text:this.$translate('projectfinish'),
                     bold:true,
                     bg:'danger',
                     onClick:function(){

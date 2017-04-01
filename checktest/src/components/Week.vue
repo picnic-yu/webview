@@ -1,9 +1,9 @@
 <template>
     <div class="popup popup-week">
         <header class="bar bar-nav">
-                <button class="button pull-left cancel-button" v-on:click="close()">取消</button>
-                <button class="button pull-right submit-button" v-on:click="submit()">确定</button>
-                <h1 class='title'>周</h1>
+                <button class="button pull-left cancel-button" v-on:click="close()" v-i18n="{value:'cancelBtn'}">取消</button>
+                <button class="button pull-right submit-button" v-on:click="submit()" v-i18n="{value:'sure'}">确定</button>
+                <h1 class='title' v-i18n="{value:'week'}"></h1>
         </header>
         <div class="content" id="weekListContent">
             <div class="week-list items-list">
@@ -21,13 +21,13 @@
     module.exports = {
         data: function () {
             return {
-                weeks:[{id:2,name:'周一',checked:false},
-                {id:3,name:'周二',checked:false},
-                {id:4,name:'周三',checked:false},
-                {id:5,name:'周四',checked:false},
-                {id:6,name:'周五',checked:false},
-                {id:7,name:'周六',checked:false},
-                {id:1,name:'周日',checked:false}],
+                weeks:[{id:2,name:this.$translate("monday"),checked:false},
+                {id:3,name:this.$translate("tuesday"),checked:false},
+                {id:4,name:this.$translate("wednesday"),checked:false},
+                {id:5,name:this.$translate("thursday"),checked:false},
+                {id:6,name:this.$translate("friday"),checked:false},
+                {id:7,name:this.$translate("saturday"),checked:false},
+                {id:1,name:this.$translate("sunday"),checked:false}],
                 selectWeeks:[],
                 selectweekscopy:[]
             };

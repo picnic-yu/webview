@@ -1,7 +1,7 @@
 <template>
     <div class="popup popup-deviceinfo">
         <header class="bar bar-nav">
-            <h1 class='title'>设备详情</h1>
+            <h1 class='title' v-i18n="{value:'devicedetail'}"></h1>
         </header>
         <div class="content ">
             <div class="list-block">
@@ -9,7 +9,7 @@
                         <li>
                             <div class="item-content">
                                 <div class="item-inner">
-                                    <div class="item-title label">设备名称</div>
+                                    <div class="item-title label" v-i18n="{value:'devname'}"></div>
                                     <div class="item-input"><span class="item-input-span">{{device.deviceName}}</span></div>
                                 </div>
                             </div>
@@ -17,7 +17,7 @@
                         <li>
                             <div class="item-content">
                                 <div class="item-inner">
-                                    <div class="item-title label">设备类型</div>
+                                    <div class="item-title label" v-i18n="{value:'devtype'}"></div>
                                     <div class="item-input"><span class="item-input-span">{{device.deviceType}}</span></div>
                                 </div>
                             </div>
@@ -25,7 +25,7 @@
                         <li>
                             <div class="item-content">
                                 <div class="item-inner">
-                                    <div class="item-title label">设备版本</div>
+                                    <div class="item-title label" v-i18n="{value:'deviceversion'}"></div>
                                     <div class="item-input"><span class="item-input-span">{{device.version}}</span></div>
                                 </div>
                             </div>
@@ -33,7 +33,7 @@
                         <li>
                             <div class="item-content">
                                 <div class="item-inner">
-                                    <div class="item-title label">IP地址</div>
+                                    <div class="item-title label" v-i18n="{value:'ipaddress'}"></div>
                                     <div class="item-input"><span class="item-input-span">{{device.deviceIp}}</span></div>
                                 </div>
                             </div>
@@ -41,16 +41,16 @@
                         <li>
                             <div class="item-content">
                                 <div class="item-inner">
-                                    <div class="item-title label">视频状态</div>
-                                    <div class="item-input"><span class="item-input-span" v-bind:class="device.onlineOnPlatform?'':'red'">{{device.onlineOnPlatform?'在线':'不在线'}}</span></div>
+                                    <div class="item-title label" v-i18n="{value:'videostatus'}"></div>
+                                    <div class="item-input"><span class="item-input-span" v-bind:class="device.onlineOnPlatform?'':'red'">{{device.onlineOnPlatform|filteronline}}</span></div>
                                 </div>
                             </div>
                         </li>
                         <li>
                             <div class="item-content">
                                 <div class="item-inner">
-                                    <div class="item-title label">网管状态</div>
-                                    <div class="item-input"><span class="item-input-span" v-bind:class="device.online?'':'red'">{{device.online?'在线':'不在线'}}</span></div>
+                                    <div class="item-title label" v-i18n="{value:'netstatus'}"></div>
+                                    <div class="item-input"><span class="item-input-span" v-bind:class="device.online?'':'red'">{{device.online|filteronline}}</span></div>
                                 </div>
                             </div>
                         </li>
@@ -66,7 +66,7 @@
             </div>
         </div>
         <div class="bottom">
-            <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="close()">确定</a></p>
+            <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="close()" v-i18n="{value:'ok'}"></a></p>
         </div>
         </div>
     </div>
@@ -99,6 +99,18 @@
             return {
                 hasInit:false
             };
+        },
+        filters:{
+            /**
+             * 是否在线
+             */
+            filteronline:function(value){
+                if(value){
+                    return this.$translate('online');
+                }else{
+                    return this.$translate('unline');
+                }
+            }
         },
         events:{
             'popup':function(param){

@@ -1,8 +1,8 @@
 <template>
     <div class="popup popup-detail">
         <header class="bar bar-nav">
-                <button class="button pull-left cancel-button" v-on:click="close()">返回</button>
-                <h1 class='title'>点检任务配置</h1>
+                <button class="button pull-left cancel-button" v-on:click="close()" v-i18n="{value:'cancelBtn'}"></button>
+                <h1 class='title' v-i18n="{value:'checktaskconfig'}"></h1>
         </header>
         <div class="content">
             <div class="list-block">
@@ -10,9 +10,9 @@
                         <li>
                             <div class="item-content">
                                 <div class="item-inner">
-                                    <div class="item-title label">任务名称</div>
+                                    <div class="item-title label" v-i18n="{value:'taskname'}"></div>
                                     <div class="item-input">
-                                        <input type="text" placeholder="请输入任务名称" v-model="taskName"/>
+                                        <input type="text" v-i18n.placeholder="{value:'pleaseinputtaskname'}" v-model="taskName"/>
                                     </div>
                                 </div>
                             </div>
@@ -20,11 +20,11 @@
                         <li>
                             <div class="item-content">
                                 <div class="item-inner">
-                                    <div class="item-title label">任务周期</div>
+                                    <div class="item-title label" v-i18n="{value:'taskweek'}"></div>
                                     <div class="item-input">
-                                        <select id="execute" v-on:change="selectExecute()">
-                                            <option value=1>周</option>
-                                            <option value=2>月</option>
+                                        <select id="execute" v-on:change="selectExecute()" style="-webkit-appearance: none;">
+                                            <option value=1 v-i18n="{value:'week'}"></option>
+                                            <option value=2 v-i18n="{value:'month'}"></option>
                                         </select>
                                     </div>
                                 </div>
@@ -33,12 +33,12 @@
                         <li>
                             <div class="item-content">
                                 <div class="item-inner">
-                                    <div class="item-title label">执行日期</div>
+                                    <div class="item-title label" v-i18n="{value:'executedate'}"></div>
                                     <div class="item-input" v-show="weekCombo">
-                                    <input type="text" placeholder="请选择" v-on:click="selectWeek()" readonly="readonly" v-model="weekDateName"/>
+                                    <input type="text" v-i18n.placeholder="{value:'pleaseselect'}" v-on:click="selectWeek()" readonly="readonly" v-model="weekDateName"/>
                                     </div>
                                     <div class="item-input" v-show="!weekCombo">
-                                    <input type="text" placeholder="请选择" v-on:click="selectMonth()" readonly="readonly" v-model="monthDateName"/>
+                                    <input type="text" v-i18n.placeholder="{value:'pleaseselect'}" v-on:click="selectMonth()" readonly="readonly" v-model="monthDateName"/>
                                     </div>
                                 </div>
                             </div>
@@ -46,7 +46,7 @@
                         <li>
                             <div class="item-content">
                                 <div class="item-inner">
-                                    <div class="item-title label">执行时间</div>
+                                    <div class="item-title label" v-i18n="{value:'executetime'}"></div>
                                     <div class="item-input">
                                     <input type="text" id="timepicker" v-model="exeTime"/>
                                     </div>
@@ -56,9 +56,9 @@
                         <li>
                             <div class="item-content">
                                 <div class="item-inner">
-                                    <div class="item-title label">开始日期</div>
+                                    <div class="item-title label" v-i18n="{value:'startdate'}"></div>
                                     <div class="item-input">
-                                    <input type="text" id="startdate" v-model="startTime" placeholder="请输入开始日期">
+                                    <input type="text" id="startdate" v-model="startTime" v-i18n.placeholder="{value:'inputstartdate'}">
                                     </div>
                                 </div>
                             </div>
@@ -66,9 +66,9 @@
                         <li>
                             <div class="item-content">
                                 <div class="item-inner">
-                                    <div class="item-title label">结束日期</div>
+                                    <div class="item-title label" v-i18n="{value:'enddate'}"></div>
                                     <div class="item-input">
-                                    <input type="text" id="enddate" v-model="endTime" placeholder="请输入结束日期">
+                                    <input type="text" id="enddate" v-model="endTime" v-i18n.placeholder="{value:'inputenddate'}">
                                     </div>
                                 </div>
                             </div>
@@ -76,11 +76,11 @@
                          <li>
                              <div class="item-content">
                                  <div class="item-inner">
-                                     <div class="item-title label">执行类型</div>
+                                     <div class="item-title label" v-i18n="{value:'excutetype'}"></div>
                                      <div class="item-input">
                                       <select id="selectType" v-on:change="selectExeType()">
-                                         <option value=1>按点检项</option>
-                                         <option value=0>按场景</option>
+                                         <option value=1 v-i18n="{value:'byevalutionitem'}"></option>
+                                         <option value=0 v-i18n="{value:'byscene'}"></option>
                                       </select>
                                      </div>
                                  </div>
@@ -89,13 +89,13 @@
                          <li>
                               <div class="item-content">
                                   <div class="item-inner" v-show="evalution">
-                                      <div class="item-title label">点检项</div>
+                                      <div class="item-title label" v-i18n="{value:'evalutionitem'}"></div>
                                       <div class="item-input">
                                        <input type="text" readonly="readonly" v-on:click="showEvalution()" v-model="evalName">
                                       </div>
                                   </div>
                                   <div class="item-inner" v-show="!evalution">
-                                        <div class="item-title label">场景</div>
+                                        <div class="item-title label" v-i18n="{value:'scene'}"></div>
                                         <div class="item-input">
                                          <input type="text" readonly="readonly" v-on:click="showScene()" v-model="sceneName">
                                         </div>
@@ -105,9 +105,9 @@
                           <li>
                                   <div class="item-content">
                                       <div class="item-inner">
-                                          <div class="item-title label">门店名称</div>
+                                          <div class="item-title label" v-i18n="{value:'shopname'}"></div>
                                           <div class="item-input">
-                                              <input type="text" v-model="deptName" v-on:click="goToShoplist()"/>
+                                              <input type="text" readonly="readonly" v-model="deptName" v-on:click="goToShoplist()"/>
                                           </div>
                                       </div>
                                   </div>
@@ -115,9 +115,9 @@
                            <li>
                                  <div class="item-content">
                                      <div class="item-inner">
-                                         <div class="item-title label">点检人</div>
+                                         <div class="item-title label" v-i18n="{value:'checker'}"></div>
                                          <div class="item-input">
-                                             <input type="text" v-model="checkerName" v-on:click="goToCheckerlist()"/>
+                                             <input type="text" readonly="readonly" v-model="checkerName" v-on:click="goToCheckerlist()"/>
                                          </div>
                                      </div>
                                  </div>
@@ -125,19 +125,29 @@
                             <li>
                                  <div class="item-content">
                                      <div class="item-inner">
-                                         <div class="item-title label">任务有效天</div>
+                                         <div class="item-title label" v-i18n="{value:'taskvalidday'}"></div>
                                          <div class="item-input">
                                              <input type="text" v-model="invalidDays"/>
                                          </div>
                                      </div>
                                  </div>
                             </li>
+                            <li>
+                                <div class="item-content">
+                                    <div class="item-inner" style="color:#333;">
+                                        <div class="item-title label" v-i18n="{value:'gotocapture'}"></div>
+                                        <div class="item-input" v-on:click="selectCapture()">
+                                            <span class="item-icon" v-bind:class="isCapture==1?'icon-square-check':'icon-square'"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
                     </ul>
             </div>
         </div>
         <div class="bottom">
-            <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="submitData()">确定</a></p>
-            <p class="submit-panel" v-show="deleteflag"><a class="button button-fill  button-ccc"  v-on:click="deleteData()">删除</a></p
+            <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="submitData()" v-i18n="{value:'sure'}"></a></p>
+            <p class="submit-panel" v-show="deleteflag"><a class="button button-fill  button-ccc"  v-on:click="deleteData()" v-i18n="{value:'delete'}"></a></p
         </div>
     </div>
     <checker></checker>
@@ -149,6 +159,7 @@
 </template>
 <script>
     var utils = require('../utils');
+    var commonutils = require('../../../common/assets/js/commonutils');
     module.exports = {
         data: function () {
             return {
@@ -166,7 +177,7 @@
                 selectscenes:[],
                 sceneName:'',
                 deleteflag:true,
-                exeTime:'9:0',
+                exeTime:'09:00',
                 startTime:'',
                 endTime:'',
                 selectdepts:[],
@@ -174,6 +185,7 @@
                 selectchecker:[],
                 checkerName:'',
                 invalidDays:'',
+                isCapture:0,
                 status:'',
                 doing:false,
                 taskName:''
@@ -229,6 +241,7 @@
                          this.evalName = this.evalName + ',';
                      }
                  }
+                 this.setValidData();
              },
               'scene':function(param){
                   this.selectscenes = [];
@@ -240,6 +253,7 @@
                           this.sceneName = this.sceneName + ',';
                       }
                   }
+                  this.setValidData();
               },
               'dept':function(param){
                     this.selectdepts = [];
@@ -251,6 +265,7 @@
                             this.deptName = this.deptName + ',';
                         }
                     }
+                    this.setValidData();
               },
               'checker':function(param){
                       this.selectchecker = [];
@@ -279,14 +294,22 @@
                 //定义执行时间
                 var hours = [];
                 for(var i=0;i<24;i++){
-                    hours.push(i);
+                    if(i<10){
+                        hours.push('0'+i);
+                    }else{
+                        hours.push(i);
+                    }
                 }
                 var mins = [];
                 for(var j=0;j<60;j++){
-                    mins.push(j);
+                    if(j<10){
+                        mins.push('0'+j);
+                    }else {
+                        mins.push(j);
+                    }
                 }
                 $("#timepicker").picker({
-                    toolbarTemplate:'<header class="bar bar-nav"><button class="button-link pull-right close-picker">确定</button></header>',
+                    toolbarTemplate:'<header class="bar bar-nav"><button class="button-link pull-right close-picker">'+this.$translate("sure")+'</button></header>',
                     cols:[{
                        textAlign:'center',
                        values:hours
@@ -294,25 +317,192 @@
                        textAlign:'center',
                        values:mins
                     }],
-                    value:["9","0"],
+                    value:["09","00"],
                     formatValue:function(picker,value,displayValue){
                         return value[0]+":"+value[1];
                     }
                 });
+                var curDate = commonutils.formatDateTime(new Date(), 1);
                 //定义开始日期
-                $("#startdate").calendar();
+                $("#startdate").calendar({
+                    monthNames: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+                    monthNamesShort: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+                    dayNames: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
+                    dayNamesShort: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
+                    minDate:curDate.replace(/-/g,'/')
+                });
                 //定义结束日期
-                $("#enddate").calendar();
+                $("#enddate").calendar({
+                    monthNames: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+                    monthNamesShort: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+                    dayNames: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
+                    dayNamesShort: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
+                    minDate:curDate.replace(/-/g,'/')
+                });
             },
             clearData:function(){
                 this.record = {};
                 this.recordCopy = {};
             },
+            //Check department has storer and has config scene or evalution
+            setValidData:function(){
+                var depstr="";
+                if(this.selectdepts){
+                    for(var i=0;i<this.selectdepts.length;i++){
+                        depstr = depstr + this.selectdepts[i].id;
+                        if(i<this.selectdepts.length-1){
+                            depstr+=",";
+                        }
+                    }
+                }
+                //Evalution
+                if($("#selectType").val()==1){
+                    var checkitemstr = "";
+                    if(this.selectevals){
+                        for(var i=0;i<this.selectevals.length;i++){
+                            checkitemstr = checkitemstr + this.selectevals[i].id;
+                            if(i<this.selectevals.length-1){
+                                checkitemstr+=",";
+                            }
+                        }
+                    }
+                    //必须两个同时选择后才去判断
+                    if(checkitemstr && depstr){
+                        this.$http.post('/ajax/checkDeptHasDbViewShop.action?token='+Constant.token,{
+                            dbViewShopIds:checkitemstr,
+                            deptIds:depstr
+                        }).then(function(ret){
+                            if(ret.ok && ret.data && ret.data.result == 'ok'){
+                                var alertstr = "";
+                                //有门店没有配置点检项
+                                if(ret.data.data.hasExist){
+                                    var shops = ret.data.data.data;
+                                    if(shops&&shops.length>0){
+                                        var shopstr="";
+                                        for(var i=0;i<shops.length;i++){
+                                            for(var j=0;j<this.selectdepts.length;j++){
+                                                if(this.selectdepts[j].id==shops[i].id){
+                                                    this.selectdepts.splice(j,1);
+                                                    break;
+                                                }
+                                            }
+                                            shopstr = shopstr + shops[i].name;
+                                            if(i<shops.length-1){
+                                                shopstr = shopstr + ",";
+                                            }
+                                        }
+                                        alertstr = this.$translate("shopnotrelatealert")+shopstr+"<br>";
+                                    }
+                                }
+                                if(ret.data.data.hasManager){
+                                    var shops = ret.data.data.depts;
+                                    if(shops&&shops.length>0){
+                                        var shopstr="";
+                                        for(var i=0;i<shops.length;i++){
+                                            for(var j=0;j<this.selectdepts.length;j++){
+                                                if(this.selectdepts[j].id==shops[i].id){
+                                                    this.selectdepts.splice(j,1);
+                                                    break;
+                                                }
+                                            }
+                                            shopstr = shopstr + shops[i].name;
+                                            if(i<shops.length-1){
+                                                shopstr = shopstr + ",";
+                                            }
+                                        }
+                                        alertstr = alertstr + this.$translate("shophasnostorer")+shopstr;
+                                    }
+                                }
+                                if(alertstr){
+                                    this.deptName = "";
+                                    for(var i=0;i<this.selectdepts.length;i++){
+                                        this.deptName = this.deptName + this.selectdepts[i].name;
+                                        if(i<this.selectdepts.length-1){
+                                            this.deptName = this.deptName + ',';
+                                        }
+                                    }
+                                    $.alert(alertstr);
+                                }
+                            }
+                        });
+                    }
+                }else{
+                    var presetitemstr = "";
+                    if(this.selectscenes){
+                        for(var i=0;i<this.selectscenes.length;i++){
+                            presetitemstr = presetitemstr + this.selectscenes[i].preId;
+                            if(i<this.selectscenes.length-1){
+                                presetitemstr+=",";
+                            }
+                        }
+                    }
+                    //必须两个同时选择后才去判断
+                    if(presetitemstr && depstr){
+                        this.$http.post('/ajax/checkDeptHasScene.action?token='+Constant.token,{
+                            sceneNos:presetitemstr,
+                            deptIds:depstr
+                        }).then(function(ret){
+                            if(ret.ok && ret.data && ret.data.result == 'ok'){
+                                var alertstr = "";
+                                //有门店没有配置点检项
+                                if(ret.data.data.hasExist){
+                                    var shops = ret.data.data.data;
+                                    if(shops&&shops.length>0){
+                                        var shopstr="";
+                                        for(var i=0;i<shops.length;i++){
+                                            for(var j=0;j<this.selectdepts.length;j++){
+                                                if(this.selectdepts[j].id==shops[i].id){
+                                                    this.selectdepts.splice(j,1);
+                                                    break;
+                                                }
+                                            }
+                                            shopstr = shopstr + shops[i].name;
+                                            if(i<shops.length-1){
+                                                shopstr = shopstr + ",";
+                                            }
+                                        }
+                                        alertstr = this.$translate("shophasnoscene")+shopstr+"<br>";
+                                    }
+                                }
+                                if(ret.data.data.hasManager){
+                                    var shops = ret.data.data.depts;
+                                    if(shops&&shops.length>0){
+                                        var shopstr="";
+                                        for(var i=0;i<shops.length;i++){
+                                            for(var j=0;j<this.selectdepts.length;j++){
+                                                if(this.selectdepts[j].id==shops[i].id){
+                                                    this.selectdepts.splice(j,1);
+                                                    break;
+                                                }
+                                            }
+                                            shopstr = shopstr + shops[i].name;
+                                            if(i<shops.length-1){
+                                                shopstr = shopstr + ",";
+                                            }
+                                        }
+                                        alertstr = alertstr + this.$translate("shophasnostorer")+shopstr;
+                                    }
+                                }
+                                if(alertstr){
+                                    this.deptName = "";
+                                    for(var i=0;i<this.selectdepts.length;i++){
+                                        this.deptName = this.deptName + this.selectdepts[i].name;
+                                        if(i<this.selectdepts.length-1){
+                                            this.deptName = this.deptName + ',';
+                                        }
+                                    }
+                                    $.alert(alertstr);
+                                }
+                            }
+                        });
+                    }
+                }
+            },
             submitData:function(){
                 if(this.doing) return;
 
                 if(!this.taskName){
-                    $.toast("请输入任务名称");
+                    $.toast(this.$translate("pleaseinputtaskname"));
                     return;
                 }
 
@@ -324,11 +514,11 @@
                 cron = this.monthDateName;
                 }
                 if(!cron){
-                    $.toast("请选择执行日期");
+                    $.toast(this.$translate("pleaseselectexcutedate"));
                     return;
                 }
                 if(!this.exeTime){
-                    $.toast("请选择执行时间");
+                    $.toast(this.$translate("pleaseselectexcutetime"));
                     return;
                 }
                 var crons = this.exeTime.split(':');
@@ -339,15 +529,15 @@
                     cronStr = "0 "+crons[1]+" "+crons[0]+" "+cron + " * ?";
                 }
                 if(!this.startTime){
-                    $.toast("请选择开始日期");
+                    $.toast(this.$translate("pleaseselectstartdate"));
                     return;
                 }
                 if(!this.endTime){
-                    $.toast("请选择结束日期");
+                    $.toast(this.$translate("pleaseselectenddate"));
                     return;
                 }
                 if(this.startTime>this.endTime){
-                    $.toast("开始日期不能大于结束日期");
+                    $.toast(this.$translate("startcannotbigthanend"));
                     return;
                 }
 
@@ -360,7 +550,7 @@
                 }
                 if($("#selectType").val()==1){
                     if(!itemIds){
-                        $.toast("请至少选择一个点检项");
+                        $.toast(this.$translate("selectatleastoneevalute"));
                         return;
                     }
                 }
@@ -374,7 +564,7 @@
                 }
                 if($("#selectType").val()==0){
                     if(!presetNos){
-                        $.toast("请至少选择一个场景");
+                        $.toast(this.$translate("selectatleastonescene"));
                         return;
                     }
                 }
@@ -387,11 +577,11 @@
                     }
                 }
                 if(!depIds){
-                    $.toast("请至少选择一个门店");
+                    $.toast(this.$translate("selectatleastoneshop"));
                     return;
                 }
                 if(!this.selectchecker[0]){
-                    $.toast("请选择一个点检人");
+                    $.toast(this.$translate("selectonechecker"));
                     return;
                 }
 
@@ -401,11 +591,11 @@
                 //非负整数
                 var reg = /^\+?[1-9][0-9]*$/;
                 if(!reg.test(this.invalidDays)){
-                    $.toast("请输入合法的有效天,范围1～30不能为小数");
+                    $.toast(this.$translate("validdaynotformat"));
                     return;
                 }
                 if(this.invalidDays<1||this.invalidDays>30){
-                    $.toast("请输入合法的有效天,范围1～30不能为小数");
+                    $.toast(this.$translate("validdaynotformat"));
                     return;
                 }
                 var id = null;
@@ -429,18 +619,26 @@
                         'checktask.presetNos':presetNos,
                         'checktask.dbViewShopIds' : itemIds,
                         'checktask.checker' : this.selectchecker[0].id,
-                        'checktask.validDay':this.invalidDays
+                        'checktask.validDay':this.invalidDays,
+                        'checktask.iscapture':this.isCapture
                 }).then(function(ret){
                     _this.doing = false;
                     if(ret.ok && ret.data && ret.data.result == 'ok'){
-                        $.toast('保存任务成功');
+                        $.toast(this.$translate("savetasksuccess"));
                         _this.closeRefresh();
                     }else if(ret.ok && ret.data && ret.data.result == 'NEVER_FIRED'){
-                        $.toast("此任务永远不会被执行");
+                        $.toast(this.$translate("tasknotbedexcuted"));
                     }else{
-                        $.toast("保存失败");
+                        $.toast(this.$translate("savefailed"));
                     }
                 });
+            },
+            selectCapture:function(){
+                if(this.isCapture==1){
+                    this.isCapture = 0;
+                }else{
+                    this.isCapture = 1;
+                }
             },
             resetRecord:function(){
                 this.taskName = "";
@@ -451,9 +649,9 @@
                 this.weekDateIds = "";
                 this.selectmonths = [];
                 this.monthDateName = "";
-                $("#timepicker").data("picker").params.value = ["9","0"];
-                this.exeTime = "9:0";
-                $("#timepicker").picker("setValue",["9","0"]);
+                $("#timepicker").data("picker").params.value = ["09","00"];
+                this.exeTime = "09:00";
+                $("#timepicker").picker("setValue",["09","00"]);
                 this.startTime = "";
                 this.endTime = "";
                 $("#startdate").data("calendar").setValue([]);
@@ -463,6 +661,7 @@
                 this.selectchecker = [];
                 this.checkerName = "";
                 this.invalidDays = 3;
+                this.isCapture = 0;
                 this.status = 1;
                 this.selectevals=[];
                 this.evalName='';
@@ -483,13 +682,13 @@
                    var weekArr = cronArr[5].split(",");
                    this.weekDateName = "";
                    this.selectweeks = [];
-                   for(var i=0;i<this.$children[3].weeks.length;i++){
-                       this.$children[3].weeks[i].checked=false;
+                   for(var i=0;i<this.$children[2].weeks.length;i++){
+                       this.$children[2].weeks[i].checked=false;
                        for(var j=0;j<weekArr.length;j++){
-                            if(this.$children[3].weeks[i].id==weekArr[j]){
-                                this.weekDateName = this.weekDateName + this.$children[3].weeks[i].name+",";
-                                this.$children[3].weeks[i].checked = true;
-                                this.selectweeks.push(this.$children[3].weeks[i]);
+                            if(this.$children[2].weeks[i].id==weekArr[j]){
+                                this.weekDateName = this.weekDateName + this.$children[2].weeks[i].name+",";
+                                this.$children[2].weeks[i].checked = true;
+                                this.selectweeks.push(this.$children[2].weeks[i]);
                                 break;
                             }
                        }
@@ -499,17 +698,17 @@
                     }
                     this.selectmonths = [];
                     this.monthDateName = "";
-                    for(var i=0;i<this.$children[2].colDates.length;i++){
-                        this.$children[2].colDates[i].display=false;
+                    for(var i=0;i<this.$children[3].colDates.length;i++){
+                        this.$children[3].colDates[i].display=false;
                     }
                 }else if(frequency == 2){
                     this.monthDateName = cronArr[3];
                     this.selectmonths = cronArr[3].split(",");
-                    for(var i=0;i<this.$children[2].colDates.length;i++){
-                        this.$children[2].colDates[i].display=false;
+                    for(var i=0;i<this.$children[3].colDates.length;i++){
+                        this.$children[3].colDates[i].display=false;
                         for(var j=0;j<this.selectmonths.length;j++){
-                            if(this.$children[2].colDates[i].id==this.selectmonths[j]){
-                                this.$children[2].colDates[i].display = true;
+                            if(this.$children[3].colDates[i].id==this.selectmonths[j]){
+                                this.$children[3].colDates[i].display = true;
                                 break;
                             }
                         }
@@ -517,11 +716,16 @@
                     this.selectweeks = [];
                     this.weekDateName = "";
                     this.weekDateIds = "";
-                    for(var i=0;i<this.$children[3].weeks.length;i++){
-                        this.$children[3].weeks[i].display=false;
+                    for(var i=0;i<this.$children[2].weeks.length;i++){
+                        this.$children[2].weeks[i].display=false;
                     }
                 }
-
+                    if(parseInt(cronArr[1])<10){
+                        cronArr[1] = '0'+parseInt(cronArr[1]);
+                    }
+                    if(parseInt(cronArr[2])<10){
+                        cronArr[2] = '0'+parseInt(cronArr[2]);
+                    }
                     $("#timepicker").data("picker").params.value = [cronArr[2],cronArr[1]];
                     this.exeTime = cronArr[2]+":"+cronArr[1];
                     $("#timepicker").picker("setValue",[cronArr[2],cronArr[1]]);
@@ -536,6 +740,7 @@
                     this.selectchecker = [{id:this.record.checker,showName:this.record.checkerName}];
                     this.checkerName = this.record.checkerName;
                     this.invalidDays = this.record.validDay;
+                    this.isCapture = this.record.iscapture;
                     this.status = this.record.isProcessing;
                     var _this = this;
                     this.$http.post('/service/getDeptsAndDbViewShops.action?token='+Constant.token,{
@@ -586,15 +791,17 @@
             },
             deleteData:function(){
                 var _this = this;
-                $.confirm("确认删除该任务吗?",function(){
+                $.modal.prototype.defaults.modalButtonOk = this.$translate("sure");
+                $.modal.prototype.defaults.modalButtonCancel = this.$translate("cancelBtn");
+                    $.confirm(this.$translate("confirmdeletetask"),function(){
                      _this.$http.post('/service/deleteCheckTaskById.action?token='+Constant.token,{
                                          checkTaskId:_this.record.id
                                      }).then(function(ret){
                                          if(ret.ok && ret.data && ret.data.result == 'ok'){
-                                             $.toast('删除成功');
+                                             $.toast(this.$translate("deletesuccess"));
                                              _this.closeRefresh();
                                          }else{
-                                             $.toast("删除失败");
+                                             $.toast(this.$translate("deletefailed"));
                                          }
                      });
                 });

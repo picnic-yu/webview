@@ -2,13 +2,14 @@
     <div class="page-group">
         <div class="page page-current container app" id="index">
             <header class="bar bar-nav">
-                <h1 class='title'>热点数据</h1>
+                <h1 class='title' v-i18n="{value:'hotspotdata'}"></h1>
+                <span class="pull-left icon-back" v-on:click="backTo()"></span>
             </header>
             <div class="top-panel">
                 <div class="search-box search-box-shop" v-on:click="goToShoplist()">
                     <div class="search-box-left"><span class="icon-shop"></span></div>
                     <div class="search-box-right">
-                        <a class="search-shop-tip"  v-show="!shopInfo.id">请选择一个门店</a>
+                        <a class="search-shop-tip"  v-show="!shopInfo.id" v-i18n="{value:'selectdepartment'}"></a>
                         <span class="search-shop"   v-show="shopInfo.id">{{shopInfo.name}}</span>
                     </div>
                 </div>
@@ -17,20 +18,20 @@
                     <div class="search-box-right">
                         <div class="search-time">
                             <div class="timebox">
-                                <label class="date-time">{{search.startTime}}<span class="is-today" v-show="search.startTime|istoday">今天</span></label><br>
-                                <span class="datetime-tip">开始时间</span>
+                                <label class="date-time">{{search.startTime}}<span class="is-today" v-show="search.startTime|istoday" v-i18n="{value:'today'}"></span></label><br>
+                                <span class="datetime-tip" v-i18n="{value:'starttime'}"></span>
                             </div>
                             <div class="to">～</div>
                             <div class="timebox">
-                                <label class="date-time">{{search.endTime}}<span class="is-today" v-show="search.endTime|istoday">今天</span></label><br>
-                                <span class="datetime-tip">结束时间</span>
+                                <label class="date-time">{{search.endTime}}<span class="is-today" v-show="search.endTime|istoday" v-i18n="{value:'today'}"></span></label><br>
+                                <span class="datetime-tip" v-i18n="{value:'endtime'}"></span>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div id="dataContent" class="content content-items">
-                <div class="no-data" v-show="display.nodata">暂无任何热点数据</div>
+                <div class="no-data" v-show="display.nodata" v-i18n="{value:'nohotspotdata'}"></div>
                 <!--<div class="hs-container" >
 
                     &lt;!&ndash;<img src="../../../common/assets/imgs/hotspot_default_bg.png" width="{{layout.width}}px"/>&ndash;&gt;
@@ -60,8 +61,8 @@
                                         <div class="area-item">
                                             <table>
                                                 <tr class="area-name"><td colspan="4">{{area.productName}}</td></tr>
-                                                <tr class="no"><td>{{area.remain}}</td><td>{{area.validRemain}}</td><td>{{area|whichrate}}</td><td>{{area.remainAvg}}秒</td></tr>
-                                                <tr class="data-name"><td>客流人次</td><td>驻足人次</td><td>驻足率</td><td>暂留均时</td></tr>
+                                                <tr class="no"><td>{{area.remain}}</td><td>{{area.validRemain}}</td><td>{{area|whichrate}}</td><td>{{area.remainAvg}}<span v-i18n="{value:'second'}"></span></td></tr>
+                                                <tr class="data-name"><td><span v-i18n="{value:'flowcount'}"></span></td><td><span v-i18n="{value:'stopcount'}"></span></td><td><span v-i18n="{value:'stoprate'}"></span></td><td><span v-i18n="{value:'stopavg'}"></span></td></tr>
                                             </table>
                                         </div>
                                     </li>
@@ -126,7 +127,7 @@
                     showareas:true
                 },
                 hasInitSwiper:false,
-                bottomBtnText:'隐藏图层',
+                bottomBtnText:this.$translate("hiddlayer"),
                 selectIndex:0,
                 loading:false,
                 devices:[],//当前门店的设备列表
@@ -166,6 +167,21 @@
                 }
                 this.getDefaultShop();
             },
+            backTo: function () {
+                if ($.device.android) {
+                    try{
+                        window.webview && window.webview.closeCurrentInterface();
+                    } catch (e) {
+                    }
+                } else if ($.device.ios) {
+                    try {
+                        window.webkit.messageHandlers.closeCurrentInterface.postMessage(1);
+                    } catch (e) {
+                    }
+                } else {
+
+                }
+            },
             getDefaultShop: function () {
                 var _this = this;
                 this.$http.post('/service/getDefaultHotspotShop.action?token=' + Constant.token, {}).then(function (ret) {
@@ -193,10 +209,10 @@
                 if(!depId){
                     return;
                 }
-                $.showPreloader('正在获取数据...');
+                $.showPreloader(this.$translate("loading"));
                 if(this.deviceCache[depId] == 0){
                     $.hidePreloader();
-                    $.toast('当前门店还没有配置热点设备');
+                    $.toast(this.$translate("nohotspotdevice"));
                     _this.display.nodata = true;
                     return;
                 }else if(this.deviceCache[depId]){
@@ -217,7 +233,7 @@
                         if(!_this.devices || _this.devices.length == 0){
                             _this.deviceCache[depId] = 0;
                             $.hidePreloader();
-                            $.toast('当前门店还没有配置热点设备');
+                            $.toast(this.$translate("nohotspotdevice"));
                             _this.display.nodata = true;
                             return;
                         }
@@ -311,9 +327,9 @@
             toggleShowArea:function(){
                 this.display.showareas = !this.display.showareas;
                 if(this.display.showareas){
-                    this.bottomBtnText = '隐藏图层';
+                    this.bottomBtnText = this.$translate("hiddlayer");
                 }else{
-                    this.bottomBtnText = '显示图层';
+                    this.bottomBtnText = this.$translate("showlayer");
                 }
             },
             initSwiper:function(){
@@ -325,7 +341,7 @@
                             //initialSlide:_this.selectIndex,
                             pagination:'.swiper-pagination',
                             onSlideChangeStart:function(swiper){
-                                $.showPreloader('正在获取数据...');
+                                $.showPreloader(this.$translate("loading"));
                                 _this.selectIndex = swiper.activeIndex;
                                 _this.search.mac = _this.devices[swiper.activeIndex].mac;
                                 _this.getDeviceHotspotZone(_this);

@@ -3,19 +3,21 @@
  * 存放全局变量
  */
 module.exports = {
-  search:{
-    startTime:'',
-    endTime:''
-  },
-  token:'',
-  curRoute:{
-    path:'',
-    pathName:'',
-    params:{},
-    backpath:''
-  },
-  shopInfo:{
-    id:'',
-    name:''
-  }
+    search:{
+        startTime:'',
+        endTime:''
+    },
+    token:'',
+    curRoute:{
+        path:'',
+        pathName:'',
+        params:{},
+        backpath:''
+    },
+    shopInfo:{
+        id:'',
+        name:''
+    },
+    currentDate:'',
+    language:''
 };

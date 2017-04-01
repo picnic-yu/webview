@@ -2,31 +2,32 @@
   <div class="page-group">
   <div class="page page-current container" id="search">
     <header class="bar bar-nav">
-      <h1 class='title' onclick="goBack()">选择日期</h1>
+      <h1 class='title' v-i18n="{value:'selectdate'}"></h1>
+      <span class="pull-left icon-back" onclick="goBack()"></span>
     </header>
     <div class="content">
       <div class="default-panel">
-        <p><a class="button  button-orange" v-on:click="thisweek()">只统计本周</a></p>
-        <p><a class="button  button-orange" v-on:click="thismonth()">只统计本月</a></p>
+        <p><a class="button  button-orange" v-on:click="thisweek()" v-i18n="{value:'staticweek'}"></a></p>
+        <p><a class="button  button-orange" v-on:click="thismonth()" v-i18n="{value:'staticmonth'}"></a></p>
       </div>
       <div class="time-panel">
-        <div class="panel-title">按自定义时间段统计</div>
+        <div class="panel-title" v-i18n="{value:'staticdefinetime'}"></div>
         <div class="time-box list-block">
           <div class="item-content">
             <div class="item-inner">
-              <div class="item-title label">开始时间</div>
-              <div class="item-input"><input id="box-starttime" placeholder="请选择开始时间" type="text" v-model="search.startTime" readonly></div>
+              <div class="item-title label" v-i18n="{value:'starttime'}"></div>
+              <div class="item-input"><input id="box-starttime" v-i18n.placeholder="{value:'selectstarttime'}" type="text" v-model="search.startTime" readonly></div>
             </div>
           </div>
           <div class="item-content">
             <div class="item-inner">
-              <div class="item-title label">结束时间</div>
-              <div class="item-input"><input id="box-endtime" placeholder="请选择结束时间" type="text" v-model="search.endTime" readonly></div>
+              <div class="item-title label" v-i18n="{value:'endtime'}"></div>
+              <div class="item-input"><input id="box-endtime" v-i18n.placeholder="{value:'selectendtime'}" type="text" v-model="search.endTime" readonly></div>
             </div>
           </div>
         </div>
       </div>
-      <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="othertime()">统计</a></p>
+      <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="othertime()" v-i18n="{value:'statistic'}"></a></p>
     </div>
   </div>
 </div>
@@ -72,7 +73,11 @@
         var _this = this;
         $('#box-starttime').calendar({
           maxDate:this.search.endTime.replace(/-/g,'/'),
-          ready:function(p){
+          monthNames: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+          monthNamesShort: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+          dayNames: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
+          dayNamesShort: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
+            ready:function(p){
             _sc = p;
           },
           onClose:function(p,values,displayValues){
@@ -82,7 +87,11 @@
         $('#box-endtime').calendar({
           minDate:this.search.startTime.replace(/-/g,'/')+" 00:00:00",
           maxDate:commonutils.formatDateTime(new Date(),1).replace(/-/g,'/'),
-          ready:function(p){
+          monthNames: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+          monthNamesShort: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+          dayNames: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
+          dayNamesShort: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
+            ready:function(p){
             _ec = p;
           },
           onClose:function(p,values,displayValues){

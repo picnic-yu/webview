@@ -1,10 +1,19 @@
 <template>
     <div class="popup popup-dept">
         <header class="bar bar-nav">
-            <button class="button pull-left cancel-button" v-on:click="close()">取消</button>
-            <button class="button pull-right submit-button" v-on:click="submit()">确定</button>
-            <h1 class='title'>门店</h1>
+            <button class="button pull-left cancel-button" v-on:click="close()" v-i18n="{value:'cancelBtn'}"></button>
+            <button class="button pull-right submit-button" v-on:click="submit()" v-i18n="{value:'sure'}"></button>
+            <h1 class='title' v-i18n="{value:'store'}"></h1>
         </header>
+        <div class="bar bar-header-secondary">
+            <div class="searchbar">
+                <a class="searchbar-cancel" v-on:click="cancelSearch()" v-i18n="{value:'cancelBtn'}"></a>
+                <div class="search-input">
+                    <label class="icon icon-search" for="search"></label>
+                    <input type="search" id="search" v-model="searchName" v-i18n.placeholder="{value:'inputstorename'}"/>
+                </div>
+            </div>
+        </div>
         <div id="deptListContent"  class="content content-items pull-to-refresh-content infinite-scroll" data-ptr-distance="55" data-distance="240">
             <div class="pull-to-refresh-layer">
                    <div class="preloader"></div>
@@ -22,6 +31,8 @@
 <script>
     require('../../../common/assets/font.css');
     var num = 20;//每页显示的条数
+    var searchTimer = null;
+    var Vue = require('vue');
     module.exports = {
         route:{
             data:function(transition){
@@ -41,8 +52,35 @@
                     items:[],
                     selectdepts:[],
                     selectdeptscopy:[],
+                    searchName:'',
                     refreshInit:false
                     };
+        },
+        watch:{
+            /**
+             * 监听搜索框的变化
+             * @param newValue
+             * @param oldValue
+             */
+            'searchName':function(newValue,oldValue){
+                if(newValue != oldValue){
+                    if(searchTimer){
+                        clearTimeout(searchTimer);
+                        searchTimer = null;
+                    }
+                    var _this = this;
+                    searchTimer = setTimeout(function(){
+                        _this.searchName = newValue;
+                        _this.page.index = 0;
+                        _this.getData(function(){
+                            if(_this.page.total <= _this.items.length){
+                                _this.unbindInfinite();
+                            }
+                            $.refreshScroller();
+                        },_this);
+                    },500);
+                }
+            }
         },
         events:{
                     'popup':function(param){
@@ -85,6 +123,7 @@
                             var _this = this;
                             this.loading = true;
                             searchData = searchData?searchData:this;
+                            Vue.http.options.emulateJSON = false;
                             this.$http.post('/service/getUserShopListForWebview.action?token='+Constant.token,{
                               containDevice: 0,
                               name:searchData.searchName,
@@ -92,6 +131,7 @@
                               num:searchData.page.num
                             }).then(function(ret){
                               _this.loading = false;
+                              Vue.http.options.emulateJSON = true;
                               if(ret.ok && ret.data && ret.data.result == 'ok'){
                               for(var i=0;i<ret.data.data.data.length;i++){
                                    var flag = false;
@@ -140,9 +180,14 @@
                         $.detachInfiniteScroll($('#deptListContent'));
                         $('#deptListContent .infinite-scroll-preloader').hide();
                 },
+                cancelSearch:function(){
+                    this.clearData();
+                    this.refresh();
+                },
                 clearData:function(){
                          this.page.index = 0;
                          this.items = [];
+                         this.searchName = '';
                 },
                 refresh:function(){
                  this.page.index = 0;
@@ -162,6 +207,8 @@
                     _this.$dispatch('dept', {
                        selectdepts : _this.selectdepts
                     });
+                    this.unbindInfinite();
+                    this.clearData();
                     $.closeModal('.popup-dept');
                 },
                 close:function(){
@@ -169,6 +216,8 @@
                     this.$dispatch('dept', {
                           selectdepts : this.selectdeptscopy
                     });
+                    this.unbindInfinite();
+                    this.clearData();
                     $.closeModal('.popup-dept');
                 },
                 selectDept:function(id){
@@ -209,7 +258,6 @@
 <style scoped>
 
 .content{
-    bottom:95px;
     background:#fff;
 }
 .child-container{

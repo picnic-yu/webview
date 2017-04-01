@@ -1,9 +1,10 @@
 <template>
-    <div class="page-group">
-        <div class="page page-current" id="index">
+    <div class="page-group" :transition="transitionName">
+        <div class="page page-current container" id="index">
             <header class="bar bar-nav">
-                <h1 class='title'>设备注册</h1>
-                <a class="right-menu" v-on:click="goDeviceList()">列表</a>
+                <h1 class='title' v-i18n="{value:'devregister'}"></h1>
+                <a class="right-menu" v-on:click="goDeviceList()" v-i18n="{value:'list'}"></a>
+                <span class="pull-left icon-back" onclick="goBack()"></span>
             </header>
             <div class="content">
                 <div class="list-block item-step2">
@@ -11,7 +12,7 @@
                         <div class="item-content">
                             <div class="item-inner">
                                 <div class="item-input">
-                                    <input type="text" v-model="mac" placeholder="请输入12位的设备序列号" maxlength="12"/>
+                                    <input type="text" v-model="mac" v-i18n.placeholder="{value:'inputdevno'}" maxlength="12"/>
                                 </div>
                                 <label class="scaner" @click="scaner()">
                                     <span class="icon-scan－qrcode"></span>
@@ -19,7 +20,7 @@
                             </div>
                         </div>
                     </li></ul>
-                    <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="next()" v-bind:class="!doing && mac.length==12?'':'disabled'">下一步</a></p>
+                    <p class="submit-panel"><a class="button button-fill  button-orange"  v-on:click="next()" v-bind:class="!doing && mac.length==12?'':'disabled'" v-i18n="{value:'next'}"></a></p>
                 </div>
             </div>
         </div>
@@ -39,11 +40,13 @@
             },
             deactivate:function(transition){
                 Constant.devRegist.mac = this.mac;
+                this.transitionName = 'left';
                 transition.next();
             }
         },
         data:function(){
             return {
+                transitionName:'right',
                 mac:'',
                 doing:false
             }
@@ -63,20 +66,20 @@
                     try {
                         window.webview && window.webview.getDeviceCode();
                     } catch (e) {
-                        $.toast('即将支持扫一扫入网');
+                        $.toast(this.$translate('saoyisao'));
                     }
                 } else if ($.device.ios) {
                     if (Constant.isWKWebView == 1) {
                         try {
                             window.webkit.messageHandlers.getDeviceCode.postMessage(1);
                         } catch (e) {
-                            $.toast('即将支持扫一扫入网');
+                            $.toast(this.$translate('saoyisao'));
                         }
                     } else {
                         try {
                             getDeviceCode();
                         } catch (e) {
-                            $.toast('即将支持扫一扫入网');
+                            $.toast(this.$translate('saoyisao'));
                         }
                     }
                 }
@@ -85,7 +88,7 @@
                 if(this.doing || this.mac.length < 12) return;
                 var _this = this;
                 this.doing = true;
-                $.showPreloader('正在搜索设备...');
+                $.showPreloader(this.$translate('searchdev'));
                 this.$http.post('/service/searchDevice.action?token='+Constant.token,{
                     serialNo:this.mac
                 }).then(function(ret){
@@ -97,15 +100,15 @@
                         if(ret.data.result == 'ok'){
                             _this.success(ret.data.data.data);
                         }else if(ret.data.result == 'DEVICE_OFFLINE'){
-                            $.toast('当前设备不在线');
+                            $.toast(this.$translate('devunline'));
                         }else if(ret.data.result == 'INVALID_MAC'){
-                            $.toast('无效的序列号');
+                            $.toast(this.$translate('invalidno'));
                         }else if(ret.data.result == 'DEVICE_REGISTERED'){
-                            $.toast('当前设备已经被注册');
+                            $.toast(this.$translate('devhasregistered'));
                         }else if(ret.data.result == 'DEVICE_INITIALIZED'){
-                            $.toast('当前设备正在初始化中');
+                            $.toast(this.$translate('deviniting'));
                         }else{
-                            $.toast('未找到设备');
+                            $.toast(this.$translate('hasnodevice'));
                         }
                     }
                 });
@@ -125,7 +128,7 @@
         var suf = '#$%&';
         url = url || '';
         if (!url || url.indexOf(suf) == -1 || url.length != 16) {
-            $.toast('未能正确识别该二维码');
+            $.toast(this.$translate('cannotsee'));
         } else {
             var code = url.replace(suf, '');
             VueData.setMac(code);
