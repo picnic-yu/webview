@@ -4,6 +4,7 @@
       <header class="bar bar-nav">
         <h1 class='title' v-i18n="{value:'postitle'}"></h1>
         <a class="right-menu" v-on:click="goHistorys()" v-i18n="{value:'history'}"></a>
+        <span class="pull-left icon-back" v-on:click="backTo()"></span>
       </header>
       <div class="content">
         <div class="list-block">
@@ -70,6 +71,7 @@
 </template>
 
 <script>
+    require('../../../common/assets/font.css');
     var utils = require('./../utils');
     var commonutils = require('../../../common/assets/js/commonutils');
     module.exports =  {
@@ -162,6 +164,21 @@
                         _this.setValidTime();
                     }
                 });
+            },
+            backTo: function () {
+                if ($.device.android) {
+                    try{
+                        window.webview && window.webview.closeCurrentInterface();
+                    } catch (e) {
+                    }
+                } else if ($.device.ios) {
+                    try {
+                        window.webkit.messageHandlers.closeCurrentInterface.postMessage(1);
+                    } catch (e) {
+                    }
+                } else {
+
+                }
             },
             goToShoplist:function(){
                 router.go({path:'/shoplist'});
@@ -369,6 +386,7 @@
     white-space: pre;
     font-size:16px;
   }
+
   /*.list-block .item-title.label{
     width: 40%;
   }*/

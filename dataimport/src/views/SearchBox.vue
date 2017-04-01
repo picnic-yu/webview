@@ -1,7 +1,8 @@
 <template>
   <div class="page" id="search" :transition="transitionName">
     <header class="bar bar-nav">
-      <h1 class='title' onclick="goBack()" v-i18n="{value:'selectdate'}"></h1>
+      <h1 class='title' v-i18n="{value:'selectdate'}"></h1>
+      <span class="pull-left icon-back" onclick="goBack()"></span>
     </header>
     <div class="content">
       <div class="default-panel">

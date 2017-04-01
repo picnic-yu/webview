@@ -231,6 +231,8 @@
                 var _this = this;
                 var detailId = _this.record.id;
                 if(!detailId) return;
+                $.modal.prototype.defaults.modalButtonOk = this.$translate("sure");
+                $.modal.prototype.defaults.modalButtonCancel = this.$translate("cancel");
                 $.confirm(this.$translate("confirmdelete"), function () {
                     $.showPreloader(this.$translate("deleteing"));
                     _this.$http.post('/service/deleteSaleDetailData.action', {

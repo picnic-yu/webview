@@ -4,6 +4,7 @@
       <header class="bar bar-nav">
         <h1 class='title'>{{currentDate}}<lable v-i18n="{value:'saledetail'}"></lable></h1>
         <a class="right-menu" v-on:click="addDetail()" v-i18n="{value:'posin'}"></a>
+        <span class="pull-left icon-back" onclick="goBack()"></span>
       </header>
     <div id="saleDataContent" class="content content-items pull-to-refresh-content infinite-scroll"  data-ptr-distance="55" data-distance="240">
       <div class="pull-to-refresh-layer">

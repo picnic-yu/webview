@@ -4,6 +4,7 @@
       <header class="bar bar-nav">
         <h1 class='title' v-i18n="{value:'poshistorytitle'}"></h1>
         <a class="right-menu" v-on:click="goAdd()" v-i18n="{value:'posin'}"></a>
+        <span class="pull-left icon-back" v-on:click="backTo()"></span>
       </header>
       <div class="top-panel">
         <div class="search-box search-box-shop" v-on:click="goToShoplist()">
@@ -172,6 +173,21 @@
                     }
                     $.refreshScroller();
                 });
+            },
+            backTo: function () {
+                if ($.device.android) {
+                    try{
+                        window.webview && window.webview.closeCurrentInterface();
+                    } catch (e) {
+                    }
+                } else if ($.device.ios) {
+                    try {
+                        window.webkit.messageHandlers.closeCurrentInterface.postMessage(1);
+                    } catch (e) {
+                    }
+                } else {
+
+                }
             },
             reInitScroll:function(){
                 this.unbindInfinite();
