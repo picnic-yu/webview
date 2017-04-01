@@ -8,6 +8,7 @@ var Vue = require('vue'),
   VueRouter = require('vue-router');
 Router = require('./router');
 Main = require('./Main.vue'),
+    VueI18n = require('./vue-i18n'),
 Filters = require('./filters'),
 utils = require('./utils'),
 commonutils = require('../../common/assets/js/commonutils'),
@@ -24,6 +25,7 @@ Constant.shopInfo.name = decodeURIComponent(commonutils.getPageUrlParam('name'))
 Constant.source = commonutils.getPageUrlParam('source');
 Constant.showBackBtn = commonutils.getPageUrlParam('showBackBtn');//是否需要我显示返回按钮，主要用于兼容过去返回按钮全部由app做的问题
 Constant.isWKWebView = commonutils.getPageUrlParam('isWKWebView');//ios专有参数，表示使用的webview框架,0代表UIWebview,1代表WKWebview
+Constant.language = commonutils.getPageUrlParam('lang')?commonutils.getPageUrlParam('lang'):'cn';
 Vue.filter('istoday',Filters.isToday);
 Vue.filter('percent',Filters.percent);
 
@@ -35,6 +37,12 @@ var router = new VueRouter(
 );
 Router(router);
 window.router = router;
+
+//添加国际化插件
+Vue.use(VueI18n,{
+    default:Constant.language,
+    data:require("./i18n")
+});
 /**
  * 提供Android和iOS调用返回功能
  * @returns {boolean}
