@@ -206,4 +206,15 @@ ul{list-style: none}
 .bar a.icon.icon-cross{
   color: #333;
 }
+.bar .icon-back {
+  font-size: 1.3rem;
+  color: #f90;
+  width: 2rem;
+  height: 2.2rem;
+  line-height: 2.2rem;
+  text-align: center;
+  display: inline-block;
+  position: absolute;
+  left: 0px;
+}
 </style>

@@ -2,14 +2,15 @@
   <div class="page-group">
     <div class="page page-current" id="index">
       <header class="bar bar-nav">
-        <h1 class='title'>选择门店</h1>
+        <h1 class='title' v-i18n="{value:'selectstore'}"></h1>
+        <span class="pull-left icon-back" onclick="goBack()"></span>
       </header>
       <div class="bar bar-header-secondary">
         <div class="searchbar">
-          <a class="searchbar-cancel" v-on:click="cancelSearch()">取消</a>
+          <a class="searchbar-cancel" v-on:click="cancelSearch()" v-i18n="{value:'cancel'}"></a>
           <div class="search-input">
             <label class="icon icon-search" for="search"></label>
-            <input type="search" id="search" v-model="searchName" placeholder="请输入门店的名称"/>
+            <input type="search" id="search" v-model="searchName" v-i18n.placeholder="{value:'inputstorename'}"/>
           </div>
         </div>
       </div>
