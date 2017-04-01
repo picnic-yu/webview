@@ -3,6 +3,7 @@
     <div class="page page-current container" id="index">
       <header class="bar bar-nav">
         <h1 class='title' v-i18n="{value:'selectstore'}"></h1>
+        <span class="pull-left icon-back" onclick="goBack()"></span>
       </header>
       <div class="bar bar-header-secondary">
         <div class="searchbar">

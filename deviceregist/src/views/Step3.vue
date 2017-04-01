@@ -4,6 +4,7 @@
             <header class="bar bar-nav">
                 <h1 class='title' v-i18n="{value:'devregister'}"></h1>
                 <a class="right-menu" v-on:click="goDeviceList()" v-i18n="{value:'list'}"></a>
+                <span class="pull-left icon-back" onclick="goBack()"></span>
             </header>
             <div class="content">
                 <div class="list-block item-step2">

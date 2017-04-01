@@ -4,6 +4,7 @@
       <header class="bar bar-nav">
         <h1 class='title' v-i18n="{value:'devlist'}"></h1>
         <a class="right-menu" v-on:click="goAdd()" v-i18n="{value:'add'}"></a>
+        <span class="pull-left icon-back" onclick="goBack()"></span>
       </header>
       <div class="top-panel">
         <div class="search-box search-box-shop" v-on:click="goToShopList()">

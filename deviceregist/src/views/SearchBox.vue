@@ -2,7 +2,8 @@
   <div class="page" id="search" :transition="transitionName">
     <div class="container">
     <header class="bar bar-nav">
-      <h1 class='title' onclick="goBack()" v-i18n="{value:'selectdate'}"></h1>
+      <h1 class='title' v-i18n="{value:'selectdate'}"></h1>
+      <span class="pull-left icon-back" onclick="goBack()"></span>
     </header>
     <div class="content">
       <div class="default-panel">
@@ -77,7 +78,11 @@
         var _this = this;
         $('#box-starttime').calendar({
           maxDate:this.search.endTime.replace(/-/g,'/'),
-          ready:function(p){
+          monthNames: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+          monthNamesShort: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+          dayNames: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
+          dayNamesShort: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
+            ready:function(p){
             _sc = p;
           },
           onClose:function(p,values,displayValues){
@@ -87,7 +92,11 @@
         $('#box-endtime').calendar({
           minDate:this.search.startTime.replace(/-/g,'/')+" 00:00:00",
           maxDate:commonutils.formatDateTime(new Date(),1).replace(/-/g,'/'),
-          ready:function(p){
+            monthNames: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+            monthNamesShort: [this.$translate('jan'), this.$translate('feb'), this.$translate('mar'), this.$translate('apr'), this.$translate('may'), this.$translate('june'), this.$translate('july'), this.$translate('aug') , this.$translate('sep'), this.$translate('oct'), this.$translate('nov'), this.$translate('dec')],
+            dayNames: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
+            dayNamesShort: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
+            ready:function(p){
             _ec = p;
           },
           onClose:function(p,values,displayValues){

@@ -4,6 +4,7 @@
             <header class="bar bar-nav">
                 <h1 class='title' v-i18n="{value:'devregister'}"></h1>
                 <a class="right-menu" v-on:click="goDeviceList()" v-i18n="{value:'list'}"></a>
+                <span class="pull-left icon-back" v-on:click="backTo()"></span>
             </header>
             <div class="content">
                 <div class="list-block item-step1">
@@ -24,6 +25,7 @@
     </div>
 </template>
 <script>
+    require('../../../common/assets/font.css');
     var utils = require('./../utils');
     module.exports = {
         route:{
@@ -52,6 +54,21 @@
         methods: {
             init: function () {
 
+            },
+            backTo: function () {
+                if ($.device.android) {
+                    try{
+                        window.webview && window.webview.closeCurrentInterface();
+                    } catch (e) {
+                    }
+                } else if ($.device.ios) {
+                    try {
+                        window.webkit.messageHandlers.closeCurrentInterface.postMessage(1);
+                    } catch (e) {
+                    }
+                } else {
+
+                }
             },
             goDeviceList:function(){
                 utils.goDeviceList();
