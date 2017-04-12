@@ -14,5 +14,6 @@ module.exports = {
   currentTab:1,
   app:0,
   isWKWebView:0,
-  enterId:null
+  enterId:null,
+  language:''
 };

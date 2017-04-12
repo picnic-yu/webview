@@ -20,7 +20,7 @@
                         </td></tr>
                     </table>
                     <div class="enterprise-bg">
-                        <table>
+                        <table width="100%">
                             <tr><td><span style="font-size:16px;" v-i18n="{value:'certificate'}"></span></td></tr>
                             <tr><td><div class="fp-left" v-for="picpath in showPicPaths" track-by="$index">
                                 <a class="pb-standalone" index="{{$index}}">
@@ -38,7 +38,7 @@
                                 <td><img width="48" height="48" src="../../../common/assets/imgs/cam.png"/>
                                 </td>
                                 </tr></table>
-                                <input class="add-file0" type="file" name="upload0" multiple accept="image/*"/>
+                                <input class="add-file0" type="file" v-show="!isAndroid" name="upload0" multiple accept="image/*"/>
                                 </div>
                             </td></tr>
                             <tr><td><span class="tip-span">{{waitInfo}}</span></td></tr>
@@ -48,7 +48,7 @@
                 </div>
                 <div class="tip-login" v-on:click="openApp()" v-i18n="{value:'changeotheraccount'}"></div>
             </div>
-        </div>)
+        </div>
     </div>
 </template>
 <script>
@@ -67,6 +67,7 @@
                     Constant.currentTab = 1;
                     router.go('/');
                 }
+                this.registGalleryEvent();
             },
             deactivate: function (transition) {
                 if (myPhotoBrowserStandalone) {
@@ -80,6 +81,7 @@
         data:function(){
             return {
                 transitionName: 'right',
+                isAndroid:$.device.android&&Constant.app==1,
                 device:false,
                 enterpriseId:null,
                 registerFlag:false,
@@ -96,6 +98,22 @@
         },
         methods: {
             init:function(){
+            },
+            //注册安卓相册事件
+            registGalleryEvent:function(){
+                var _this = this;
+                //安卓选完相册后的回调
+                window.receiveGalleryData = function (base64,width,height) {
+                    base64 = 'data:image/png;base64,'+base64;
+                        if (!_this.tempPicPaths) _this.tempPicPaths = [];
+                        _this.tempPicPaths.push(base64);
+                        /*if (!_this.bo.showPics) _this.bo.showPics = [];
+                        _this.bo.showPics.push({
+                            url:base64,
+                            width:width,
+                            height:height
+                        });*/
+                };
             },
             getEnterprise:function(id){
                 if(!id){
@@ -228,6 +246,15 @@
                     event.preventDefault();
                     event.stopPropagation();
 
+                }
+                //调用安卓相册
+                if(this.isAndroid){
+                    try{
+                        window.webview && window.webview.openGallery(maxImgNum,$('.pb-standalone').length);
+                    }catch(e){
+                        $.toast('error');
+                    }
+                    return;
                 }
             },
             deleteItemImg: function (index) {
