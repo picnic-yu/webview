@@ -339,6 +339,24 @@
                     dayNamesShort: [this.$translate('sun'), this.$translate('mon'), this.$translate('tue'), this.$translate('wed'), this.$translate('thu'), this.$translate('fri'), this.$translate('sat')],
                     minDate:curDate.replace(/-/g,'/')
                 });
+                this.registUserListEvent();
+            },
+            //注册通讯录事件
+            registUserListEvent:function () {
+                var _this = this;
+                window.saveUserList = function (res) {
+                    if(typeof(res) == 'string'){
+                        res = JSON.parse(res);
+                    }
+                    var list = formatUserList(res.users);
+                    _this.selectchecker = [];
+                    $.extend(true,_this.selectchecker,list);//深度拷贝
+                    if(_this.selectchecker.length>0){
+                        _this.checkerName = _this.selectchecker[0].showName;
+                    }else{
+                        _this.checkerName = '';
+                    }
+                };
             },
             clearData:function(){
                 this.record = {};
@@ -854,10 +872,27 @@
                 });
             },
             goToCheckerlist:function(){
-                this.$broadcast('popup', {
-                    name: 'checker',
-                    selectchecker:this.selectchecker
-                });
+                try{
+                    var id = '';
+                    if(this.selectchecker.length>0){
+                        id = this.selectchecker[0].id;
+                    }
+                    if($.device.android){
+                        window.webview && window.webview.openUserList(JSON.stringify({type:1,userIds:id,isHaveSelf:1,isAtAll:0}));
+                    }else if($.device.ios){
+                        window.webkit.messageHandlers.openUserList.postMessage({type:1,userIds:id,isHaveSelf:1,isAtAll:0});
+                    }else{
+                        this.$broadcast('popup', {
+                            name: 'checker',
+                            selectchecker:this.selectchecker
+                        });
+                    }
+                }catch (e){
+                    this.$broadcast('popup', {
+                        name: 'checker',
+                        selectchecker:this.selectchecker
+                    });
+                }
             },
             selectExeType:function(){
                 if($("#selectType").val()==1){
@@ -868,6 +903,17 @@
             }
         }
     };
+
+    function formatUserList(users) {
+        var list = [];
+        for (var i = 0; i < users.length; i++) {
+            list.push({
+                id:users[i].userId,
+                showName:users[i].showName
+            });
+        }
+        return list;
+    }
 </script>
 <style scoped>
 .week-container{
